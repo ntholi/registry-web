@@ -9,25 +9,16 @@ import LetterPDF from './LetterPDF';
 type Props = {
 	content: string;
 	serialNumber: string;
-	createdAt: Date | string | null | undefined;
 };
 
-export default function LetterPrinter({
-	content,
-	serialNumber,
-	createdAt,
-}: Props) {
+export default function LetterPrinter({ content, serialNumber }: Props) {
 	const [loading, setLoading] = useState(false);
 
 	async function handlePrint() {
 		setLoading(true);
 		try {
 			const blob = await pdf(
-				<LetterPDF
-					content={content}
-					serialNumber={serialNumber}
-					createdAt={createdAt}
-				/>
+				<LetterPDF content={content} serialNumber={serialNumber} />
 			).toBlob();
 
 			const url = URL.createObjectURL(blob);

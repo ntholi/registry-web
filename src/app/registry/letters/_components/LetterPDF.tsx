@@ -1,11 +1,9 @@
 import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
-import { formatDate } from '@/shared/lib/utils/dates';
 
 type Props = {
 	content: string;
 	serialNumber: string;
-	createdAt: Date | string | null | undefined;
 };
 
 Font.register({
@@ -55,7 +53,7 @@ function parseHtmlToParagraphs(html: string): Paragraph[] {
 	});
 }
 
-export default function LetterPDF({ content, serialNumber, createdAt }: Props) {
+export default function LetterPDF({ content, serialNumber }: Props) {
 	const paragraphs = parseHtmlToParagraphs(content);
 
 	return (
@@ -71,10 +69,7 @@ export default function LetterPDF({ content, serialNumber, createdAt }: Props) {
 					</Text>
 				</View>
 
-				<View style={tw('flex-row justify-between mb-6')}>
-					<Text style={tw('text-[10pt]')}>
-						Date: {formatDate(createdAt ?? new Date())}
-					</Text>
+				<View style={tw('flex-row justify-end mb-6')}>
 					<Text style={tw('text-[10pt]')}>Ref: {serialNumber}</Text>
 				</View>
 

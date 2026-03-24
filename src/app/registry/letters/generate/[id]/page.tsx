@@ -36,7 +36,6 @@ export default async function LetterDetailPage({ params }: Props) {
 					<LetterPrinter
 						content={letter.content}
 						serialNumber={letter.serialNumber}
-						createdAt={letter.createdAt}
 					/>
 				}
 			/>
