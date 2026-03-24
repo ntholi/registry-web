@@ -2,17 +2,12 @@
 
 import {
 	ActionIcon,
-	Box,
 	Button,
-	Card,
-	Divider,
 	Group,
-	Image,
 	Modal,
 	Select,
 	SimpleGrid,
 	Stack,
-	Text,
 	TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -24,8 +19,7 @@ import { useState } from 'react';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { unwrap } from '@/shared/lib/actions/actionResult';
-import { formatDate } from '@/shared/lib/utils/dates';
-import { DeleteButton, RichTextContent } from '@/shared/ui/adease';
+import { DeleteButton } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import StudentPreviewCard from '../../_components/StudentPreviewCard';
 import { resolveTemplate } from '../_lib/resolve';
@@ -37,6 +31,7 @@ import {
 	getRecipientsByTemplate,
 	getStudentForLetter,
 } from '../_server/actions';
+import LetterPreview from './LetterPreview';
 
 const SALUTATION_OPTIONS = [
 	'Dear Sir/Madam,',
@@ -243,83 +238,6 @@ export default function GenerateLetterForm() {
 				)}
 			</Modal>
 		</Stack>
-	);
-}
-
-type LetterPreviewProps = {
-	content: string;
-	recipient?: {
-		title: string;
-		org: string;
-		address: string | null;
-		city: string | null;
-	} | null;
-	salutation?: string | null;
-	subject?: string | null;
-	signOffName?: string | null;
-	signOffTitle?: string | null;
-};
-
-function LetterPreview({
-	content,
-	recipient,
-	salutation,
-	subject,
-	signOffName,
-	signOffTitle,
-}: LetterPreviewProps) {
-	return (
-		<Card withBorder p='xl' bg='white' style={{ color: 'black' }}>
-			<Stack align='center' mb='md'>
-				<Image src='/images/logo-lesotho.jpg' h={80} w='auto' />
-				<Text size='xs' c='dimmed'>
-					Maseru, Lesotho
-				</Text>
-			</Stack>
-
-			{recipient && (
-				<Box mb='sm'>
-					<Text size='sm'>{recipient.title}</Text>
-					<Text size='sm'>{recipient.org}</Text>
-					{recipient.address && <Text size='sm'>{recipient.address}</Text>}
-					{recipient.city && <Text size='sm'>{recipient.city}</Text>}
-				</Box>
-			)}
-
-			<Text size='sm' mb='sm'>
-				{formatDate(new Date())}
-			</Text>
-
-			{salutation && (
-				<Text size='sm' mb='sm'>
-					{salutation}
-				</Text>
-			)}
-
-			{subject && (
-				<Text size='sm' fw={700} td='underline' mb='sm'>
-					Re: {subject}
-				</Text>
-			)}
-
-			<Box mb='lg'>
-				<RichTextContent html={content} />
-			</Box>
-
-			<Divider my='sm' variant='dotted' />
-
-			<Box>
-				<Text size='sm' mb='xs'>
-					Yours faithfully,
-				</Text>
-				<Image src='/images/signature_small.png' h={50} w='auto' mb={4} />
-				<Divider w={200} mb={4} />
-				<Text size='sm' fw={700}>
-					{signOffName || 'Registrar'}
-				</Text>
-				{signOffTitle && <Text size='sm'>{signOffTitle}</Text>}
-			</Box>
-		</Card>
 	);
 }
 
