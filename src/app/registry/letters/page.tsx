@@ -1,5 +1,5 @@
-import { NothingSelected } from '@/shared/ui/adease';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-	return <NothingSelected title='Letters' />;
+	redirect('/registry/letters/generate');
 }

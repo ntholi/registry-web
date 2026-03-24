@@ -7,8 +7,8 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
-import LetterPrinter from '../_components/LetterPrinter';
-import { deleteLetter, getLetter } from '../_server/actions';
+import LetterPrinter from '../../_components/LetterPrinter';
+import { deleteLetter, getLetter } from '../../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

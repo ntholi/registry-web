@@ -61,7 +61,7 @@ export default function GenerateLetterForm() {
 		onSuccess: (letter) => {
 			if (!letter) return;
 			queryClient.invalidateQueries({ queryKey: ['letters'] });
-			router.push(`/registry/letters/${letter.id}`);
+			router.push(`/registry/letters/generate/${letter.id}`);
 		},
 	});
 

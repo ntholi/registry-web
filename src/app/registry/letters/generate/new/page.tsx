@@ -1,9 +1,9 @@
 import { Box, Title } from '@mantine/core';
-import GenerateLetterForm from '../_components/GenerateLetterForm';
+import GenerateLetterForm from '../../_components/GenerateLetterForm';
 
 export default function NewLetterPage() {
 	return (
-		<Box p='lg'>
+		<Box p='xl'>
 			<Title order={3} mb='lg'>
 				Generate Letter
 			</Title>

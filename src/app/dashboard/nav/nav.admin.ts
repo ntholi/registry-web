@@ -38,6 +38,7 @@ import {
 	IconLibrary,
 	IconListCheck,
 	IconMail,
+	IconMailSpark,
 	IconMessageQuestion,
 	IconMessageStar,
 	IconNote,
@@ -225,6 +226,12 @@ export const adminNav: NavItem[] = [
 		icon: IconMail,
 		collapsed: false,
 		children: [
+			{
+				label: 'Letters',
+				href: '/registry/letters/generate',
+				icon: IconMailSpark,
+				permissions: [{ resource: 'letters', action: 'read' }],
+			},
 			{
 				label: 'Templates',
 				href: '/registry/letters/templates',
