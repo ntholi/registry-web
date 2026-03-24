@@ -3,7 +3,7 @@ CREATE SEQUENCE IF NOT EXISTS letter_serial_seq START 1;
 
 -- Function: generate_letter_serial()
 -- Format: LTR + LL + NNNNN where LL = AA..ZZ (676 groups), NNNNN = 00001..99999 per group
--- LTRAA00001..LTRAA99999 → LTRAB00001..LTRAB99999 → ... → LTRZZ99999
+-- LTRAA00001..LTRAA99999, LTRAB00001..LTRAB99999, ..., LTRZZ99999
 CREATE OR REPLACE FUNCTION generate_letter_serial() RETURNS text AS $$
 DECLARE
   val bigint;
@@ -41,4 +41,4 @@ WHERE pp.name = 'Registry Staff' AND pp.role = 'registry'
   AND NOT EXISTS (
     SELECT 1 FROM preset_permissions p
     WHERE p.preset_id = pp.id AND p.resource = 'letters' AND p.action = a.action
-  ); file, put your code below! --
+  ); 
