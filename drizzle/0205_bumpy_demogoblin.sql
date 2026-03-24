@@ -6,7 +6,8 @@ VALUES
 (
   'tpl_confirmation_student',
   'Confirmation of Studentship',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: CONFIRMATION OF STUDENTSHIP – {{studentName}}</strong></p>
 <p>This is to confirm that {{studentName}} is currently a bonafide student at Limkokwing University of Creative Technology. {{gender}} is pursuing {{programName}}. {{studentName}} is in Year {{yearOfStudy}} Semester {{semester}} of {{genderPossessive}} studies. {{genderPossessive}} conduct is generally acceptable.</p>
@@ -23,7 +24,8 @@ VALUES
 (
   'tpl_change_programme',
   'Change of Programme',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: CHANGE OF PROGRAMME – {{studentName}}</strong></p>
 <p>My office notifies you that {{studentName}} ({{stdNo}}), a student who was admitted into {{programName}}, has been allowed by the Academic Management to change from this programme to a new programme. This change is possible because {{studentName}} qualifies in both programmes.</p>
@@ -39,7 +41,8 @@ VALUES
 (
   'tpl_completion_qual',
   'Completion of Qualification',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: CONFIRMATION OF QUALIFICATION – {{studentName}}</strong></p>
 <p>This is an attestation that {{programName}} was conferred upon {{studentName}} ({{stdNo}}) after having satisfied all the requirements. The qualification was officially conferred on {{graduationDate}}. It is further confirmed that the qualification is authentic and accredited by the Council on Higher Education for the Kingdom of Lesotho.</p>
@@ -56,7 +59,8 @@ VALUES
 (
   'tpl_good_conduct',
   'Good Conduct Reference',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: CONFIRMATION OF GOOD CONDUCT – {{studentName}}</strong></p>
 <p>This reference of conduct is made on behalf of {{studentName}} ({{stdNo}}) who is keen to pursue further studies at your institution. The applicant currently holds {{programName}}, which {{gender}} obtained from Limkokwing University of Creative Technology.</p>
@@ -73,7 +77,8 @@ VALUES
 (
   'tpl_industry_request',
   'Industry/Project Request',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: REQUEST TO ALLOW LIMKOKWING STUDENTS TO CARRY OUT A PROJECT</strong></p>
 <p>I humbly request your office to allow Limkokwing University of Creative Technology students to carry out a project at your premises. The project is part of the requirements for the students to complete their studies in {{programName}}. The students are in Year {{yearOfStudy}} of study.</p>
@@ -90,8 +95,9 @@ VALUES
 (
   'tpl_english_proficiency',
   'English Proficiency Attestation',
-  '<p><strong>Attestation of English Proficiency by Home Institution</strong></p>
-<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p><strong>Attestation of English Proficiency by Home Institution</strong></p>
+<p>Date: {{currentDate}}</p>
 <p>I hereby state that {{studentName}} ({{stdNo}}) has studied for {{programName}} at Limkokwing University of Creative Technology, Lesotho Campus. {{studentName}} has the full support of the university to spend a period of study or for any other reason at your institution or organization.</p>
 <p>{{studentName}} has acquired adequate English language proficiency to successfully participate in {{genderPossessive}} proposed programme. I fully attest that {{gender}} can successfully function well using verbal and non-verbal communication at your reputable institution.</p>
 <p>Kindly be notified that this qualification was obtained from the institution where the medium of instructions, the examinations and all forms of communication were done in English. Qualifications or any other academic documents obtained from Limkokwing University of Creative Technology do not include any explicit information about the rankings achieved by graduates. The university grades are rather interpreted by means of CGPA (Cumulative Grade Point Average) to demonstrate academic achievement of graduates. The transcripts obtained from the university also provide interpretations of the very CGPA system. We firmly believe that this attestation will provide more insights for your information requirements about the university.</p>
@@ -106,7 +112,8 @@ VALUES
 (
   'tpl_deferment',
   'Deferment of Studies',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: DEFERMENT OF STUDIES – {{studentName}}</strong></p>
 <p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled in {{programName}}. {{gender}} is in Year {{yearOfStudy}} Semester {{semester}} of studies. {{studentName}} is officially allowed to defer studies.</p>
@@ -122,7 +129,8 @@ VALUES
 (
   'tpl_exit_studies',
   'Exit from Studies',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: EXIT FROM STUDIES – {{studentName}}</strong></p>
 <p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled for {{programName}}. {{studentName}} is in Year {{yearOfStudy}} Semester {{semester}} of studies. {{studentName}} has been granted the official exit from studies.</p>
@@ -138,7 +146,8 @@ VALUES
 (
   'tpl_identity_card',
   'Identity Card Request',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>URGENT APPLICATION FOR NATIONAL IDENTITY CARD: {{studentName}}</strong></p>
 <p>My office confirms to the Director that {{studentName}} is a Year {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an identity document. {{genderPossessive}} national ID number is {{nationalId}} and date of birth is {{dateOfBirth}}.</p>
@@ -154,7 +163,8 @@ VALUES
 (
   'tpl_passport',
   'Passport Request',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>URGENT APPLICATION FOR NATIONAL PASSPORT: {{studentName}}</strong></p>
 <p>My office confirms to the Director Emergency Passport that {{studentName}} is a Year {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an urgent travel document. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
@@ -170,7 +180,8 @@ VALUES
 (
   'tpl_reference',
   'Reference Letter',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: REFERENCE – {{studentName}}</strong></p>
 <p>This reference is made on behalf of {{studentName}} ({{stdNo}}) who is keen to pursue post-graduate studies in your prestigious university. The applicant currently holds {{programName}}, obtained from Limkokwing University of Creative Technology, Lesotho campus.</p>
@@ -187,7 +198,8 @@ VALUES
 (
   'tpl_reinstatement',
   'Reinstatement',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: REINSTATEMENT INTO STUDIES – {{studentName}}</strong></p>
 <p>My office notifies you that {{studentName}} ({{stdNo}}) has been reinstated into {{programName}}. {{gender}} is reinstating into Year {{yearOfStudy}} Semester {{semester}} of study.</p>
@@ -204,7 +216,8 @@ VALUES
 (
   'tpl_visa',
   'Visa Request',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>URGENT APPLICATION FOR VISA FOR TRAVELING: {{studentName}}</strong></p>
 <p>My office confirms that {{studentName}} is a Year {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
@@ -221,7 +234,8 @@ VALUES
 (
   'tpl_withdrawal',
   'Withdrawal from Studies',
-  '<p>{{currentDate}}</p>
+  '<p>{{serialNumber}}</p>
+<p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: WITHDRAWAL FROM STUDIES – {{studentName}}</strong></p>
 <p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had registered for {{programName}}. {{studentName}} is in Year {{yearOfStudy}} Semester {{semester}} of studies. {{gender}} is officially being granted withdrawal from studies.</p>
