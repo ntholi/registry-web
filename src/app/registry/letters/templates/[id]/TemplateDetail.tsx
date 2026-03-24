@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	ActionIcon,
 	Badge,
 	Card,
 	Grid,
@@ -14,8 +15,9 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import type { letterTemplates } from '@registry/_database';
-import { IconSearch, IconUser } from '@tabler/icons-react';
+import { IconArrowLeft, IconSearch, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { RichTextContent } from '@/shared/ui/adease';
 import { getLetter, getLettersByTemplate } from '../../_server/actions';
@@ -30,6 +32,7 @@ export default function TemplateDetail({ template }: Props) {
 	const [search, setSearch] = useState('');
 	const [debounced] = useDebouncedValue(search, 300);
 	const [selectedLetterId, setSelectedLetterId] = useState<string | null>(null);
+	const router = useRouter();
 
 	const { data: lettersData } = useQuery({
 		queryKey: ['template-letters', template.id, debounced],
@@ -46,21 +49,36 @@ export default function TemplateDetail({ template }: Props) {
 
 	return (
 		<Stack p='lg'>
-			<Group justify='space-between'>
+			<Stack gap={4}>
 				<Group>
+					<ActionIcon
+						variant='subtle'
+						color='gray'
+						onClick={() => router.push('/registry/letters/templates')}
+					>
+						<IconArrowLeft size={18} />
+					</ActionIcon>
 					<Title order={2}>{template.name}</Title>
+				</Group>
+				<Group ml={42} gap='xs'>
 					{template.role ? (
-						<Badge variant='light'>{template.role.replace(/_/g, ' ')}</Badge>
+						<Badge variant='light' size='sm'>
+							{template.role.replace(/_/g, ' ')}
+						</Badge>
 					) : (
-						<Badge variant='light' color='gray'>
+						<Badge variant='light' color='gray' size='sm'>
 							System-wide
 						</Badge>
 					)}
-					<Badge variant='dot' color={template.isActive ? 'green' : 'red'}>
+					<Badge
+						variant='dot'
+						color={template.isActive ? 'green' : 'red'}
+						size='sm'
+					>
 						{template.isActive ? 'Active' : 'Inactive'}
 					</Badge>
 				</Group>
-			</Group>
+			</Stack>
 
 			<Grid>
 				<Grid.Col span={8}>
