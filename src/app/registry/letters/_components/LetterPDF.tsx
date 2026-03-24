@@ -22,39 +22,41 @@ const tw = createTw({
 	},
 });
 
-function parseHtmlToElements(html: string) {
-	const elements: { type: string; text: string; bold?: boolean }[] = [];
+type Segment = { text: string; bold: boolean };
+type Paragraph = { segments: Segment[] };
 
-	const stripped = html
-		.replace(/<br\s*\/?>/gi, '\n')
-		.replace(/<\/p>/gi, '\n\n')
-		.replace(/<\/li>/gi, '\n')
-		.replace(/<\/h[1-6]>/gi, '\n\n');
+function parseHtmlToParagraphs(html: string): Paragraph[] {
+	const blocks = html
+		.split(/<\/p>/gi)
+		.map((b) => b.replace(/<p[^>]*>/gi, '').trim())
+		.filter(Boolean);
 
-	const withoutTags = stripped.replace(/<strong>(.*?)<\/strong>/gi, (_, g) => {
-		elements.push({ type: 'bold', text: g });
-		return `\x00BOLD${elements.length - 1}\x00`;
-	});
+	return blocks.map((block) => {
+		const cleaned = block
+			.replace(/<br\s*\/?>/gi, '\n')
+			.replace(/<[^>]+>/g, (tag) => {
+				if (/<strong>/i.test(tag)) return '\x00BOLD_START\x00';
+				if (/<\/strong>/i.test(tag)) return '\x00BOLD_END\x00';
+				return '';
+			});
 
-	const plain = withoutTags.replace(/<[^>]+>/g, '');
-
-	const parts = plain.split(/\x00BOLD(\d+)\x00/);
-	const result: { text: string; bold: boolean }[] = [];
-
-	for (let i = 0; i < parts.length; i++) {
-		if (i % 2 === 0) {
-			if (parts[i]) result.push({ text: parts[i], bold: false });
-		} else {
-			const idx = Number(parts[i]);
-			result.push({ text: elements[idx].text, bold: true });
+		const segments: Segment[] = [];
+		let bold = false;
+		for (const part of cleaned.split('\x00')) {
+			if (part === 'BOLD_START') {
+				bold = true;
+			} else if (part === 'BOLD_END') {
+				bold = false;
+			} else if (part) {
+				segments.push({ text: part, bold });
+			}
 		}
-	}
-
-	return result;
+		return { segments };
+	});
 }
 
 export default function LetterPDF({ content, serialNumber, createdAt }: Props) {
-	const parts = parseHtmlToElements(content);
+	const paragraphs = parseHtmlToParagraphs(content);
 
 	return (
 		<Document>
@@ -76,10 +78,14 @@ export default function LetterPDF({ content, serialNumber, createdAt }: Props) {
 					<Text style={tw('text-[10pt]')}>Ref: {serialNumber}</Text>
 				</View>
 
-				<View style={tw('mb-8 leading-[1.6]')}>
-					{parts.map((part, i) => (
-						<Text key={i} style={tw(part.bold ? 'font-bold' : '')}>
-							{part.text}
+				<View style={tw('mb-8')}>
+					{paragraphs.map((para, i) => (
+						<Text key={i} style={tw('mb-[4pt] leading-[1.4]')}>
+							{para.segments.map((seg, j) => (
+								<Text key={j} style={tw(seg.bold ? 'font-bold' : '')}>
+									{seg.text}
+								</Text>
+							))}
 						</Text>
 					))}
 				</View>
