@@ -49,6 +49,10 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 						signOffName: true,
 						signOffTitle: true,
 					},
+					student: {
+						stdNo: true,
+						name: true,
+					},
 				},
 				creator: { columns: { name: true } },
 				recipient: true,

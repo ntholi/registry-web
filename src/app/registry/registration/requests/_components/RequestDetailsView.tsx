@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
+import StudentNameView from '@/app/registry/_components/StudentNameView';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -80,33 +81,5 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 				</Paper>
 			)}
 		</Stack>
-	);
-}
-
-function StudentNameView({ stdNo, name }: { stdNo: number; name: string }) {
-	return (
-		<FieldView label='Student' underline={false}>
-			<Flex align='center' gap='xs'>
-				<Link href={`/registry/students/${stdNo}`} size='sm' fw={500}>
-					{name} ({stdNo})
-				</Link>
-				<Tooltip label='Copy student number'>
-					<ActionIcon
-						variant='subtle'
-						color='gray'
-						size='sm'
-						onClick={() => {
-							navigator.clipboard.writeText(String(stdNo));
-							notifications.show({
-								message: 'Student number copied to clipboard',
-								color: 'green',
-							});
-						}}
-					>
-						<IconCopy size={16} />
-					</ActionIcon>
-				</Tooltip>
-			</Flex>
-		</FieldView>
 	);
 }

@@ -46,6 +46,10 @@ export default async function LetterDetailPage({ params }: Props) {
 				}
 			/>
 			<DetailsViewBody>
+				<StudentNameView
+					stdNo={letter.student.stdNo}
+					name={letter.student.name}
+				/>
 				<Group grow>
 					<FieldView label='Serial Number'>{letter.serialNumber}</FieldView>
 					<FieldView label='Template'>
