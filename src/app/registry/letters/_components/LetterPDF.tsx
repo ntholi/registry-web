@@ -83,27 +83,16 @@ export default function LetterPDF({
 				size='A4'
 				style={tw('flex-col bg-white p-12 font-tahoma text-[11pt]')}
 			>
-				<View style={tw('items-center mb-6')}>
-					<Image style={tw('h-[80pt] mb-2')} src='/images/logo-lesotho.jpg' />
-					<Text style={tw('text-[8pt] text-gray-500 mt-1')}>
-						Maseru, Lesotho
-					</Text>
-				</View>
-
 				<View style={tw('flex-row justify-end mb-6')}>
 					<Text style={tw('text-[10pt]')}>Ref: {serialNumber}</Text>
 				</View>
 
 				{recipient && (
-					<View style={tw('mb-4')}>
-						<Text style={tw('leading-[1.4]')}>{recipient.title}</Text>
-						<Text style={tw('leading-[1.4]')}>{recipient.org}</Text>
-						{recipient.address && (
-							<Text style={tw('leading-[1.4]')}>{recipient.address}</Text>
-						)}
-						{recipient.city && (
-							<Text style={tw('leading-[1.4]')}>{recipient.city}</Text>
-						)}
+					<View style={tw('mb-4 leading-[1.2]')}>
+						<Text>{recipient.title}</Text>
+						<Text>{recipient.org}</Text>
+						{recipient.address && <Text>{recipient.address}</Text>}
+						{recipient.city && <Text>{recipient.city}</Text>}
 					</View>
 				)}
 
