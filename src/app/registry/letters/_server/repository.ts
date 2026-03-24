@@ -1,11 +1,6 @@
 import { and, desc, eq, or, sql } from 'drizzle-orm';
 import type { DashboardRole } from '@/core/auth/permissions';
-import {
-	db,
-	letterSerialCounters,
-	letters,
-	letterTemplates,
-} from '@/core/database';
+import { db, letters, letterTemplates } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
 	type TransactionClient,
@@ -46,23 +41,10 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 	}
 
 	async generateSerial(tx: TransactionClient) {
-		const now = new Date();
-		const yy = String(now.getFullYear()).slice(2);
-		const mm = String(now.getMonth() + 1).padStart(2, '0');
-		const dd = String(now.getDate()).padStart(2, '0');
-		const prefix = `${yy}${mm}${dd}`;
-
-		const [row] = await tx
-			.insert(letterSerialCounters)
-			.values({ datePrefix: prefix, counter: 1 })
-			.onConflictDoUpdate({
-				target: letterSerialCounters.datePrefix,
-				set: { counter: sql`${letterSerialCounters.counter} + 1` },
-			})
-			.returning();
-
-		const padded = String(row.counter).padStart(3, '0');
-		return `LTR${prefix}${padded}`;
+		const result = await tx.execute<{ serial: string }>(
+			sql`SELECT generate_letter_serial() AS serial`
+		);
+		return result.rows[0].serial;
 	}
 
 	async generate(

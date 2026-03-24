@@ -1,8 +1,3 @@
-CREATE TABLE "letter_serial_counters" (
-	"date_prefix" text PRIMARY KEY NOT NULL,
-	"counter" integer DEFAULT 0 NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "letters" (
 	"id" text PRIMARY KEY NOT NULL,
 	"serial_number" text NOT NULL,
