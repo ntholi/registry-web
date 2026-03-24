@@ -102,6 +102,12 @@ export const registryNav: NavItem[] = [
 		collapsed: false,
 		children: [
 			{
+				label: 'Generated',
+				href: '/registry/letters',
+				icon: IconMail,
+				permissions: [{ resource: 'letters', action: 'read' }],
+			},
+			{
 				label: 'Templates',
 				href: '/registry/letters/templates',
 				icon: IconTemplate,

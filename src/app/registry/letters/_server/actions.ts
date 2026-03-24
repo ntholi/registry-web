@@ -3,7 +3,7 @@
 import type { DashboardRole } from '@/core/auth/permissions';
 import type { letterTemplates } from '@/core/database';
 import { createAction } from '@/shared/lib/actions/actionResult';
-import { letterTemplatesService } from './service';
+import { lettersService, letterTemplatesService } from './service';
 
 type LetterTemplate = typeof letterTemplates.$inferInsert;
 
@@ -40,4 +40,33 @@ export const deleteLetterTemplate = createAction(async (id: string) => {
 export const toggleTemplateActive = createAction(async (id: string) => {
 	const template = await letterTemplatesService.get(id);
 	return letterTemplatesService.update(id, { isActive: !template?.isActive });
+});
+
+export async function getLetters(page = 1, search = '') {
+	return lettersService.findWithRelations(page, search);
+}
+
+export async function getLetter(id: string) {
+	return lettersService.get(id);
+}
+
+export async function getLettersByStudent(
+	stdNo: number,
+	page = 1,
+	search = ''
+) {
+	return lettersService.findByStudent(stdNo, page, search);
+}
+
+export async function getStudentForLetter(stdNo: number) {
+	return lettersService.getStudentForLetter(stdNo);
+}
+
+export const generateLetter = createAction(
+	async (templateId: string, stdNo: number, statusId?: string) =>
+		lettersService.generate(templateId, stdNo, statusId)
+);
+
+export const deleteLetter = createAction(async (id: string) => {
+	await lettersService.delete(id);
 });

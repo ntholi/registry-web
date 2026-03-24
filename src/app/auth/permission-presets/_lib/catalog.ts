@@ -96,6 +96,7 @@ export const PERMISSION_RESOURCE_GROUPS: readonly PermissionResourceGroup[] = [
 			'blocked-students',
 			'auto-approvals',
 			'letter-templates',
+			'letters',
 		],
 	},
 	{
@@ -329,6 +330,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('student-notes', fullCrud),
 			grant('blocked-students', ['read', 'create', 'update']),
 			grant('letter-templates', ['read']),
+			grant('letters', ['read', 'create']),
 			grant('reports-enrollments', ['read']),
 			grant('reports-progression', ['read']),
 			grant('reports-distribution', ['read']),
@@ -362,6 +364,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('student-notes', fullCrud),
 			grant('blocked-students', ['read', 'create', 'update']),
 			grant('letter-templates', fullCrud),
+			grant('letters', fullCrud),
 			grant('notifications', ['read']),
 			grant('mails', ['read']),
 			grant('reports-enrollments', ['read']),

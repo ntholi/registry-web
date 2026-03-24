@@ -1,9 +1,11 @@
 import type { DashboardRole } from '@/core/auth/permissions';
-import type { letterTemplates } from '@/core/database';
+import type { letters, letterTemplates } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
-import LetterTemplateRepository from './repository';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
+import { resolveTemplate } from '../_lib/resolve';
+import LetterTemplateRepository, { LetterRepository } from './repository';
 
 class LetterTemplateService extends BaseService<typeof letterTemplates, 'id'> {
 	private repo: LetterTemplateRepository;
@@ -34,3 +36,71 @@ export const letterTemplatesService = serviceWrapper(
 	LetterTemplateService,
 	'LetterTemplateService'
 );
+
+class LetterService extends BaseService<typeof letters, 'id'> {
+	private repo: LetterRepository;
+
+	constructor() {
+		const repo = new LetterRepository();
+		super(repo, {
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { letters: ['create'] },
+			deleteAuth: { letters: ['delete'] },
+			activityTypes: {
+				create: 'letter_created',
+				delete: 'letter_deleted',
+			},
+		});
+		this.repo = repo;
+	}
+
+	async generate(templateId: string, stdNo: number, statusId?: string) {
+		return withPermission(async (session) => {
+			const [template, studentData] = await Promise.all([
+				letterTemplatesService.get(templateId),
+				this.repo.getStudentForLetter(stdNo),
+			]);
+
+			if (!template) throw new UserFacingError('Template not found');
+			if (!studentData) throw new UserFacingError('Student not found');
+
+			const content = resolveTemplate(template.content, studentData);
+
+			const audit = this.buildAuditOptions(session, 'create');
+			return this.repo.generate(
+				{
+					templateId,
+					stdNo,
+					content,
+					statusId: statusId ?? null,
+					createdBy: session!.user.id,
+				},
+				audit
+			);
+		}, this.createAuth());
+	}
+
+	async findByStudent(stdNo: number, page: number, search: string) {
+		return withPermission(
+			() => this.repo.findByStudent(stdNo, page, search),
+			'dashboard'
+		);
+	}
+
+	async findWithRelations(page: number, search: string) {
+		return withPermission(
+			() => this.repo.findWithRelations(page, search),
+			'dashboard'
+		);
+	}
+
+	async getStudentForLetter(stdNo: number) {
+		return withPermission(
+			() => this.repo.getStudentForLetter(stdNo),
+			'dashboard'
+		);
+	}
+}
+
+export const lettersService = serviceWrapper(LetterService, 'LetterService');

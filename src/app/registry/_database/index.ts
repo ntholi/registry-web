@@ -17,6 +17,8 @@ export * from '../graduation/dates/_schema/graduationDates';
 export * from '../graduation/dates/_schema/relations';
 export * from '../graduation/requests/_schema/graduationRequests';
 export * from '../graduation/requests/_schema/relations';
+export * from '../letters/_schema/letterSerialCounters';
+export * from '../letters/_schema/letters';
 export * from '../letters/_schema/letterTemplates';
 export * from '../letters/_schema/relations';
 export * from '../print/_schema/relations';

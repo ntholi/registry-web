@@ -57,6 +57,7 @@ export const RESOURCES = [
 	'reports-graduation',
 	'reports-sponsored-students',
 	'letter-templates',
+	'letters',
 ] as const;
 
 export type Resource = (typeof RESOURCES)[number];
