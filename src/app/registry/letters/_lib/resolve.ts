@@ -1,4 +1,5 @@
 import { formatDate } from '@/shared/lib/utils/dates';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 type StudentLetterData = {
 	name: string;
@@ -49,10 +50,9 @@ export function resolveTemplate(html: string, data: StudentLetterData) {
 		genderPossessive: genderPossessive(data.gender),
 		programName: program?.structure?.program?.name ?? '',
 		schoolName: program?.structure?.program?.school?.name ?? '',
-		yearOfStudy: structureSem
-			? String(Math.ceil(Number(structureSem.semesterNumber) / 2))
+		semesterName: structureSem
+			? formatSemester(structureSem.semesterNumber, 'full')
 			: '',
-		semester: structureSem ? structureSem.semesterNumber : '',
 		graduationDate: program?.graduationDate
 			? formatDate(program.graduationDate)
 			: '',

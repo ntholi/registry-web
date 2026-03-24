@@ -10,7 +10,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: CONFIRMATION OF STUDENTSHIP – {{studentName}}</strong></p>
-<p>This is to confirm that {{studentName}} is currently a bonafide student at Limkokwing University of Creative Technology. {{gender}} is pursuing {{programName}}. {{studentName}} is in Year {{yearOfStudy}} Semester {{semester}} of {{genderPossessive}} studies. {{genderPossessive}} conduct is generally acceptable.</p>
+<p>This is to confirm that {{studentName}} is currently a bonafide student at Limkokwing University of Creative Technology. {{gender}} is pursuing {{programName}}. {{studentName}} is in {{semesterName}} of {{genderPossessive}} studies. {{genderPossessive}} conduct is generally acceptable.</p>
 <p>In my capacity as the Registrar, I assure your office that {{studentName}} is currently a genuine student in this institution and {{genderPossessive}} student number is {{stdNo}}.</p>
 <p>I kindly request that you assist {{genderPossessive}} with the services {{gender}} may require from your organization as {{gender}} is an authentic student in the institution.</p>
 ',
@@ -81,7 +81,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: REQUEST TO ALLOW LIMKOKWING STUDENTS TO CARRY OUT A PROJECT</strong></p>
-<p>I humbly request your office to allow Limkokwing University of Creative Technology students to carry out a project at your premises. The project is part of the requirements for the students to complete their studies in {{programName}}. The students are in Year {{yearOfStudy}} of study.</p>
+<p>I humbly request your office to allow Limkokwing University of Creative Technology students to carry out a project at your premises. The project is part of the requirements for the students to complete their studies in {{programName}}. The students are in {{semesterName}} of study.</p>
 <p>My office confirms that the project is strictly for academic purposes and will not be used for any other purpose outside of the LUCT course structures.</p>
 <p>The University is grateful for the support and assistance that your organization continuously provides to the students of the institution.</p>
 ',
@@ -116,7 +116,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: DEFERMENT OF STUDIES – {{studentName}}</strong></p>
-<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled in {{programName}}. {{gender}} is in Year {{yearOfStudy}} Semester {{semester}} of studies. {{studentName}} is officially allowed to defer studies.</p>
+<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled in {{programName}}. {{gender}} is in {{semesterName}} of studies. {{studentName}} is officially allowed to defer studies.</p>
 <p>Please assist {{genderPossessive}} with deferment procedures so that {{gender}} does not encounter problems when {{gender}} resumes studies.</p>
 ',
   NULL,
@@ -133,7 +133,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: EXIT FROM STUDIES – {{studentName}}</strong></p>
-<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled for {{programName}}. {{studentName}} is in Year {{yearOfStudy}} Semester {{semester}} of studies. {{studentName}} has been granted the official exit from studies.</p>
+<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled for {{programName}}. {{studentName}} is in {{semesterName}} of studies. {{studentName}} has been granted the official exit from studies.</p>
 <p>Please assist {{genderPossessive}} with exit procedures.</p>
 ',
   NULL,
@@ -150,7 +150,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>URGENT APPLICATION FOR NATIONAL IDENTITY CARD: {{studentName}}</strong></p>
-<p>My office confirms to the Director that {{studentName}} is a Year {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an identity document. {{genderPossessive}} national ID number is {{nationalId}} and date of birth is {{dateOfBirth}}.</p>
+<p>My office confirms to the Director that {{studentName}} is a {{semesterName}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an identity document. {{genderPossessive}} national ID number is {{nationalId}} and date of birth is {{dateOfBirth}}.</p>
 <p>The University is grateful for the assistance that the Director continually gives students and the community of Limkokwing University.</p>
 ',
   NULL,
@@ -167,7 +167,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>URGENT APPLICATION FOR NATIONAL PASSPORT: {{studentName}}</strong></p>
-<p>My office confirms to the Director Emergency Passport that {{studentName}} is a Year {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an urgent travel document. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
+<p>My office confirms to the Director Emergency Passport that {{studentName}} is a {{semesterName}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an urgent travel document. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
 <p>The University is grateful for the assistance that the Director Emergency Passport constantly gives students and the community of Limkokwing University.</p>
 ',
   NULL,
@@ -202,7 +202,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: REINSTATEMENT INTO STUDIES – {{studentName}}</strong></p>
-<p>My office notifies you that {{studentName}} ({{stdNo}}) has been reinstated into {{programName}}. {{gender}} is reinstating into Year {{yearOfStudy}} Semester {{semester}} of study.</p>
+<p>My office notifies you that {{studentName}} ({{stdNo}}) has been reinstated into {{programName}}. {{gender}} is reinstating into {{semesterName}} of study.</p>
 <p>{{gender}} is reinstating as per the scheduled academic calendar.</p>
 <p>Kindly assist {{genderPossessive}} with reinstatement procedures so that {{gender}} does not encounter any hindrance.</p>
 ',
@@ -220,7 +220,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>URGENT APPLICATION FOR VISA FOR TRAVELING: {{studentName}}</strong></p>
-<p>My office confirms that {{studentName}} is a Year {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
+<p>My office confirms that {{studentName}} is a {{semesterName}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
 <p>In my capacity as the Registrar, I assure your office that {{studentName}} is a genuine student in this institution.</p>
 <p>The University is grateful for the assistance that your department continually provides to students and the community of Limkokwing University.</p>
 ',
@@ -238,7 +238,7 @@ VALUES
 <p>{{currentDate}}</p>
 <p>Dear Sir/Madam,</p>
 <p><strong>Re: WITHDRAWAL FROM STUDIES – {{studentName}}</strong></p>
-<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had registered for {{programName}}. {{studentName}} is in Year {{yearOfStudy}} Semester {{semester}} of studies. {{gender}} is officially being granted withdrawal from studies.</p>
+<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had registered for {{programName}}. {{studentName}} is in {{semesterName}} of studies. {{gender}} is officially being granted withdrawal from studies.</p>
 <p>Please assist {{genderPossessive}} with withdrawal procedures so that {{gender}} does not encounter problems.</p>
 ',
   NULL,

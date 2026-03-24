@@ -23,8 +23,7 @@ export const PLACEHOLDER_GROUPS: readonly PlaceholderGroup[] = [
 		items: [
 			{ token: 'programName', label: 'Program Name' },
 			{ token: 'schoolName', label: 'School Name' },
-			{ token: 'yearOfStudy', label: 'Year of Study' },
-			{ token: 'semester', label: 'Semester' },
+			{ token: 'semesterName', label: 'Semester Name' },
 			{ token: 'graduationDate', label: 'Graduation Date' },
 		],
 	},
