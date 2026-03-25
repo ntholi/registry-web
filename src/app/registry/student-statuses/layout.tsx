@@ -14,7 +14,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['student-statuses']}
 			getData={(page, search) => findAllStudentStatuses(page, search)}
 			actionIcons={[
-				<NewLink key='new-link' href='/registry/student-statuses/new' />,
+				<NewLink
+					key='new-link'
+					href='/registry/student-statuses/new'
+					resource='student-statuses'
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem
