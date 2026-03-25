@@ -101,7 +101,7 @@ export default function TemplateDetail({ template }: Props) {
 						)}
 					</Group>
 				</Stack>
-				<Stack gap={1}>
+				<Stack gap={5}>
 					<Switch
 						offLabel={'Inactive'}
 						onLabel={'Active'}
@@ -148,12 +148,14 @@ export default function TemplateDetail({ template }: Props) {
 									: 'Template Preview'}
 							</Tabs.Tab>
 							<Tabs.Tab value='restrictions'>
-								Restrictions
-								{(template.restrictions as Restriction[] | null)?.length ? (
-									<Badge size='xs' ml={6} circle>
-										{(template.restrictions as Restriction[]).length}
-									</Badge>
-								) : null}
+								<Group gap={'xs'}>
+									Restrictions
+									{(template.restrictions as Restriction[] | null)?.length ? (
+										<Badge size='xs' ml={6} circle>
+											{(template.restrictions as Restriction[]).length}
+										</Badge>
+									) : null}
+								</Group>
 							</Tabs.Tab>
 						</Tabs.List>
 

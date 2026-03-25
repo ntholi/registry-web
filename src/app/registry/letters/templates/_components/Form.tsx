@@ -10,6 +10,7 @@ import {
 	Menu,
 	Select,
 	SimpleGrid,
+	Stack,
 	Table,
 	Tabs,
 	Text,
@@ -133,12 +134,14 @@ export default function TemplateForm({
 					<Tabs.List mb='md'>
 						<Tabs.Tab value='details'>Letter Details</Tabs.Tab>
 						<Tabs.Tab value='restrictions'>
-							Restrictions
-							{restrictions.length > 0 && (
-								<Badge size='xs' ml={6} circle>
-									{restrictions.length}
-								</Badge>
-							)}
+							<Group gap={'xs'}>
+								Restrictions
+								{restrictions.length > 0 && (
+									<Badge size='xs' ml={6} circle>
+										{restrictions.length}
+									</Badge>
+								)}
+							</Group>
 						</Tabs.Tab>
 					</Tabs.List>
 
@@ -159,26 +162,24 @@ export default function TemplateForm({
 							/>
 						</SimpleGrid>
 
-						<Fieldset legend='Letter Header' mt='lg'>
-							<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
-								<TextInput
-									label='Subject Line'
-									placeholder='e.g. CONFIRMATION OF STUDENTSHIP – {{studentName}}'
-									{...form.getInputProps('subject')}
-								/>
-								<Select
-									label='Default Salutation'
-									placeholder='Select a salutation'
-									data={SALUTATION_OPTIONS}
-									searchable
-									{...form.getInputProps('salutation')}
-								/>
-							</SimpleGrid>
-						</Fieldset>
+						<Stack mt='md'>
+							<TextInput
+								label='Subject Line'
+								placeholder='e.g. CONFIRMATION OF STUDENTSHIP – {{studentName}}'
+								{...form.getInputProps('subject')}
+							/>
+							<Select
+								label='Default Salutation'
+								placeholder='Select a salutation'
+								data={SALUTATION_OPTIONS}
+								searchable
+								{...form.getInputProps('salutation')}
+							/>
+						</Stack>
 
 						<Divider label='Template Content' labelPosition='center' my='md' />
 
-						<RichTextEditor editor={editor} mih={300}>
+						<RichTextEditor editor={editor}>
 							<RichTextEditor.Toolbar sticky stickyOffset={60}>
 								<RichTextEditor.ControlsGroup>
 									<RichTextEditor.Bold />
@@ -221,10 +222,10 @@ export default function TemplateForm({
 									{editor && <PlaceholderMenu editor={editor} />}
 								</RichTextEditor.ControlsGroup>
 							</RichTextEditor.Toolbar>
-							<RichTextEditor.Content />
+							<RichTextEditor.Content h={300} />
 						</RichTextEditor>
 
-						<Fieldset legend='Sign-off' variant='filled' mt='md'>
+						<Fieldset legend='Sign-off' mt='md'>
 							<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
 								<TextInput
 									label='Name'
@@ -290,14 +291,10 @@ function RestrictionsTab({
 					<Table.Tbody>
 						{restrictions.map((r, idx) => (
 							<Table.Tr key={`${r.type}-${idx}`}>
-								<Table.Td>
-									<Badge variant='light' size='sm'>
-										{RESTRICTION_META[r.type].label}
-									</Badge>
-								</Table.Td>
+								<Table.Td>{RESTRICTION_META[r.type].label}</Table.Td>
 								<Table.Td>
 									<Badge
-										variant='outline'
+										variant='light'
 										size='sm'
 										color={r.operator === 'include' ? 'green' : 'red'}
 									>
