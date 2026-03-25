@@ -1,7 +1,12 @@
 import type { Session } from '@/core/auth';
 import type { PermissionRequirement } from '@/core/auth/permissions';
+import { generateAppraisalAIInsights } from '@/core/integrations/ai/appraisal';
 import { getSession, withPermission } from '@/core/platform/withPermission';
-import type { AccessInfo, ReportFilter } from '../_lib/types';
+import type {
+	AccessInfo,
+	AppraisalInsightsResult,
+	ReportFilter,
+} from '../_lib/types';
 import { appraisalReportRepository } from './repository';
 
 const FEEDBACK_READ: PermissionRequirement = {
@@ -132,6 +137,17 @@ class AppraisalReportService {
 			hasFeedbackAccess: hasFeedbackAccess(session),
 			hasObservationAccess: hasObservationAccess(session),
 		};
+	}
+
+	async generateInsights(
+		filter: ReportFilter
+	): Promise<AppraisalInsightsResult> {
+		return withPermission(async (session) => {
+			const scoped = scopeFilter(session, filter);
+			const context =
+				await appraisalReportRepository.collectInsightContext(scoped);
+			return generateAppraisalAIInsights(context);
+		}, anyReportAuth);
 	}
 }
 

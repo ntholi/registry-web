@@ -1,9 +1,15 @@
 'use client';
 
 import { Alert, Container, Stack, Tabs, Title } from '@mantine/core';
-import { IconChartBar, IconEye, IconMessageDots } from '@tabler/icons-react';
+import {
+	IconChartBar,
+	IconEye,
+	IconMessageDots,
+	IconSparkles,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import AIInsightsTab from './_components/AIInsightsTab';
 import Filter from './_components/Filter';
 import ObservationTab from './_components/ObservationTab';
 import OverviewTab from './_components/OverviewTab';
@@ -11,7 +17,7 @@ import StudentFeedbackTab from './_components/StudentFeedbackTab';
 import type { ReportFilter } from './_lib/types';
 import { getReportAccessInfo } from './_server/actions';
 
-type TabValue = 'overview' | 'feedback' | 'observation';
+type TabValue = 'overview' | 'feedback' | 'observation' | 'ai-insights';
 
 export default function AppraisalReportsPage() {
 	const [filter, setFilter] = useState<ReportFilter>({});
@@ -72,6 +78,14 @@ export default function AppraisalReportsPage() {
 									Teaching Observation
 								</Tabs.Tab>
 							)}
+							{hasAny && (
+								<Tabs.Tab
+									value='ai-insights'
+									leftSection={<IconSparkles size={16} />}
+								>
+									AI Insights
+								</Tabs.Tab>
+							)}
 						</Tabs.List>
 
 						{hasAny && (
@@ -87,6 +101,11 @@ export default function AppraisalReportsPage() {
 						{hasObservation && (
 							<Tabs.Panel value='observation' pt='md'>
 								<ObservationTab filter={filter} />
+							</Tabs.Panel>
+						)}
+						{hasAny && (
+							<Tabs.Panel value='ai-insights' pt='md'>
+								<AIInsightsTab filter={filter} />
 							</Tabs.Panel>
 						)}
 					</Tabs>

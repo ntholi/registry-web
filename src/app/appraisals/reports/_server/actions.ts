@@ -40,3 +40,7 @@ export async function getReportAccessInfo() {
 export async function getModulesForFilter(filter: ReportFilter) {
 	return appraisalReportService.getModulesForFilter(filter);
 }
+
+export async function generateAppraisalInsights(filter: ReportFilter) {
+	return appraisalReportService.generateInsights(filter);
+}
