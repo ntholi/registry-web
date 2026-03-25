@@ -1,5 +1,5 @@
 import { Box, Title } from '@mantine/core';
-import GenerateLetterForm from '../../_components/GenerateLetterForm';
+import GenerateLetterForm from '../_components/GenerateLetterForm';
 
 export default function NewLetterPage() {
 	return (

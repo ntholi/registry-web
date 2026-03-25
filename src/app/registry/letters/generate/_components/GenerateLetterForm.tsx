@@ -9,17 +9,17 @@ import { authClient } from '@/core/auth-client';
 import { unwrap } from '@/shared/lib/actions/actionResult';
 import { DeleteButton } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
-import StudentPreviewCard from '../../_components/StudentPreviewCard';
+import StudentPreviewCard from '../../../_components/StudentPreviewCard';
+import LetterPreviewModal from '../../_components/LetterPreviewModal';
+import NewRecipientModal from '../../_components/NewRecipientModal';
+import TemplatePicker from '../../_components/TemplatePicker';
 import {
 	deleteRecipient,
 	generateLetter,
 	getActiveTemplates,
 	getRecipientsByTemplate,
 	getStudentForLetter,
-} from '../_server/actions';
-import LetterPreviewModal from './LetterPreviewModal';
-import NewRecipientModal from './NewRecipientModal';
-import TemplatePicker from './TemplatePicker';
+} from '../../_server/actions';
 
 const SALUTATION_OPTIONS = [
 	'Dear Sir/Madam,',
