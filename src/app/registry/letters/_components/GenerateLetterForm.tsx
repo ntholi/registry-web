@@ -1,7 +1,6 @@
 'use client';
 
-import { Button, Group, Modal, Select, Stack } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { Button, Group, Select, Stack } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -11,7 +10,6 @@ import { unwrap } from '@/shared/lib/actions/actionResult';
 import { DeleteButton } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import StudentPreviewCard from '../../_components/StudentPreviewCard';
-import { resolveTemplate } from '../_lib/resolve';
 import {
 	deleteRecipient,
 	generateLetter,
@@ -19,7 +17,7 @@ import {
 	getRecipientsByTemplate,
 	getStudentForLetter,
 } from '../_server/actions';
-import LetterPreview from './LetterPreview';
+import LetterPreviewModal from './LetterPreviewModal';
 import NewRecipientModal from './NewRecipientModal';
 import TemplatePicker from './TemplatePicker';
 
@@ -39,10 +37,6 @@ export default function GenerateLetterForm() {
 	const [templateId, setTemplateId] = useState<string | null>(null);
 	const [recipientId, setRecipientId] = useState<string | null>(null);
 	const [salutation, setSalutation] = useState<string | null>(null);
-	const [preview, setPreview] = useState<string | null>(null);
-
-	const [previewOpened, { open: openPreview, close: closePreview }] =
-		useDisclosure(false);
 
 	const role = (session?.user?.role ?? undefined) as DashboardRole | undefined;
 
@@ -68,19 +62,12 @@ export default function GenerateLetterForm() {
 	function handleTemplateChange(id: string | null) {
 		setTemplateId(id);
 		setRecipientId(null);
-		setPreview(null);
 		const tpl = templates?.find((t) => t.id === id);
 		setSalutation(tpl?.salutation ?? 'Dear Sir/Madam,');
 	}
 
 	if (recipients?.length && !recipientId && templateId) {
 		setRecipientId(recipients[0].id);
-	}
-
-	function handlePreview() {
-		if (!selectedTemplate || !studentData) return;
-		setPreview(resolveTemplate(selectedTemplate.content, studentData));
-		openPreview();
 	}
 
 	const mutation = useMutation({
@@ -112,7 +99,6 @@ export default function GenerateLetterForm() {
 				value={stdNo ?? undefined}
 				onChange={(val) => {
 					setStdNo(typeof val === 'number' ? val : null);
-					setPreview(null);
 				}}
 				required
 			/>
@@ -183,13 +169,12 @@ export default function GenerateLetterForm() {
 			)}
 
 			<Group justify='space-between'>
-				<Button
-					variant='light'
-					onClick={handlePreview}
-					disabled={!templateId || !studentData}
-				>
-					Preview
-				</Button>
+				<LetterPreviewModal
+					template={selectedTemplate}
+					studentData={studentData}
+					recipient={recipients?.find((r) => r.id === recipientId)}
+					salutation={salutation}
+				/>
 				<Button
 					onClick={() => mutation.mutate()}
 					loading={mutation.isPending}
@@ -198,29 +183,6 @@ export default function GenerateLetterForm() {
 					Generate Letter
 				</Button>
 			</Group>
-
-			<Modal
-				opened={previewOpened}
-				onClose={closePreview}
-				title='Letter Preview'
-				size='lg'
-				centered
-			>
-				{preview && (
-					<LetterPreview
-						content={preview}
-						recipient={recipients?.find((r) => r.id === recipientId)}
-						salutation={salutation}
-						subject={
-							selectedTemplate?.subject && studentData
-								? resolveTemplate(selectedTemplate.subject, studentData)
-								: null
-						}
-						signOffName={selectedTemplate?.signOffName}
-						signOffTitle={selectedTemplate?.signOffTitle}
-					/>
-				)}
-			</Modal>
 		</Stack>
 	);
 }

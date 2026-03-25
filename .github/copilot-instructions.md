@@ -163,7 +163,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Design System**: Mantine v8 components only. **No** custom CSS or Tailwind files.
 - **Aesthetics**: Provide very beautiful, professional, clean, minimalist design fitting the University brand.
 - **Dark Mode**: Optimize all components for dark mode transparency and contrast.
-- **Modals**: Must be self-contained (include their own trigger button).
+- **Modals**: Must be self-contained — the trigger button lives **inside** the modal component, never in the parent. Extract every modal+trigger pair into its own component file. Never manage modal open/close state in a parent component.
 - **Mantine Dates**: Use string values; Calendars must start on Sunday.
 - **Mantine Charts**: ALWAYS research and read documentation charts documentation before generating any chart code.
 
