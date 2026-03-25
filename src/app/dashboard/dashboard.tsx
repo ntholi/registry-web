@@ -93,7 +93,10 @@ function filterNavigationItems(
 
 			return { ...item, children };
 		})
-		.filter((item) => !!item.href || (item.children?.length ?? 0) > 0);
+		.filter(
+			(item) =>
+				!!item.href || (item.children?.length ?? 0) > 0 || !!item.isLoading
+		);
 }
 
 function getNavigation(role: DashboardRole): NavItem[] {
