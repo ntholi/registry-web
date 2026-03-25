@@ -184,7 +184,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-graduation', ['read']),
 			grant('mails', ['read']),
 			grant('users', ['read']),
-			grant('letter-templates', ['read'])
+			grant('letter-templates', ['read']),
+			grant('letters', fullCrud)
 		),
 	},
 	{
