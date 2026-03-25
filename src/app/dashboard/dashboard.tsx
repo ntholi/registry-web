@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type React from 'react';
-import { Children, isValidElement, useState } from 'react';
+import { isValidElement, useState } from 'react';
 import type { Session, ViewAsData } from '@/core/auth';
 import type { DashboardRole, PermissionGrant } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
@@ -101,27 +101,13 @@ function getNavigation(role: DashboardRole): NavItem[] {
 }
 
 function getLabelText(label: React.ReactNode): string {
-	if (typeof label === 'string' || typeof label === 'number') {
-		return String(label);
-	}
-
-	if (!label) {
-		return '';
-	}
-
-	return Children.toArray(label)
-		.map((node) => {
-			if (typeof node === 'string' || typeof node === 'number') {
-				return String(node);
-			}
-
-			if (isValidElement<{ children?: React.ReactNode }>(node)) {
-				return getLabelText(node.props.children);
-			}
-
-			return '';
-		})
-		.join('');
+	if (typeof label === 'string') return label;
+	if (typeof label === 'number') return String(label);
+	if (!label) return '';
+	if (Array.isArray(label)) return label.map(getLabelText).join('');
+	if (isValidElement<{ children?: React.ReactNode }>(label))
+		return getLabelText(label.props.children);
+	return '';
 }
 
 export default function Dashboard({
@@ -335,10 +321,6 @@ function ItemDisplay({
 		userPermissions,
 		viewingAs
 	);
-	const getLabelKey = (label: React.ReactNode): string => {
-		return getLabelText(label) || String(label);
-	};
-
 	if (!canAccessItem) {
 		return null;
 	}
@@ -384,7 +366,7 @@ function ItemDisplay({
 				const childKey =
 					typeof child.href === 'string'
 						? child.href
-						: getLabelKey(child.label);
+						: getLabelText(child.label) || String(child.label);
 				return (
 					<DisplayWithNotification
 						key={childKey}

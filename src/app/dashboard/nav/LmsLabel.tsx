@@ -2,7 +2,7 @@ import { Text } from '@mantine/core';
 
 export function LmsLabel() {
 	return (
-		<Text>
+		<Text size='sm'>
 			<Text component='span' variant='gradient'>
 				Five
 			</Text>
