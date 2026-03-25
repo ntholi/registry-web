@@ -11,7 +11,6 @@ import {
 	ScrollArea,
 	Stack,
 	Switch,
-	Table,
 	Tabs,
 	Text,
 	TextInput,
@@ -32,11 +31,7 @@ import { useState } from 'react';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { DeleteButton } from '@/shared/ui/adease';
 import LetterPreview from '../../_components/LetterPreview';
-import {
-	formatRestrictionValues,
-	RESTRICTION_META,
-	type Restriction,
-} from '../../_lib/restrictions';
+import { describeRestriction, type Restriction } from '../../_lib/restrictions';
 import {
 	deleteLetterTemplate,
 	getLetter,
@@ -231,37 +226,19 @@ function RestrictionsView({ restrictions }: RestrictionsViewProps) {
 	}
 
 	return (
-		<Table striped highlightOnHover withTableBorder>
-			<Table.Thead>
-				<Table.Tr>
-					<Table.Th>Type</Table.Th>
-					<Table.Th>Operator</Table.Th>
-					<Table.Th>Values</Table.Th>
-				</Table.Tr>
-			</Table.Thead>
-			<Table.Tbody>
-				{restrictions.map((r, idx) => (
-					<Table.Tr key={`${r.type}-${idx}`}>
-						<Table.Td>
-							<Badge variant='light' size='sm'>
-								{RESTRICTION_META[r.type].label}
-							</Badge>
-						</Table.Td>
-						<Table.Td>
-							<Badge
-								variant='outline'
-								size='sm'
-								color={r.operator === 'include' ? 'green' : 'red'}
-							>
-								{r.operator === 'include' ? 'Include' : 'Exclude'}
-							</Badge>
-						</Table.Td>
-						<Table.Td>
-							<Text size='sm'>{formatRestrictionValues(r)}</Text>
-						</Table.Td>
-					</Table.Tr>
-				))}
-			</Table.Tbody>
-		</Table>
+		<Stack gap='xs'>
+			{restrictions.map((r, idx) => (
+				<Group key={`${r.type}-${idx}`} gap='xs' align='center'>
+					<Badge
+						size='xs'
+						circle
+						color={r.operator === 'include' ? 'green' : 'red'}
+					>
+						{idx + 1}
+					</Badge>
+					<Text size='sm'>{describeRestriction(r)}</Text>
+				</Group>
+			))}
+		</Stack>
 	);
 }

@@ -102,6 +102,38 @@ export function formatRestrictionValues(r: Restriction): string {
 	return r.values.join(', ');
 }
 
+const joinList = (items: string[]) => {
+	if (items.length <= 1) return items[0] ?? '';
+	return `${items.slice(0, -1).join(', ')} or ${items[items.length - 1]}`;
+};
+
+export function describeRestriction(r: Restriction): string {
+	const verb = r.operator === 'include' ? 'must be' : 'must not be';
+	const vals = formatRestrictionValues(r);
+	const list = vals.split(', ');
+
+	switch (r.type) {
+		case 'studentStatus':
+			return `Student status ${verb} ${joinList(list)}`;
+		case 'semesterStatus':
+			return `Semester status ${verb} ${joinList(list)}`;
+		case 'programStatus':
+			return `Program status ${verb} ${joinList(list)}`;
+		case 'programLevel':
+			return `Program level ${verb} ${joinList(list)}`;
+		case 'semesterNumber':
+			return `Student ${verb} in ${joinList(list)}`;
+		case 'school':
+			return `School ${verb} ${joinList(list)}`;
+		case 'gender':
+			return `Student ${verb} ${joinList(list)}`;
+		case 'sponsored':
+			return `Student ${verb} ${joinList(list)}`;
+		case 'programName':
+			return `Program ${verb} ${joinList(list)}`;
+	}
+}
+
 type StudentData = {
 	status: StudentStatus;
 	gender: string | null;
