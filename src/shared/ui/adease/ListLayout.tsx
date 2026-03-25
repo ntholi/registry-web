@@ -166,9 +166,12 @@ export function ListLayout<T>({
 						</Stack>
 					) : (
 						<Stack gap={3}>
-							{React.Children.toArray(
-								items.map((item: T) => renderListItem(item))
-							)}
+							{items.map((item: T, i: number) => {
+								const el = renderListItem(item);
+								if (!React.isValidElement(el)) return el;
+								const id = (el.props as { id?: string | number }).id ?? i;
+								return React.cloneElement(el, { key: id });
+							})}
 						</Stack>
 					)}
 				</ScrollArea>
