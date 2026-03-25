@@ -7,6 +7,7 @@ import {
 	Grid,
 	Group,
 	NavLink,
+	Paper,
 	ScrollArea,
 	Stack,
 	Text,
@@ -19,7 +20,7 @@ import { IconArrowLeft, IconSearch, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { RichTextContent } from '@/shared/ui/adease';
+import LetterPreview from '../../_components/LetterPreview';
 import { getLetter, getLettersByTemplate } from '../../_server/actions';
 
 type LetterTemplate = NonNullable<typeof letterTemplates.$inferSelect>;
@@ -88,12 +89,12 @@ export default function TemplateDetail({ template }: Props) {
 								? `Letter — ${selectedLetter.serialNumber}`
 								: 'Template Preview'}
 						</Text>
-						<RichTextContent html={previewHtml} />
+						<LetterPreview content={previewHtml} />
 					</Card>
 				</Grid.Col>
 
 				<Grid.Col span={4}>
-					<Card withBorder p='md' h='100%'>
+					<Paper withBorder p='md' h='100%'>
 						<Text fw={600} size='sm' mb='xs'>
 							Printed Letters ({lettersData?.totalItems ?? 0})
 						</Text>
@@ -124,7 +125,7 @@ export default function TemplateDetail({ template }: Props) {
 								)}
 							</Stack>
 						</ScrollArea>
-					</Card>
+					</Paper>
 				</Grid.Col>
 			</Grid>
 		</Stack>
