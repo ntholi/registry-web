@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type React from 'react';
-import { useState } from 'react';
+import { Children, isValidElement, useState } from 'react';
 import type { Session, ViewAsData } from '@/core/auth';
 import type { DashboardRole, PermissionGrant } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
@@ -98,6 +98,30 @@ function filterNavigationItems(
 
 function getNavigation(role: DashboardRole): NavItem[] {
 	return roleNavMap[role] ?? [];
+}
+
+function getLabelText(label: React.ReactNode): string {
+	if (typeof label === 'string' || typeof label === 'number') {
+		return String(label);
+	}
+
+	if (!label) {
+		return '';
+	}
+
+	return Children.toArray(label)
+		.map((node) => {
+			if (typeof node === 'string' || typeof node === 'number') {
+				return String(node);
+			}
+
+			if (isValidElement<{ children?: React.ReactNode }>(node)) {
+				return getLabelText(node.props.children);
+			}
+
+			return '';
+		})
+		.join('');
 }
 
 export default function Dashboard({
@@ -195,7 +219,7 @@ export function Navigation({
 		const s = query.toLowerCase();
 
 		return navItems.reduce((acc, item) => {
-			const label = typeof item.label === 'string' ? item.label : '';
+			const label = getLabelText(item.label);
 			const matches =
 				label.toLowerCase().includes(s) ||
 				item.description?.toLowerCase().includes(s);
@@ -312,8 +336,7 @@ function ItemDisplay({
 		viewingAs
 	);
 	const getLabelKey = (label: React.ReactNode): string => {
-		if (typeof label === 'string') return label;
-		return String(label);
+		return getLabelText(label) || String(label);
 	};
 
 	if (!canAccessItem) {
