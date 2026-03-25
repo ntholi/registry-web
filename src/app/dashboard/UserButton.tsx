@@ -1,6 +1,5 @@
 'use client';
 
-import { getUserSchools } from '@admin/users';
 import {
 	ActionIcon,
 	Avatar,
@@ -37,12 +36,6 @@ export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
 
-	const { data: userSchools } = useQuery({
-		queryKey: ['user-schools'],
-		queryFn: () => getUserSchools(session?.user?.id),
-		enabled: session?.user?.role === 'academic' && !viewAs,
-	});
-
 	if (!isPending && !session) {
 		router.push('/auth/login');
 	}
@@ -65,8 +58,6 @@ export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 				}),
 		});
 
-	const effectiveRole = viewAs?.role ?? user?.role;
-
 	return (
 		<Stack gap='xs' mt='md' mb='sm'>
 			<Flex justify='space-between' align='center'>
@@ -84,14 +75,7 @@ export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 								{user?.email}
 							</Text>
 							<Text size='0.65rem' c='dimmed'>
-								{effectiveRole === 'academic' && !viewAs
-									? userSchools?.map((it) => it.school.code).join(', ')
-									: toTitleCase(effectiveRole)}
-								{viewAs?.presetName
-									? ` | ${viewAs.presetName}`
-									: user?.presetName
-										? ` | ${user.presetName}`
-										: ''}
+								{viewAs?.presetName ?? user?.presetName}
 							</Text>
 						</Stack>
 					</Group>

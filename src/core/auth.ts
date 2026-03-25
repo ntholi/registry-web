@@ -111,7 +111,10 @@ export const betterAuthServer = betterAuth({
 			const presetName = preset?.name ?? null;
 
 			return {
-				user,
+				user: {
+					...user,
+					presetName,
+				},
 				session,
 				permissions,
 				presetName,
