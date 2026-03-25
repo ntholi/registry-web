@@ -18,10 +18,12 @@ import {
 	IconReportAnalytics,
 	IconSchool,
 	IconTemplate,
+	IconUserExclamation,
 	IconUsers,
 } from '@tabler/icons-react';
 import { createElement } from 'react';
 import { countUncompletedTasks } from '@/app/admin/tasks';
+import { countPendingStudentStatuses } from '@/app/registry/student-statuses';
 import type { NavItem } from '../types';
 import { LmsLabel } from './LmsLabel';
 
@@ -94,6 +96,17 @@ export const academicNav: NavItem[] = [
 				permissions: [{ resource: 'letter-templates', action: 'read' }],
 			},
 		],
+	},
+	{
+		label: 'Student Status',
+		href: '/registry/student-statuses',
+		icon: IconUserExclamation,
+		permissions: [{ resource: 'student-statuses', action: 'read' }],
+		notificationCount: {
+			queryKey: ['student-statuses', 'pending'],
+			queryFn: () => countPendingStudentStatuses(),
+			color: 'red',
+		},
 	},
 	{
 		label: 'Schools',

@@ -19,7 +19,7 @@ CROSS JOIN (VALUES
 WHERE p.name = 'Academic Admin'
 ON CONFLICT (preset_id, resource, action) DO NOTHING;
 
--- Academic Manager: add full CRUD on letters
+-- Academic Manager: add full CRUD on letters + read on student-statuses
 INSERT INTO preset_permissions (id, preset_id, resource, action)
 SELECT gen_random_uuid()::text, p.id, v.resource, v.action
 FROM permission_presets p
@@ -27,7 +27,19 @@ CROSS JOIN (VALUES
   ('letters', 'read'),
   ('letters', 'create'),
   ('letters', 'update'),
-  ('letters', 'delete')
+  ('letters', 'delete'),
+  ('student-statuses', 'read')
 ) AS v(resource, action)
 WHERE p.name = 'Academic Manager'
+ON CONFLICT (preset_id, resource, action) DO NOTHING;
+
+-- Academic Admin: add read on school-structures and student-statuses
+INSERT INTO preset_permissions (id, preset_id, resource, action)
+SELECT gen_random_uuid()::text, p.id, v.resource, v.action
+FROM permission_presets p
+CROSS JOIN (VALUES
+  ('school-structures', 'read'),
+  ('student-statuses', 'read')
+) AS v(resource, action)
+WHERE p.name = 'Academic Admin'
 ON CONFLICT (preset_id, resource, action) DO NOTHING;
