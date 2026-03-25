@@ -1,6 +1,5 @@
 import { countPendingGraduationClearances } from '@registry/graduation';
 import {
-	IconBook,
 	IconCalendar,
 	IconCalendarEvent,
 	IconCertificate,
@@ -107,18 +106,6 @@ export const academicNav: NavItem[] = [
 				permissions: [{ resource: 'venues', action: 'read' }],
 			},
 		],
-	},
-	{
-		label: 'Registration',
-		href: '/registry/registration/requests',
-		icon: IconBook,
-		permissions: [{ resource: 'registration', action: 'read' }],
-	},
-	{
-		label: 'Registration Clearance',
-		href: '/registry/registration/clearance',
-		icon: IconClipboardCheck,
-		permissions: [{ resource: 'registration-clearance', action: 'read' }],
 	},
 	{
 		label: 'Graduations',
