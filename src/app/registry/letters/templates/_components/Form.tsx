@@ -133,30 +133,27 @@ export default function TemplateForm({
 		>
 			{(form) => (
 				<>
-					<Fieldset legend='Basic Info' variant='filled'>
-						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
-							<TextInput
-								label='Template Name'
-								placeholder='e.g. Completion Letter'
-								withAsterisk
-								{...form.getInputProps('name')}
-							/>
-							<Select
-								label='Role Scope'
-								placeholder='System-wide (all departments)'
-								data={roleOptions}
-								clearable
-								{...form.getInputProps('role')}
-							/>
-						</SimpleGrid>
-					</Fieldset>
+					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
+						<TextInput
+							label='Template Name'
+							placeholder='e.g. Completion Letter'
+							withAsterisk
+							{...form.getInputProps('name')}
+						/>
+						<Select
+							label='Role Scope'
+							placeholder='System-wide (all departments)'
+							data={roleOptions}
+							clearable
+							{...form.getInputProps('role')}
+						/>
+					</SimpleGrid>
 
-					<Fieldset legend='Letter Header' variant='filled'>
+					<Fieldset legend='Letter Header' mt={'lg'}>
 						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
 							<TextInput
 								label='Subject Line'
 								placeholder='e.g. CONFIRMATION OF STUDENTSHIP – {{studentName}}'
-								description='Supports {{placeholders}}'
 								{...form.getInputProps('subject')}
 							/>
 							<Select
