@@ -43,3 +43,15 @@ CROSS JOIN (VALUES
 ) AS v(resource, action)
 WHERE p.name = 'Academic Admin'
 ON CONFLICT (preset_id, resource, action) DO NOTHING;
+
+-- All presets: add full CRUD on student-notes
+INSERT INTO preset_permissions (id, preset_id, resource, action)
+SELECT gen_random_uuid()::text, p.id, v.resource, v.action
+FROM permission_presets p
+CROSS JOIN (VALUES
+  ('student-notes', 'read'),
+  ('student-notes', 'create'),
+  ('student-notes', 'update'),
+  ('student-notes', 'delete')
+) AS v(resource, action)
+ON CONFLICT (preset_id, resource, action) DO NOTHING;

@@ -185,7 +185,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('mails', ['read']),
 			grant('users', ['read']),
 			grant('letter-templates', ['read']),
-			grant('letters', fullCrud)
+			grant('letters', fullCrud),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -217,7 +218,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-distribution', ['read']),
 			grant('reports-graduation', ['read']),
 			grant('mails', ['read']),
-			grant('users', ['read'])
+			grant('users', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -238,7 +240,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-enrollments', ['read']),
 			grant('reports-progression', ['read']),
 			grant('reports-distribution', ['read']),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -259,7 +262,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('tasks', fullCrud),
 			grant('reports-attendance', ['read']),
 			grant('reports-course-summary', ['read']),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -283,7 +287,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('tasks', fullCrud),
 			grant('reports-attendance', ['read']),
 			grant('reports-course-summary', ['read']),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -311,7 +316,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-attendance', ['read']),
 			grant('reports-boe', ['read']),
 			grant('reports-enrollments', ['read']),
-			grant('reports-graduation', ['read'])
+			grant('reports-graduation', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -404,7 +410,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-distribution', ['read']),
 			grant('reports-graduation', ['read']),
 			grant('reports-sponsored-students', ['read']),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -431,7 +438,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-distribution', ['read']),
 			grant('reports-graduation', ['read']),
 			grant('reports-sponsored-students', ['read']),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -443,7 +451,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('students', ['read']),
 			grant('registration', ['read']),
 			grant('tasks', fullCrud),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -461,7 +470,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('certificate-types', fullCrud),
 			grant('tasks', fullCrud),
 			grant('subjects', fullCrud),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -495,7 +505,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-enrollments', ['read']),
 			grant('reports-progression', ['read']),
 			grant('reports-distribution', ['read']),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -513,7 +524,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('users', ['read']),
 			grant('tasks', fullCrud),
 			grant('employees', fullCrud),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 	{
@@ -525,7 +537,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('venues', ['read']),
 			grant('registration', ['read']),
 			grant('tasks', fullCrud),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('student-notes', fullCrud)
 		),
 	},
 ];
