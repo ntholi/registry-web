@@ -11,6 +11,8 @@ import {
 	ScrollArea,
 	Stack,
 	Switch,
+	Table,
+	Tabs,
 	Text,
 	TextInput,
 	Title,
@@ -30,6 +32,11 @@ import { useState } from 'react';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { DeleteButton } from '@/shared/ui/adease';
 import LetterPreview from '../../_components/LetterPreview';
+import {
+	formatRestrictionValues,
+	RESTRICTION_META,
+	type Restriction,
+} from '../../_lib/restrictions';
 import {
 	deleteLetterTemplate,
 	getLetter,
@@ -138,14 +145,37 @@ export default function TemplateDetail({ template }: Props) {
 
 			<Grid>
 				<Grid.Col span={8}>
-					<Card withBorder p='md'>
-						<Text fw={600} size='sm' mb='xs'>
-							{selectedLetter
-								? `Letter — ${selectedLetter.serialNumber}`
-								: 'Template Preview'}
-						</Text>
-						<LetterPreview content={previewHtml} />
-					</Card>
+					<Tabs defaultValue='preview'>
+						<Tabs.List mb='md'>
+							<Tabs.Tab value='preview'>
+								{selectedLetter
+									? `Letter — ${selectedLetter.serialNumber}`
+									: 'Template Preview'}
+							</Tabs.Tab>
+							<Tabs.Tab value='restrictions'>
+								Restrictions
+								{(template.restrictions as Restriction[] | null)?.length ? (
+									<Badge size='xs' ml={6} circle>
+										{(template.restrictions as Restriction[]).length}
+									</Badge>
+								) : null}
+							</Tabs.Tab>
+						</Tabs.List>
+
+						<Tabs.Panel value='preview'>
+							<Card withBorder p='md'>
+								<LetterPreview content={previewHtml} />
+							</Card>
+						</Tabs.Panel>
+
+						<Tabs.Panel value='restrictions'>
+							<RestrictionsView
+								restrictions={
+									(template.restrictions as Restriction[] | null) ?? []
+								}
+							/>
+						</Tabs.Panel>
+					</Tabs>
 				</Grid.Col>
 
 				<Grid.Col span={4}>
@@ -184,5 +214,54 @@ export default function TemplateDetail({ template }: Props) {
 				</Grid.Col>
 			</Grid>
 		</Stack>
+	);
+}
+
+type RestrictionsViewProps = {
+	restrictions: Restriction[];
+};
+
+function RestrictionsView({ restrictions }: RestrictionsViewProps) {
+	if (restrictions.length === 0) {
+		return (
+			<Text size='sm' c='dimmed' py='md'>
+				No restrictions — this template is available to all students.
+			</Text>
+		);
+	}
+
+	return (
+		<Table striped highlightOnHover withTableBorder>
+			<Table.Thead>
+				<Table.Tr>
+					<Table.Th>Type</Table.Th>
+					<Table.Th>Operator</Table.Th>
+					<Table.Th>Values</Table.Th>
+				</Table.Tr>
+			</Table.Thead>
+			<Table.Tbody>
+				{restrictions.map((r, idx) => (
+					<Table.Tr key={`${r.type}-${idx}`}>
+						<Table.Td>
+							<Badge variant='light' size='sm'>
+								{RESTRICTION_META[r.type].label}
+							</Badge>
+						</Table.Td>
+						<Table.Td>
+							<Badge
+								variant='outline'
+								size='sm'
+								color={r.operator === 'include' ? 'green' : 'red'}
+							>
+								{r.operator === 'include' ? 'Include' : 'Exclude'}
+							</Badge>
+						</Table.Td>
+						<Table.Td>
+							<Text size='sm'>{formatRestrictionValues(r)}</Text>
+						</Table.Td>
+					</Table.Tr>
+				))}
+			</Table.Tbody>
+		</Table>
 	);
 }
