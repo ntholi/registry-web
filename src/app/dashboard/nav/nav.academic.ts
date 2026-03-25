@@ -10,11 +10,14 @@ import {
 	IconEye,
 	IconGavel,
 	IconListCheck,
+	IconMail,
+	IconMailSpark,
 	IconMessageQuestion,
 	IconMessageStar,
 	IconPresentation,
 	IconReportAnalytics,
 	IconSchool,
+	IconTemplate,
 	IconUsers,
 } from '@tabler/icons-react';
 import { createElement } from 'react';
@@ -72,6 +75,25 @@ export const academicNav: NavItem[] = [
 			queryFn: () => countUncompletedTasks(),
 			color: 'red',
 		},
+	},
+	{
+		label: 'Letters',
+		icon: IconMail,
+		collapsed: false,
+		children: [
+			{
+				label: 'Letters',
+				href: '/registry/letters/generate',
+				icon: IconMailSpark,
+				permissions: [{ resource: 'letters', action: 'read' }],
+			},
+			{
+				label: 'Templates',
+				href: '/registry/letters/templates',
+				icon: IconTemplate,
+				permissions: [{ resource: 'letter-templates', action: 'read' }],
+			},
+		],
 	},
 	{
 		label: 'Schools',
