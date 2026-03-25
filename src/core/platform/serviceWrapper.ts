@@ -19,19 +19,8 @@ export function serviceWrapper<T extends object>(
 					const startTime = Date.now();
 					const methodName = String(prop);
 
-					logger.info(`Starting ${methodName}`, { args });
-
 					try {
-						const result = await originalMethod.apply(target, args);
-						const duration = Date.now() - startTime;
-
-						logger.info(`Completed ${methodName} in ${duration}ms`, {
-							success: true,
-							duration,
-							result,
-						});
-
-						return result;
+						return await originalMethod.apply(target, args);
 					} catch (error) {
 						const duration = Date.now() - startTime;
 						logger.error(
