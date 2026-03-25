@@ -1,5 +1,5 @@
 {
-	"id": "8a301221-4978-44e1-a83e-70ef333e36af",
+	"id": "19461e85-07d9-46dd-8d6c-ce1900e6ee08",
 	"prevId": "c3598777-3778-4564-8749-90951313439d",
 	"version": "7",
 	"dialect": "postgresql",
@@ -10125,17 +10125,12 @@
 					"primaryKey": false,
 					"notNull": false
 				},
-				"allowed_semester_statuses": {
-					"name": "allowed_semester_statuses",
-					"type": "text[]",
+				"restrictions": {
+					"name": "restrictions",
+					"type": "jsonb",
 					"primaryKey": false,
-					"notNull": false
-				},
-				"allowed_student_statuses": {
-					"name": "allowed_student_statuses",
-					"type": "text[]",
-					"primaryKey": false,
-					"notNull": false
+					"notNull": false,
+					"default": "'[]'::jsonb"
 				},
 				"is_active": {
 					"name": "is_active",

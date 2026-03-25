@@ -1,28 +1,28 @@
 'use client';
 
 import {
+	ActionIcon,
+	Badge,
 	Button,
 	Divider,
 	Fieldset,
+	Group,
 	Menu,
-	MultiSelect,
 	Select,
 	SimpleGrid,
+	Table,
+	Tabs,
+	Text,
 	TextInput,
 } from '@mantine/core';
 import { RichTextEditor } from '@mantine/tiptap';
 import { letterTemplates } from '@registry/_database';
-import { studentStatus } from '@registry/students/_schema/students';
-import {
-	programStatus,
-	semesterStatus,
-} from '@registry/students/_schema/types';
 import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import '@mantine/tiptap/styles.css';
 import { Link } from '@mantine/tiptap';
-import { IconChevronRight, IconTemplate } from '@tabler/icons-react';
+import { IconChevronRight, IconTemplate, IconTrash } from '@tabler/icons-react';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
 import SubScript from '@tiptap/extension-subscript';
@@ -33,8 +33,15 @@ import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { PLACEHOLDER_GROUPS } from '../../_lib/placeholders';
+import {
+	formatRestrictionValues,
+	RESTRICTION_META,
+	type Restriction,
+	type RestrictionType,
+} from '../../_lib/restrictions';
+import RestrictionModal from './RestrictionModal';
 
 type LetterTemplate = typeof letterTemplates.$inferInsert;
 
@@ -52,6 +59,7 @@ const schema = createInsertSchema(letterTemplates).omit({
 	updatedAt: true,
 	createdBy: true,
 	content: true,
+	restrictions: true,
 });
 
 const roleOptions = DASHBOARD_ROLES.map((r) => ({
@@ -74,6 +82,9 @@ export default function TemplateForm({
 }: Props) {
 	const router = useRouter();
 	const formRef = useRef<HTMLFormElement>(null);
+	const [restrictions, setRestrictions] = useState<Restriction[]>(
+		(defaultValues?.restrictions as Restriction[]) ?? []
+	);
 
 	const editor = useEditor({
 		extensions: [
@@ -90,27 +101,19 @@ export default function TemplateForm({
 		immediatelyRender: false,
 	});
 
+	const usedTypes = restrictions.map((r) => r.type);
+
 	return (
 		<Form
 			title={title}
 			formRef={formRef}
-			action={(values) => {
-				const v = values as Record<string, string[] | string | null>;
-				return onSubmit({
+			action={(values) =>
+				onSubmit({
 					...values,
 					content: editor?.getHTML() || '',
-					allowedSemesterStatuses: (v.allowedSemesterStatuses as string[])
-						?.length
-						? v.allowedSemesterStatuses
-						: null,
-					allowedStudentStatuses: (v.allowedStudentStatuses as string[])?.length
-						? v.allowedStudentStatuses
-						: null,
-					allowedProgramStatuses: (v.allowedProgramStatuses as string[])?.length
-						? v.allowedProgramStatuses
-						: null,
-				} as LetterTemplate);
-			}}
+					restrictions,
+				} as LetterTemplate)
+			}
 			queryKey={['letter-templates']}
 			schema={schema}
 			defaultValues={
@@ -121,139 +124,218 @@ export default function TemplateForm({
 					signOffName: defaultValues?.signOffName || '',
 					signOffTitle: defaultValues?.signOffTitle || '',
 					role: defaultValues?.role || null,
-					allowedSemesterStatuses:
-						(defaultValues?.allowedSemesterStatuses as string[]) ?? [],
-					allowedStudentStatuses:
-						(defaultValues?.allowedStudentStatuses as string[]) ?? [],
-					allowedProgramStatuses:
-						(defaultValues?.allowedProgramStatuses as string[]) ?? [],
 				} as Record<string, unknown>
 			}
 			onSuccess={() => router.push('/registry/letters/templates')}
 		>
 			{(form) => (
-				<>
-					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
-						<TextInput
-							label='Template Name'
-							placeholder='e.g. Completion Letter'
-							withAsterisk
-							{...form.getInputProps('name')}
-						/>
-						<Select
-							label='Role Scope'
-							placeholder='System-wide (all departments)'
-							data={roleOptions}
-							clearable
-							{...form.getInputProps('role')}
-						/>
-					</SimpleGrid>
+				<Tabs defaultValue='details'>
+					<Tabs.List mb='md'>
+						<Tabs.Tab value='details'>Letter Details</Tabs.Tab>
+						<Tabs.Tab value='restrictions'>
+							Restrictions
+							{restrictions.length > 0 && (
+								<Badge size='xs' ml={6} circle>
+									{restrictions.length}
+								</Badge>
+							)}
+						</Tabs.Tab>
+					</Tabs.List>
 
-					<Fieldset legend='Letter Header' mt={'lg'}>
+					<Tabs.Panel value='details'>
 						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
 							<TextInput
-								label='Subject Line'
-								placeholder='e.g. CONFIRMATION OF STUDENTSHIP – {{studentName}}'
-								{...form.getInputProps('subject')}
+								label='Template Name'
+								placeholder='e.g. Completion Letter'
+								withAsterisk
+								{...form.getInputProps('name')}
 							/>
 							<Select
-								label='Default Salutation'
-								placeholder='Select a salutation'
-								data={SALUTATION_OPTIONS}
-								searchable
-								{...form.getInputProps('salutation')}
+								label='Role Scope'
+								placeholder='System-wide (all departments)'
+								data={roleOptions}
+								clearable
+								{...form.getInputProps('role')}
 							/>
 						</SimpleGrid>
-					</Fieldset>
 
-					<Divider label='Template Content' labelPosition='center' />
+						<Fieldset legend='Letter Header' mt='lg'>
+							<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
+								<TextInput
+									label='Subject Line'
+									placeholder='e.g. CONFIRMATION OF STUDENTSHIP – {{studentName}}'
+									{...form.getInputProps('subject')}
+								/>
+								<Select
+									label='Default Salutation'
+									placeholder='Select a salutation'
+									data={SALUTATION_OPTIONS}
+									searchable
+									{...form.getInputProps('salutation')}
+								/>
+							</SimpleGrid>
+						</Fieldset>
 
-					<RichTextEditor editor={editor} mih={300}>
-						<RichTextEditor.Toolbar sticky stickyOffset={60}>
-							<RichTextEditor.ControlsGroup>
-								<RichTextEditor.Bold />
-								<RichTextEditor.Italic />
-								<RichTextEditor.Underline />
-								<RichTextEditor.Strikethrough />
-								<RichTextEditor.Highlight />
-								<RichTextEditor.ClearFormatting />
-							</RichTextEditor.ControlsGroup>
+						<Divider label='Template Content' labelPosition='center' my='md' />
 
-							<RichTextEditor.ControlsGroup>
-								<RichTextEditor.H1 />
-								<RichTextEditor.H2 />
-								<RichTextEditor.H3 />
-							</RichTextEditor.ControlsGroup>
+						<RichTextEditor editor={editor} mih={300}>
+							<RichTextEditor.Toolbar sticky stickyOffset={60}>
+								<RichTextEditor.ControlsGroup>
+									<RichTextEditor.Bold />
+									<RichTextEditor.Italic />
+									<RichTextEditor.Underline />
+									<RichTextEditor.Strikethrough />
+									<RichTextEditor.Highlight />
+									<RichTextEditor.ClearFormatting />
+								</RichTextEditor.ControlsGroup>
 
-							<RichTextEditor.ControlsGroup>
-								<RichTextEditor.BulletList />
-								<RichTextEditor.OrderedList />
-							</RichTextEditor.ControlsGroup>
+								<RichTextEditor.ControlsGroup>
+									<RichTextEditor.H1 />
+									<RichTextEditor.H2 />
+									<RichTextEditor.H3 />
+								</RichTextEditor.ControlsGroup>
 
-							<RichTextEditor.ControlsGroup>
-								<RichTextEditor.Link />
-								<RichTextEditor.Unlink />
-							</RichTextEditor.ControlsGroup>
+								<RichTextEditor.ControlsGroup>
+									<RichTextEditor.BulletList />
+									<RichTextEditor.OrderedList />
+								</RichTextEditor.ControlsGroup>
 
-							<RichTextEditor.ControlsGroup>
-								<RichTextEditor.AlignLeft />
-								<RichTextEditor.AlignCenter />
-								<RichTextEditor.AlignRight />
-								<RichTextEditor.AlignJustify />
-							</RichTextEditor.ControlsGroup>
+								<RichTextEditor.ControlsGroup>
+									<RichTextEditor.Link />
+									<RichTextEditor.Unlink />
+								</RichTextEditor.ControlsGroup>
 
-							<RichTextEditor.ControlsGroup>
-								<RichTextEditor.Undo />
-								<RichTextEditor.Redo />
-							</RichTextEditor.ControlsGroup>
+								<RichTextEditor.ControlsGroup>
+									<RichTextEditor.AlignLeft />
+									<RichTextEditor.AlignCenter />
+									<RichTextEditor.AlignRight />
+									<RichTextEditor.AlignJustify />
+								</RichTextEditor.ControlsGroup>
 
-							<RichTextEditor.ControlsGroup>
-								{editor && <PlaceholderMenu editor={editor} />}
-							</RichTextEditor.ControlsGroup>
-						</RichTextEditor.Toolbar>
-						<RichTextEditor.Content />
-					</RichTextEditor>
+								<RichTextEditor.ControlsGroup>
+									<RichTextEditor.Undo />
+									<RichTextEditor.Redo />
+								</RichTextEditor.ControlsGroup>
 
-					<Fieldset legend='Eligibility Restrictions' variant='filled'>
-						<SimpleGrid cols={{ base: 1, sm: 3 }} spacing='md'>
-							<MultiSelect
-								label='Semester Statuses'
-								placeholder='Any (no restriction)'
-								data={semesterStatus.enumValues}
-								{...form.getInputProps('allowedSemesterStatuses')}
-							/>
-							<MultiSelect
-								label='Student Statuses'
-								placeholder='Any (no restriction)'
-								data={studentStatus.enumValues}
-								{...form.getInputProps('allowedStudentStatuses')}
-							/>
-							<MultiSelect
-								label='Program Statuses'
-								placeholder='Any (no restriction)'
-								data={programStatus.enumValues}
-								{...form.getInputProps('allowedProgramStatuses')}
-							/>
-						</SimpleGrid>
-					</Fieldset>
+								<RichTextEditor.ControlsGroup>
+									{editor && <PlaceholderMenu editor={editor} />}
+								</RichTextEditor.ControlsGroup>
+							</RichTextEditor.Toolbar>
+							<RichTextEditor.Content />
+						</RichTextEditor>
 
-					<Fieldset legend='Sign-off' variant='filled'>
-						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
-							<TextInput
-								label='Name'
-								placeholder='e.g. MATEBOHO MOOROSI (Mrs.)'
-								{...form.getInputProps('signOffName')}
-							/>
-							<TextInput
-								label='Title'
-								placeholder='e.g. REGISTRAR'
-								{...form.getInputProps('signOffTitle')}
-							/>
-						</SimpleGrid>
-					</Fieldset>
-				</>
+						<Fieldset legend='Sign-off' variant='filled' mt='md'>
+							<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
+								<TextInput
+									label='Name'
+									placeholder='e.g. MATEBOHO MOOROSI (Mrs.)'
+									{...form.getInputProps('signOffName')}
+								/>
+								<TextInput
+									label='Title'
+									placeholder='e.g. REGISTRAR'
+									{...form.getInputProps('signOffTitle')}
+								/>
+							</SimpleGrid>
+						</Fieldset>
+					</Tabs.Panel>
+
+					<Tabs.Panel value='restrictions'>
+						<RestrictionsTab
+							restrictions={restrictions}
+							usedTypes={usedTypes}
+							onChange={setRestrictions}
+						/>
+					</Tabs.Panel>
+				</Tabs>
 			)}
 		</Form>
+	);
+}
+
+type RestrictionsTabProps = {
+	restrictions: Restriction[];
+	usedTypes: RestrictionType[];
+	onChange: (restrictions: Restriction[]) => void;
+};
+
+function RestrictionsTab({
+	restrictions,
+	usedTypes,
+	onChange,
+}: RestrictionsTabProps) {
+	return (
+		<>
+			<Group justify='space-between' mb='md'>
+				<Text size='sm' c='dimmed'>
+					{restrictions.length === 0
+						? 'No restrictions — this template is available to all students.'
+						: `${restrictions.length} restriction(s) configured.`}
+				</Text>
+				<RestrictionModal
+					usedTypes={usedTypes}
+					onSave={(r) => onChange([...restrictions, r])}
+				/>
+			</Group>
+			{restrictions.length > 0 && (
+				<Table striped highlightOnHover withTableBorder>
+					<Table.Thead>
+						<Table.Tr>
+							<Table.Th>Type</Table.Th>
+							<Table.Th>Operator</Table.Th>
+							<Table.Th>Values</Table.Th>
+							<Table.Th w={120}>Actions</Table.Th>
+						</Table.Tr>
+					</Table.Thead>
+					<Table.Tbody>
+						{restrictions.map((r, idx) => (
+							<Table.Tr key={`${r.type}-${idx}`}>
+								<Table.Td>
+									<Badge variant='light' size='sm'>
+										{RESTRICTION_META[r.type].label}
+									</Badge>
+								</Table.Td>
+								<Table.Td>
+									<Badge
+										variant='outline'
+										size='sm'
+										color={r.operator === 'include' ? 'green' : 'red'}
+									>
+										{r.operator === 'include' ? 'Include' : 'Exclude'}
+									</Badge>
+								</Table.Td>
+								<Table.Td>
+									<Text size='sm'>{formatRestrictionValues(r)}</Text>
+								</Table.Td>
+								<Table.Td>
+									<Group gap='xs'>
+										<RestrictionModal
+											initial={r}
+											usedTypes={usedTypes}
+											onSave={(updated) => {
+												const next = [...restrictions];
+												next[idx] = updated;
+												onChange(next);
+											}}
+										/>
+										<ActionIcon
+											variant='subtle'
+											color='red'
+											size='sm'
+											onClick={() =>
+												onChange(restrictions.filter((_, i) => i !== idx))
+											}
+										>
+											<IconTrash size={14} />
+										</ActionIcon>
+									</Group>
+								</Table.Td>
+							</Table.Tr>
+						))}
+					</Table.Tbody>
+				</Table>
+			)}
+		</>
 	);
 }
 

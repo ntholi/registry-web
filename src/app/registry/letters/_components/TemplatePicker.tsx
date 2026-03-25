@@ -19,6 +19,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconFileText, IconLock } from '@tabler/icons-react';
 import { resolveTemplate } from '../_lib/resolve';
+import { evaluateRestrictions, type Restriction } from '../_lib/restrictions';
 import type { getStudentForLetter } from '../_server/actions';
 
 type Template = {
@@ -26,9 +27,7 @@ type Template = {
 	name: string;
 	subject: string | null;
 	role: string | null;
-	allowedSemesterStatuses: string[] | null;
-	allowedStudentStatuses: string[] | null;
-	allowedProgramStatuses: string[] | null;
+	restrictions: Restriction[] | null;
 };
 
 type StudentData = NonNullable<Awaited<ReturnType<typeof getStudentForLetter>>>;
@@ -45,30 +44,8 @@ function getTemplateRestriction(
 	studentData: StudentData | null | undefined
 ): string | null {
 	if (!studentData) return null;
-	const program = studentData.programs?.[0];
-	const semester = program?.semesters?.[0];
-
-	if (tpl.allowedSemesterStatuses?.length) {
-		const semStatus = semester?.status;
-		if (!semStatus || !tpl.allowedSemesterStatuses.includes(semStatus)) {
-			return `Requires semester status: ${tpl.allowedSemesterStatuses.join(' or ')}`;
-		}
-	}
-
-	if (tpl.allowedStudentStatuses?.length) {
-		if (!tpl.allowedStudentStatuses.includes(studentData.status)) {
-			return `Requires student status: ${tpl.allowedStudentStatuses.join(' or ')}`;
-		}
-	}
-
-	if (tpl.allowedProgramStatuses?.length) {
-		const progStatus = program?.status;
-		if (!progStatus || !tpl.allowedProgramStatuses.includes(progStatus)) {
-			return `Requires program status: ${tpl.allowedProgramStatuses.join(' or ')}`;
-		}
-	}
-
-	return null;
+	if (!tpl.restrictions?.length) return null;
+	return evaluateRestrictions(tpl.restrictions, studentData);
 }
 
 export default function TemplatePicker({

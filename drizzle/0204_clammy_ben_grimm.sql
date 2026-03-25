@@ -1,0 +1,1 @@
+ALTER TABLE "letter_templates" ADD COLUMN "restrictions" jsonb DEFAULT '[]'::jsonb;

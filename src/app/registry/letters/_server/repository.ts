@@ -117,8 +117,8 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 						structure: {
 							with: {
 								program: {
-									with: { school: { columns: { name: true } } },
-									columns: { name: true },
+									with: { school: { columns: { id: true, name: true } } },
+									columns: { name: true, level: true },
 								},
 							},
 						},
@@ -130,7 +130,7 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 									columns: { semesterNumber: true },
 								},
 							},
-							columns: { termCode: true, status: true },
+							columns: { termCode: true, status: true, sponsorId: true },
 						},
 					},
 				},

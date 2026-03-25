@@ -11,6 +11,7 @@ import withPermission, {
 } from '@/core/platform/withPermission';
 import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { resolveTemplate } from '../_lib/resolve';
+import { evaluateRestrictions } from '../_lib/restrictions';
 import LetterTemplateRepository, {
 	LetterRecipientRepository,
 	LetterRepository,
@@ -79,32 +80,11 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 			if (!studentData) throw new UserFacingError('Student not found');
 
 			const program = studentData.programs?.[0];
-			const semester = program?.semesters?.[0];
+			const _semester = program?.semesters?.[0];
 
-			if (template.allowedSemesterStatuses?.length) {
-				const semStatus = semester?.status;
-				if (!semStatus || !template.allowedSemesterStatuses.includes(semStatus))
-					throw new UserFacingError(
-						`This letter requires semester status: ${template.allowedSemesterStatuses.join(' or ')}`
-					);
-			}
-
-			if (template.allowedStudentStatuses?.length) {
-				if (!template.allowedStudentStatuses.includes(studentData.status))
-					throw new UserFacingError(
-						`This letter requires student status: ${template.allowedStudentStatuses.join(' or ')}`
-					);
-			}
-
-			if (template.allowedProgramStatuses?.length) {
-				const progStatus = program?.status;
-				if (
-					!progStatus ||
-					!template.allowedProgramStatuses.includes(progStatus)
-				)
-					throw new UserFacingError(
-						`This letter requires program status: ${template.allowedProgramStatuses.join(' or ')}`
-					);
+			if (template.restrictions?.length) {
+				const error = evaluateRestrictions(template.restrictions, studentData);
+				if (error) throw new UserFacingError(error);
 			}
 
 			const content = resolveTemplate(template.content, studentData);
