@@ -7,7 +7,7 @@ VALUES (
   'Confirmation of Studentship',
   'CONFIRMATION OF STUDENTSHIP – {{studentName}}',
   'Dear Sir/Madam,',
-  '<p>This is to confirm that {{studentName}} is currently a bonafide student at Limkokwing University of Creative Technology. {{gender}} is pursuing {{programName}}. {{studentName}} is in {{semesterName}} of {{genderPossessive}} studies. {{genderPossessive}} conduct is generally acceptable.</p>
+  '<p>This is to confirm that {{studentName}} is currently a bonafide student at Limkokwing University of Creative Technology. {{gender}} is pursuing {{programName}}. {{studentName}} is in {{yearOfStudy}} of {{genderPossessive}} studies. {{genderPossessive}} conduct is generally acceptable.</p>
 <p>In my capacity as the Registrar, I assure your office that {{studentName}} is currently a genuine student in this institution and {{genderPossessive}} student number is {{stdNo}}.</p>
 <p>I kindly request that you assist {{genderPossessive}} with the services {{gender}} may require from your organization as {{gender}} is an authentic student in the institution.</p>',
   '''MATEBOHO MOOROSI (Mrs.)',
@@ -62,7 +62,7 @@ VALUES (
   'Industry/Project Request',
   'REQUEST TO ALLOW LIMKOKWING STUDENTS TO CARRY OUT A PROJECT',
   'Dear Sir/Madam,',
-  '<p>I humbly request your office to allow Limkokwing University of Creative Technology students to carry out a project at your premises. The project is part of the requirements for the students to complete their studies in {{programName}}. The students are in {{semesterName}} of study.</p>
+  '<p>I humbly request your office to allow Limkokwing University of Creative Technology students to carry out a project at your premises. The project is part of the requirements for the students to complete their studies in {{programName}}. The students are in {{yearOfStudy}} of study.</p>
 <p>My office confirms that the project is strictly for academic purposes and will not be used for any other purpose outside of the LUCT course structures.</p>
 <p>The University is grateful for the support and assistance that your organization continuously provides to the students of the institution.</p>',
   'Dr. Lelingoana Lerotholi',
@@ -90,7 +90,7 @@ VALUES (
   'Deferment of Studies',
   'DEFERMENT OF STUDIES – {{studentName}}',
   'Dear Sir/Madam,',
-  '<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled in {{programName}}. {{gender}} is in {{semesterName}} of studies. {{studentName}} is officially allowed to defer studies.</p>
+  '<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled in {{programName}}. {{gender}} is in {{yearOfStudy}} of studies. {{studentName}} is officially allowed to defer studies.</p>
 <p>Please assist {{genderPossessive}} with deferment procedures so that {{gender}} does not encounter problems when {{gender}} resumes studies.</p>',
   '''MATEBOHO MOOROSI (Mrs.)',
   'REGISTRAR',
@@ -103,7 +103,7 @@ VALUES (
   'Exit from Studies',
   'EXIT FROM STUDIES – {{studentName}}',
   'Dear Sir/Madam,',
-  '<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled for {{programName}}. {{studentName}} is in {{semesterName}} of studies. {{studentName}} has been granted the official exit from studies.</p>
+  '<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had enrolled for {{programName}}. {{studentName}} is in {{yearOfStudy}} of studies. {{studentName}} has been granted the official exit from studies.</p>
 <p>Please assist {{genderPossessive}} with exit procedures.</p>',
   '''MATEBOHO MOOROSI (Mrs.)',
   'REGISTRAR',
@@ -116,7 +116,7 @@ VALUES (
   'Identity Card Request',
   'URGENT APPLICATION FOR NATIONAL IDENTITY CARD: {{studentName}}',
   'Dear Sir/Madam,',
-  '<p>My office confirms to the Director that {{studentName}} is a {{semesterName}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an identity document. {{genderPossessive}} national ID number is {{nationalId}} and date of birth is {{dateOfBirth}}.</p>
+  '<p>My office confirms to the Director that {{studentName}} is a {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an identity document. {{genderPossessive}} national ID number is {{nationalId}} and date of birth is {{dateOfBirth}}.</p>
 <p>The University is grateful for the assistance that the Director continually gives students and the community of Limkokwing University.</p>',
   '''MATEBOHO MOOROSI (Mrs.)',
   'REGISTRAR',
@@ -129,7 +129,7 @@ VALUES (
   'Passport Request',
   'URGENT APPLICATION FOR NATIONAL PASSPORT: {{studentName}}',
   'Dear Sir/Madam,',
-  '<p>My office confirms to the Director Emergency Passport that {{studentName}} is a {{semesterName}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an urgent travel document. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
+  '<p>My office confirms to the Director Emergency Passport that {{studentName}} is a {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{studentName}} requires an urgent travel document. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
 <p>The University is grateful for the assistance that the Director Emergency Passport constantly gives students and the community of Limkokwing University.</p>',
   '''MATEBOHO MOOROSI (Mrs.)',
   'REGISTRAR',
@@ -156,7 +156,7 @@ VALUES (
   'Reinstatement',
   'REINSTATEMENT INTO STUDIES – {{studentName}}',
   'Dear Sir/Madam,',
-  '<p>My office notifies you that {{studentName}} ({{stdNo}}) has been reinstated into {{programName}}. {{gender}} is reinstating into {{semesterName}} of study.</p>
+  '<p>My office notifies you that {{studentName}} ({{stdNo}}) has been reinstated into {{programName}}. {{gender}} is reinstating into {{yearOfStudy}} of study.</p>
 <p>{{gender}} is reinstating as per the scheduled academic calendar.</p>
 <p>Kindly assist {{genderPossessive}} with reinstatement procedures so that {{gender}} does not encounter any hindrance.</p>',
   '''MATEBOHO MOOROSI (Mrs.)',
@@ -170,7 +170,7 @@ VALUES (
   'Visa Request',
   'URGENT APPLICATION FOR VISA FOR TRAVELING: {{studentName}}',
   'Dear Sir/Madam,',
-  '<p>My office confirms that {{studentName}} is a {{semesterName}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
+  '<p>My office confirms that {{studentName}} is a {{yearOfStudy}} student in the {{schoolName}} at Limkokwing University of Creative Technology. {{genderPossessive}} student number is {{stdNo}}. {{genderPossessive}} nationality is {{nationality}} and date of birth is {{dateOfBirth}}.</p>
 <p>In my capacity as the Registrar, I assure your office that {{studentName}} is a genuine student in this institution.</p>
 <p>The University is grateful for the assistance that your department continually provides to students and the community of Limkokwing University.</p>',
   '''MATEBOHO MOOROSI (Mrs.)',
@@ -184,7 +184,7 @@ VALUES (
   'Withdrawal from Studies',
   'WITHDRAWAL FROM STUDIES – {{studentName}}',
   'Dear Sir/Madam,',
-  '<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had registered for {{programName}}. {{studentName}} is in {{semesterName}} of studies. {{gender}} is officially being granted withdrawal from studies.</p>
+  '<p>My office notifies you that {{studentName}}, Student number {{stdNo}}, had registered for {{programName}}. {{studentName}} is in {{yearOfStudy}} of studies. {{gender}} is officially being granted withdrawal from studies.</p>
 <p>Please assist {{genderPossessive}} with withdrawal procedures so that {{gender}} does not encounter problems.</p>',
   '''MATEBOHO MOOROSI (Mrs.)',
   'REGISTRAR',

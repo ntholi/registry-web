@@ -54,7 +54,7 @@ export function resolveTemplate(html: string, data: StudentLetterData) {
 			? formatSemester(structureSem.semesterNumber, 'full')
 			: '',
 		yearOfStudy: structureSem
-			? String(Math.ceil(Number(structureSem.semesterNumber) / 2))
+			? `Year ${Math.ceil(Number(structureSem.semesterNumber) / 2)}`
 			: '',
 		graduationDate: program?.graduationDate
 			? formatDate(program.graduationDate)
