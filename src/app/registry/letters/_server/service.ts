@@ -78,6 +78,35 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 			if (!template) throw new UserFacingError('Template not found');
 			if (!studentData) throw new UserFacingError('Student not found');
 
+			const program = studentData.programs?.[0];
+			const semester = program?.semesters?.[0];
+
+			if (template.allowedSemesterStatuses?.length) {
+				const semStatus = semester?.status;
+				if (!semStatus || !template.allowedSemesterStatuses.includes(semStatus))
+					throw new UserFacingError(
+						`This letter requires semester status: ${template.allowedSemesterStatuses.join(' or ')}`
+					);
+			}
+
+			if (template.allowedStudentStatuses?.length) {
+				if (!template.allowedStudentStatuses.includes(studentData.status))
+					throw new UserFacingError(
+						`This letter requires student status: ${template.allowedStudentStatuses.join(' or ')}`
+					);
+			}
+
+			if (template.allowedProgramStatuses?.length) {
+				const progStatus = program?.status;
+				if (
+					!progStatus ||
+					!template.allowedProgramStatuses.includes(progStatus)
+				)
+					throw new UserFacingError(
+						`This letter requires program status: ${template.allowedProgramStatuses.join(' or ')}`
+					);
+			}
+
 			const content = resolveTemplate(template.content, studentData);
 			const subject = template.subject
 				? resolveTemplate(template.subject, studentData)

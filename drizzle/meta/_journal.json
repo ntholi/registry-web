@@ -1415,6 +1415,34 @@
 			"when": 1774356965299,
 			"tag": "0203_left_pete_wisdom",
 			"breakpoints": true
+		},
+		{
+			"idx": 204,
+			"version": "7",
+			"when": 1774408534195,
+			"tag": "0204_hot_dexter_bennett",
+			"breakpoints": true
+		},
+		{
+			"idx": 205,
+			"version": "7",
+			"when": 1774408553791,
+			"tag": "0205_glamorous_matthew_murdock",
+			"breakpoints": true
+		},
+		{
+			"idx": 206,
+			"version": "7",
+			"when": 1774408847705,
+			"tag": "0206_breezy_lockheed",
+			"breakpoints": true
+		},
+		{
+			"idx": 207,
+			"version": "7",
+			"when": 1774408923293,
+			"tag": "0207_special_centennial",
+			"breakpoints": true
 		}
 	]
 }

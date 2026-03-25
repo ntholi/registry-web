@@ -74,10 +74,9 @@ VALUES (
 (
   'tpl_english_proficiency',
   'English Proficiency Attestation',
-  NULL,
+  'Attestation of English Proficiency by Home Institution',
   'To Whom It May Concern,',
-  '<p><strong>Attestation of English Proficiency by Home Institution</strong></p>
-<p>I hereby state that {{studentName}} ({{stdNo}}) has studied for {{programName}} at Limkokwing University of Creative Technology, Lesotho Campus. {{studentName}} has the full support of the university to spend a period of study or for any other reason at your institution or organization.</p>
+'<p>I hereby state that {{studentName}} ({{stdNo}}) has studied for {{programName}} at Limkokwing University of Creative Technology, Lesotho Campus. {{studentName}} has the full support of the university to spend a period of study or for any other reason at your institution or organization.</p>
 <p>{{studentName}} has acquired adequate English language proficiency to successfully participate in {{genderPossessive}} proposed programme. I fully attest that {{gender}} can successfully function well using verbal and non-verbal communication at your reputable institution.</p>
 <p>Kindly be notified that this qualification was obtained from the institution where the medium of instructions, the examinations and all forms of communication were done in English. Qualifications or any other academic documents obtained from Limkokwing University of Creative Technology do not include any explicit information about the rankings achieved by graduates. The university grades are rather interpreted by means of CGPA (Cumulative Grade Point Average) to demonstrate academic achievement of graduates. The transcripts obtained from the university also provide interpretations of the very CGPA system. We firmly believe that this attestation will provide more insights for your information requirements about the university.</p>',
   'Dr. Lelingoana Lerotholi',

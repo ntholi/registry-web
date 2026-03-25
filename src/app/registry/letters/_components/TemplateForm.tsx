@@ -4,6 +4,7 @@ import {
 	Button,
 	Group,
 	Menu,
+	MultiSelect,
 	Select,
 	SimpleGrid,
 	Stack,
@@ -13,6 +14,11 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { RichTextEditor } from '@mantine/tiptap';
 import { letterTemplates } from '@registry/_database';
+import { studentStatus } from '@registry/students/_schema/students';
+import {
+	programStatus,
+	semesterStatus,
+} from '@registry/students/_schema/types';
 import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import {
@@ -86,6 +92,12 @@ export default function TemplateForm({
 			signOffName: defaultValues?.signOffName || '',
 			signOffTitle: defaultValues?.signOffTitle || '',
 			role: defaultValues?.role || null,
+			allowedSemesterStatuses:
+				(defaultValues?.allowedSemesterStatuses as string[]) ?? [],
+			allowedStudentStatuses:
+				(defaultValues?.allowedStudentStatuses as string[]) ?? [],
+			allowedProgramStatuses:
+				(defaultValues?.allowedProgramStatuses as string[]) ?? [],
 		},
 	});
 
@@ -109,6 +121,15 @@ export default function TemplateForm({
 			onSubmit({
 				...values,
 				content: editor?.getHTML() || '',
+				allowedSemesterStatuses: values.allowedSemesterStatuses.length
+					? values.allowedSemesterStatuses
+					: null,
+				allowedStudentStatuses: values.allowedStudentStatuses.length
+					? values.allowedStudentStatuses
+					: null,
+				allowedProgramStatuses: values.allowedProgramStatuses.length
+					? values.allowedProgramStatuses
+					: null,
 			} as LetterTemplate),
 		onSuccess: async (data) => {
 			if (isActionResult(data)) {
@@ -169,6 +190,26 @@ export default function TemplateForm({
 					clearable
 					{...form.getInputProps('role')}
 				/>
+				<SimpleGrid cols={3}>
+					<MultiSelect
+						label='Allowed Semester Statuses'
+						placeholder='Any (no restriction)'
+						data={semesterStatus.enumValues}
+						{...form.getInputProps('allowedSemesterStatuses')}
+					/>
+					<MultiSelect
+						label='Allowed Student Statuses'
+						placeholder='Any (no restriction)'
+						data={studentStatus.enumValues}
+						{...form.getInputProps('allowedStudentStatuses')}
+					/>
+					<MultiSelect
+						label='Allowed Program Statuses'
+						placeholder='Any (no restriction)'
+						data={programStatus.enumValues}
+						{...form.getInputProps('allowedProgramStatuses')}
+					/>
+				</SimpleGrid>
 				<RichTextEditor editor={editor} mih={300}>
 					<RichTextEditor.Toolbar sticky stickyOffset={60}>
 						<RichTextEditor.ControlsGroup>

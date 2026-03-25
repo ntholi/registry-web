@@ -1,0 +1,1 @@
+ALTER TABLE "letter_templates" ADD COLUMN "allowed_program_statuses" text[];

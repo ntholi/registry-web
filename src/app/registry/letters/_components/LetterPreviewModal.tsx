@@ -3,12 +3,20 @@
 import { Button, Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { resolveTemplate } from '../_lib/resolve';
-import type { getActiveTemplates, getRecipientsByTemplate, getStudentForLetter } from '../_server/actions';
+import type {
+	getActiveTemplates,
+	getRecipientsByTemplate,
+	getStudentForLetter,
+} from '../_server/actions';
 import LetterPreview from './LetterPreview';
 
-type Template = NonNullable<Awaited<ReturnType<typeof getActiveTemplates>>>[number];
+type Template = NonNullable<
+	Awaited<ReturnType<typeof getActiveTemplates>>
+>[number];
 type StudentData = NonNullable<Awaited<ReturnType<typeof getStudentForLetter>>>;
-type Recipient = NonNullable<Awaited<ReturnType<typeof getRecipientsByTemplate>>>[number];
+type Recipient = NonNullable<
+	Awaited<ReturnType<typeof getRecipientsByTemplate>>
+>[number];
 
 type Props = {
 	template: Template | null | undefined;

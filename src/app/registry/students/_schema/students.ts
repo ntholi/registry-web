@@ -30,6 +30,8 @@ export const studentStatus = pgEnum('student_status', [
 	'Withdrawn',
 ]);
 
+export type StudentStatus = (typeof studentStatus.enumValues)[number];
+
 export const students = pgTable(
 	'students',
 	{

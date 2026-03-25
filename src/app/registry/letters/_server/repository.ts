@@ -106,11 +106,13 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 				gender: true,
 				dateOfBirth: true,
 				nationality: true,
+				status: true,
 			},
 			with: {
 				programs: {
 					where: (p, { eq }) => eq(p.status, 'Active'),
 					limit: 1,
+					columns: { status: true, graduationDate: true },
 					with: {
 						structure: {
 							with: {
@@ -128,7 +130,7 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 									columns: { semesterNumber: true },
 								},
 							},
-							columns: { termCode: true },
+							columns: { termCode: true, status: true },
 						},
 					},
 				},
