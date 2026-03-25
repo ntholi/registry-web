@@ -2460,6 +2460,72 @@ class AppraisalReportRepository {
 			.where(conditions.length > 0 ? and(...conditions) : undefined)
 			.orderBy(modules.code);
 	}
+
+	async sampleStudentComments(filter: ReportFilter, limit: number) {
+		const conditions = buildFeedbackConditions(filter);
+		const rows = await db
+			.select({ comment: studentFeedbackResponses.comment })
+			.from(studentFeedbackResponses)
+			.innerJoin(
+				assignedModules,
+				eq(studentFeedbackResponses.assignedModuleId, assignedModules.id)
+			)
+			.innerJoin(
+				semesterModules,
+				eq(assignedModules.semesterModuleId, semesterModules.id)
+			)
+			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+			.innerJoin(
+				studentFeedbackPassphrases,
+				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
+			)
+			.innerJoin(
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
+			)
+			.innerJoin(
+				structureSemesters,
+				eq(
+					studentFeedbackPassphrases.structureSemesterId,
+					structureSemesters.id
+				)
+			)
+			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.where(and(isNotNull(studentFeedbackResponses.comment), ...conditions))
+			.orderBy(sql`random()`)
+			.limit(limit);
+
+		return rows
+			.map((r) => r.comment?.trim())
+			.filter((c): c is string => !!c && c.length > 0);
+	}
+
+	async collectInsightContext(filter: ReportFilter) {
+		const [feedbackData, observationData, overview, comments] =
+			await Promise.all([
+				this.getFeedbackReportData(filter).catch(() => null),
+				this.getObservationReportData(filter).catch(() => null),
+				this.getOverviewData(filter).catch(() => null),
+				this.sampleStudentComments(filter, 50),
+			]);
+
+		return {
+			feedbackOverview: feedbackData?.overview ?? null,
+			feedbackCategories: feedbackData?.categoryAverages ?? [],
+			feedbackQuestions: feedbackData?.questionBreakdown?.slice(0, 30) ?? [],
+			observationOverview: observationData?.overview ?? null,
+			observationCategories: observationData?.categoryAverages ?? [],
+			observationCriteria:
+				observationData?.criteriaBreakdown?.slice(0, 30) ?? [],
+			topLecturers: overview?.lecturerRankings?.slice(0, 10) ?? [],
+			bottomLecturers: overview?.lecturerRankings?.slice(-10).reverse() ?? [],
+			schoolComparison: overview?.schoolComparison ?? [],
+			trendData: overview?.trendData ?? [],
+			comments,
+		};
+	}
 }
 
 export const appraisalReportRepository = new AppraisalReportRepository();

@@ -256,3 +256,38 @@ export interface AccessInfo {
 	hasFeedbackAccess: boolean;
 	hasObservationAccess: boolean;
 }
+
+export type InsightCategory =
+	| 'executive-summary'
+	| 'strengths'
+	| 'concerns'
+	| 'training'
+	| 'trends'
+	| 'school-highlights'
+	| 'student-sentiment'
+	| 'action-items'
+	| 'lecturer-spotlights'
+	| 'category-insights';
+
+export interface InsightItem {
+	text: string;
+	lecturerName?: string;
+	moduleName?: string;
+	schoolCode?: string;
+	rating?: number;
+	severity?: 'low' | 'medium' | 'high';
+}
+
+export interface InsightCard {
+	category: InsightCategory;
+	title: string;
+	items: InsightItem[];
+	tags: string[];
+}
+
+export interface AppraisalInsightsResult {
+	cards: InsightCard[];
+	tags: string[];
+	generatedAt: string;
+	filterSummary: string;
+}
