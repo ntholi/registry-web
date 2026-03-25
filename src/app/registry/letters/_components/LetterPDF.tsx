@@ -107,8 +107,8 @@ export default function LetterPDF({
 				)}
 
 				{subject && (
-					<View style={tw('mb-4')}>
-						<Text style={tw('font-bold underline')}>Re: {subject}</Text>
+					<View style={tw('my-8')}>
+						<Text style={tw('font-bold uppercase text-center')}>{subject}</Text>
 					</View>
 				)}
 
@@ -130,10 +130,10 @@ export default function LetterPDF({
 
 				<View style={tw('mt-100')}>
 					<Image
-						style={tw('h-[50pt] w-[200pt] mb-1')}
+						style={tw('h-[50pt] w-[180pt] mb-1')}
 						src='/images/signature_small.png'
 					/>
-					<View style={tw('border-b border-black w-[200pt] mb-1')} />
+					<View style={tw('border-b border-black w-[180pt] mb-1')} />
 					<Text style={tw('text-[10pt] font-bold')}>
 						{signOffName || 'Registrar'}
 					</Text>

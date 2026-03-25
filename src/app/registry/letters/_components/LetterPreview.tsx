@@ -48,12 +48,12 @@ export default function LetterPreview({
 			)}
 
 			{subject && (
-				<Text size='sm' fw={700} td='underline' mb='sm'>
-					Re: {subject}
+				<Text size='sm' fw={700} tt='uppercase' ta={'center'} my='md'>
+					{subject}
 				</Text>
 			)}
 
-			<Box mb='lg'>
+			<Box mb='xl'>
 				<RichTextContent html={content} />
 			</Box>
 
