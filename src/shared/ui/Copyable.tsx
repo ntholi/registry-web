@@ -10,6 +10,7 @@ type Props = {
 	children: ReactNode;
 	iconSize?: number;
 	showOnHover?: boolean;
+	align?: React.CSSProperties['alignItems'];
 };
 
 export default function Copyable({
@@ -17,12 +18,13 @@ export default function Copyable({
 	children,
 	iconSize = 15,
 	showOnHover = false,
+	align = 'center',
 }: Props) {
 	const [hovered, setHovered] = useState(false);
 	return (
 		<Group
 			gap='xs'
-			align='center'
+			align={align}
 			wrap='nowrap'
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}

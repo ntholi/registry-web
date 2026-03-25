@@ -1,22 +1,11 @@
 'use client';
 
-import {
-	ActionIcon,
-	Badge,
-	Flex,
-	Paper,
-	SimpleGrid,
-	Stack,
-	Tooltip,
-} from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import { IconCopy } from '@tabler/icons-react';
+import { Badge, Flex, Paper, SimpleGrid, Stack } from '@mantine/core';
 import StudentNameView from '@/app/registry/_components/StudentNameView';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
-import Link from '@/shared/ui/Link';
 import type { getRegistrationRequest } from '../_server/requests/actions';
 
 type Props = {

@@ -1,5 +1,6 @@
 import { Group } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import StudentNameView from '@/app/registry/_components/StudentNameView';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
@@ -49,6 +50,7 @@ export default async function LetterDetailPage({ params }: Props) {
 				<StudentNameView
 					stdNo={letter.student.stdNo}
 					name={letter.student.name}
+					label='Student'
 				/>
 				<Group grow>
 					<FieldView label='Serial Number'>{letter.serialNumber}</FieldView>
