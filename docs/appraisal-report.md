@@ -14,7 +14,7 @@ The appraisal reports page (`src/app/appraisals/reports/page.tsx`) is a client c
 | **Student Feedback**   | `feedback_responses` → ratings, comments, distributions    |
 | **Teaching Observation**| `observations` / `observation_ratings` → criteria scores  |
 
-Each tab already loads rich data through `AppraisalReportRepository` (2 400+ lines) and is protected by role-based access via `AppraisalReportService`.
+Each tab already loads rich data through `AppraisalReportRepository` (2,400+ lines) and is protected by role-based access via `AppraisalReportService`.
 
 ### Goal
 
