@@ -1429,6 +1429,13 @@
 			"when": 1774445316371,
 			"tag": "0205_simple_yellow_claw",
 			"breakpoints": true
+		},
+		{
+			"idx": 206,
+			"version": "7",
+			"when": 1774445839765,
+			"tag": "0206_open_morgan_stark",
+			"breakpoints": true
 		}
 	]
 }
