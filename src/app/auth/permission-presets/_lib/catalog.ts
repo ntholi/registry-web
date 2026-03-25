@@ -293,7 +293,6 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('registration', ['read']),
 			grant('registration-clearance', ['read']),
 			grant('students', ['read']),
-			grant('assessments', fullCrud),
 			grant('student-feedback-questions', fullCrud),
 			grant('student-feedback-categories', fullCrud),
 			grant('feedback-cycles', ['read', 'create', 'update']),
@@ -302,9 +301,9 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('teaching-observation-reports', ['read']),
 			grant('timetable', ['read']),
 			grant('tasks', fullCrud),
-			grant('attendance', ['read']),
 			grant('mails', ['read']),
-			grant('letter-templates', ['read'])
+			grant('letter-templates', ['read']),
+			grant('letters', fullCrud)
 		),
 	},
 	{
