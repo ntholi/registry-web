@@ -10,18 +10,32 @@ import {
 	Paper,
 	ScrollArea,
 	Stack,
+	Switch,
 	Text,
 	TextInput,
 	Title,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
 import type { letterTemplates } from '@registry/_database';
-import { IconArrowLeft, IconSearch, IconUser } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import {
+	IconArrowLeft,
+	IconEdit,
+	IconSearch,
+	IconUser,
+} from '@tabler/icons-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
+import { DeleteButton } from '@/shared/ui/adease';
 import LetterPreview from '../../_components/LetterPreview';
-import { getLetter, getLettersByTemplate } from '../../_server/actions';
+import {
+	deleteLetterTemplate,
+	getLetter,
+	getLettersByTemplate,
+	toggleTemplateActive,
+} from '../../_server/actions';
 
 type LetterTemplate = NonNullable<typeof letterTemplates.$inferSelect>;
 
@@ -34,6 +48,17 @@ export default function TemplateDetail({ template }: Props) {
 	const [debounced] = useDebouncedValue(search, 300);
 	const [selectedLetterId, setSelectedLetterId] = useState<string | null>(null);
 	const router = useRouter();
+	const queryClient = useQueryClient();
+
+	const toggleMutation = useActionMutation(toggleTemplateActive, {
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['letter-templates'] });
+			notifications.show({
+				message: `Template ${template.isActive ? 'deactivated' : 'activated'}`,
+				color: 'green',
+			});
+		},
+	});
 
 	const { data: lettersData } = useQuery({
 		queryKey: ['template-letters', template.id, debounced],
@@ -50,36 +75,66 @@ export default function TemplateDetail({ template }: Props) {
 
 	return (
 		<Stack p='lg'>
-			<Stack gap={4}>
-				<Group>
-					<ActionIcon
-						variant='subtle'
-						color='gray'
-						onClick={() => router.push('/registry/letters/templates')}
-					>
-						<IconArrowLeft size={18} />
-					</ActionIcon>
-					<Title order={2}>{template.name}</Title>
-				</Group>
-				<Group ml={42} gap='xs'>
-					{template.role ? (
-						<Badge variant='light' size='sm'>
-							{template.role.replace(/_/g, ' ')}
-						</Badge>
-					) : (
-						<Badge variant='light' color='gray' size='sm'>
-							System-wide
-						</Badge>
-					)}
-					<Badge
-						variant='dot'
-						color={template.isActive ? 'green' : 'red'}
-						size='sm'
-					>
-						{template.isActive ? 'Active' : 'Inactive'}
-					</Badge>
-				</Group>
-			</Stack>
+			<Group justify='space-between'>
+				<Stack gap={4}>
+					<Group>
+						<ActionIcon
+							variant='subtle'
+							color='gray'
+							onClick={() => router.push('/registry/letters/templates')}
+						>
+							<IconArrowLeft size={18} />
+						</ActionIcon>
+						<Title order={2}>{template.name}</Title>
+					</Group>
+					<Group ml={42} gap='xs'>
+						{template.role ? (
+							<Badge variant='light' size='sm'>
+								{template.role.replace(/_/g, ' ')}
+							</Badge>
+						) : (
+							<Badge variant='light' color='gray' size='sm'>
+								System-wide
+							</Badge>
+						)}
+					</Group>
+				</Stack>
+				<Stack gap={1}>
+					<Switch
+						offLabel={'Inactive'}
+						onLabel={'Active'}
+						size='lg'
+						styles={{
+							trackLabel: {
+								width: '50px',
+								padding: '0 4px',
+							},
+						}}
+						checked={template.isActive}
+						onChange={() => toggleMutation.mutate(template.id)}
+						disabled={toggleMutation.isPending}
+						color='green'
+					/>
+					<Group gap='sm'>
+						<ActionIcon
+							variant='subtle'
+							color='blue'
+							onClick={() =>
+								router.push(`/registry/letters/templates/${template.id}/edit`)
+							}
+						>
+							<IconEdit size={18} />
+						</ActionIcon>
+						<DeleteButton
+							handleDelete={() => deleteLetterTemplate(template.id)}
+							queryKey={['letter-templates']}
+							itemName={template.name}
+							itemType='template'
+							variant='subtle'
+						/>
+					</Group>
+				</Stack>
+			</Group>
 
 			<Grid>
 				<Grid.Col span={8}>

@@ -1,19 +1,17 @@
 'use client';
 
-import { ActionIcon, Badge, Card, Group, Menu, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import type { letterTemplates } from '@registry/_database';
 import {
-	IconDotsVertical,
-	IconEdit,
-	IconToggleLeft,
-	IconTrash,
-} from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+	Badge,
+	Card,
+	Group,
+	Stack,
+	Text,
+	ThemeIcon,
+	UnstyledButton,
+} from '@mantine/core';
+import type { letterTemplates } from '@registry/_database';
+import { IconFileText } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
-import { DeleteButton } from '@/shared/ui/adease';
-import { deleteLetterTemplate, toggleTemplateActive } from '../_server/actions';
 
 type LetterTemplate = NonNullable<typeof letterTemplates.$inferSelect>;
 
@@ -22,100 +20,47 @@ type Props = {
 };
 
 export default function TemplateCard({ template }: Props) {
-	const queryClient = useQueryClient();
 	const router = useRouter();
 
-	const toggleMutation = useActionMutation(toggleTemplateActive, {
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['letter-templates'] });
-			notifications.show({
-				message: `Template ${template.isActive ? 'deactivated' : 'activated'}`,
-				color: 'green',
-			});
-		},
-	});
-
 	return (
-		<Card
-			withBorder
-			shadow='sm'
-			padding='lg'
-			style={{ cursor: 'pointer' }}
+		<UnstyledButton
 			onClick={() => router.push(`/registry/letters/templates/${template.id}`)}
 		>
-			<Group justify='space-between' mb='xs'>
-				<Text fw={600} lineClamp={1}>
-					{template.name}
-				</Text>
-				<Menu position='bottom-end' withinPortal>
-					<Menu.Target>
-						<ActionIcon
-							variant='subtle'
-							color='gray'
-							onClick={(e) => e.stopPropagation()}
-						>
-							<IconDotsVertical size={16} />
-						</ActionIcon>
-					</Menu.Target>
-					<Menu.Dropdown>
-						<Menu.Item
-							leftSection={<IconEdit size={14} />}
-							onClick={(e) => {
-								e.stopPropagation();
-								router.push(`/registry/letters/templates/${template.id}/edit`);
-							}}
-						>
-							Edit
-						</Menu.Item>
-						<Menu.Item
-							leftSection={<IconToggleLeft size={14} />}
-							onClick={(e) => {
-								e.stopPropagation();
-								toggleMutation.mutate(template.id);
-							}}
-						>
-							{template.isActive ? 'Deactivate' : 'Activate'}
-						</Menu.Item>
-						<Menu.Divider />
-						<DeleteButton
-							handleDelete={() => deleteLetterTemplate(template.id)}
-							queryKey={['letter-templates']}
-							itemName={template.name}
-							itemType='template'
-							variant='transparent'
-							color='red'
-							w='100%'
-						>
-							<Menu.Item
-								color='red'
-								leftSection={<IconTrash size={14} />}
-								onClick={(e) => e.stopPropagation()}
+			<Card withBorder padding='lg' radius='md'>
+				<Group wrap='nowrap' gap='md'>
+					<ThemeIcon
+						size={44}
+						radius='md'
+						variant='light'
+						color={template.isActive ? 'blue' : 'gray'}
+					>
+						<IconFileText size={22} />
+					</ThemeIcon>
+					<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+						<Text fw={600} size='sm' lineClamp={1}>
+							{template.name}
+						</Text>
+						<Group gap='xs'>
+							{template.role ? (
+								<Badge variant='light' size='xs' tt='capitalize'>
+									{template.role.replace(/_/g, ' ')}
+								</Badge>
+							) : (
+								<Badge variant='light' color='gray' size='xs'>
+									System-wide
+								</Badge>
+							)}
+							<Badge
+								variant='dot'
+								color={template.isActive ? 'green' : 'red'}
+								size='xs'
 							>
-								Delete
-							</Menu.Item>
-						</DeleteButton>
-					</Menu.Dropdown>
-				</Menu>
-			</Group>
-
-			<Group gap='xs'>
-				{template.role ? (
-					<Badge variant='light' size='sm'>
-						{template.role.replace(/_/g, ' ')}
-					</Badge>
-				) : (
-					<Badge variant='light' color='gray' size='sm'>
-						System-wide
-					</Badge>
-				)}
-				<Badge
-					variant='dot'
-					color={template.isActive ? 'green' : 'red'}
-					size='sm'
-				>
-					{template.isActive ? 'Active' : 'Inactive'}
-				</Badge>
-			</Group>
-		</Card>
+								{template.isActive ? 'Active' : 'Inactive'}
+							</Badge>
+						</Group>
+					</Stack>
+				</Group>
+			</Card>
+		</UnstyledButton>
 	);
 }
