@@ -11,7 +11,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['notifications']}
 			getData={findAllNotifications}
 			actionIcons={[
-				<NewLink key={'new-link'} href='/admin/notifications/new' />,
+				<NewLink
+					key={'new-link'}
+					href='/admin/notifications/new'
+					resource='notifications'
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem

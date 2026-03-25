@@ -13,7 +13,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['recognized-schools']}
 			getData={findAllRecognizedSchools}
 			actionIcons={[
-				<NewLink key='new-link' href='/admissions/recognized-schools/new' />,
+				<NewLink
+					key='new-link'
+					href='/admissions/recognized-schools/new'
+					resource='recognized-schools'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem

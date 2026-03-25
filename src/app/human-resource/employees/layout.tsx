@@ -12,7 +12,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['employees']}
 			getData={findAllEmployees}
 			actionIcons={[
-				<NewLink key='new-link' href='/human-resource/employees/new' />,
+				<NewLink
+					key='new-link'
+					href='/human-resource/employees/new'
+					resource='employees'
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem

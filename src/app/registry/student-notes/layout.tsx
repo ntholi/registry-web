@@ -12,7 +12,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['student-notes']}
 			getData={(page, search) => findAllNotes(page, search)}
 			actionIcons={[
-				<NewLink key='new-link' href='/registry/student-notes/new' />,
+				<NewLink
+					key='new-link'
+					href='/registry/student-notes/new'
+					resource='student-notes'
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem

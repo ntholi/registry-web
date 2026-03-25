@@ -44,7 +44,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			getData={(page, search) => findAllApplications(page, search, filters)}
 			actionIcons={[
 				<ApplicationsFilter key='filter' />,
-				<NewLink key='new-link' href='/admissions/applications/new' />,
+				<NewLink
+					key='new-link'
+					href='/admissions/applications/new'
+					resource='applications'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem

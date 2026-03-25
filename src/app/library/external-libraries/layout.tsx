@@ -13,7 +13,11 @@ export default function ExternalLibrariesLayout({
 			queryKey={['external-libraries']}
 			getData={getExternalLibraries}
 			actionIcons={[
-				<NewLink key='new' href='/library/external-libraries/new' />,
+				<NewLink
+					key='new'
+					href='/library/external-libraries/new'
+					resource='library'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem id={item.id} label={item.name} description={item.url} />

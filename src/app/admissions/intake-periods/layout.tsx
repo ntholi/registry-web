@@ -14,7 +14,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['intake-periods']}
 			getData={findAllIntakePeriods}
 			actionIcons={[
-				<NewLink key='new-link' href='/admissions/intake-periods/new' />,
+				<NewLink
+					key='new-link'
+					href='/admissions/intake-periods/new'
+					resource='intake-periods'
+				/>,
 			]}
 			renderItem={(item) => {
 				const isActive = isIntakePeriodActive(item.startDate, item.endDate);

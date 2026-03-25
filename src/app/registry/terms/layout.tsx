@@ -11,7 +11,13 @@ export default function Layout({ children }: PropsWithChildren) {
 			path={'/registry/terms'}
 			queryKey={['terms']}
 			getData={findAllTerms}
-			actionIcons={[<NewLink key={'new-link'} href='/registry/terms/new' />]}
+			actionIcons={[
+				<NewLink
+					key={'new-link'}
+					href='/registry/terms/new'
+					resource='terms-settings'
+				/>,
+			]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.code}

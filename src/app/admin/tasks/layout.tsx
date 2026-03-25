@@ -64,7 +64,7 @@ export default function Layout({ children }: PropsWithChildren) {
 					value={statusFilter}
 					onChange={handleStatusChange}
 				/>,
-				<NewLink key={'new-link'} href='/admin/tasks/new' />,
+				<NewLink key={'new-link'} href='/admin/tasks/new' resource='tasks' />,
 			]}
 			renderItem={(task) => (
 				<ListItem

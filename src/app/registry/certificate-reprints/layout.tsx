@@ -13,7 +13,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['certificate-reprints']}
 			getData={findAllCertificateReprints}
 			actionIcons={[
-				<NewLink key='new-link' href='/registry/certificate-reprints/new' />,
+				<NewLink
+					key='new-link'
+					href='/registry/certificate-reprints/new'
+					resource='certificate-reprints'
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem

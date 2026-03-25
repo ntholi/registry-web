@@ -11,7 +11,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['letters']}
 			getData={getLetters}
 			actionIcons={[
-				<NewLink key='new-link' href='/registry/letters/generate/new' />,
+				<NewLink
+					key='new-link'
+					href='/registry/letters/generate/new'
+					resource='letters'
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem

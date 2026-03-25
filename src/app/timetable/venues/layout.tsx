@@ -10,7 +10,13 @@ export default function Layout({ children }: PropsWithChildren) {
 			path={'/timetable/venues'}
 			queryKey={['venues']}
 			getData={findAllVenues}
-			actionIcons={[<NewLink key='new-link' href='/timetable/venues/new' />]}
+			actionIcons={[
+				<NewLink
+					key='new-link'
+					href='/timetable/venues/new'
+					resource='venues'
+				/>,
+			]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}

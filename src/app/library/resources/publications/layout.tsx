@@ -16,7 +16,11 @@ export default function PublicationsLayout({ children }: PropsWithChildren) {
 			queryKey={['publications']}
 			getData={getData}
 			actionIcons={[
-				<NewLink key='new' href='/library/resources/publications/new' />,
+				<NewLink
+					key='new'
+					href='/library/resources/publications/new'
+					resource='library'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem

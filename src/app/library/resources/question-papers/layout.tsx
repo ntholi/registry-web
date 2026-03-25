@@ -17,7 +17,11 @@ export default function QuestionPapersLayout({ children }: PropsWithChildren) {
 			queryKey={['question-papers']}
 			getData={getData}
 			actionIcons={[
-				<NewLink key='new' href='/library/resources/question-papers/new' />,
+				<NewLink
+					key='new'
+					href='/library/resources/question-papers/new'
+					resource='library'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem

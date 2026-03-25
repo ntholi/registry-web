@@ -7,14 +7,10 @@ import {
 } from '@registry/students';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { authClient } from '@/core/auth-client';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();
-	const { data: session } = authClient.useSession();
-	const role = session?.user?.role;
-	const canCreate = role === 'admin' || role === 'registry';
 
 	const getStudentsData = async (page: number, search: string) => {
 		const filter: StudentFilter = {};
@@ -42,9 +38,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['students', searchParams.toString()]}
 			getData={getStudentsData}
 			actionIcons={[
-				...(canCreate
-					? [<NewLink key='new-link' href='/registry/students/new' />]
-					: []),
+				<NewLink
+					key='new-link'
+					href='/registry/students/new'
+					resource='students'
+				/>,
 				<StudentsFilter key={'filter-link'} />,
 			]}
 			renderItem={(it) => (

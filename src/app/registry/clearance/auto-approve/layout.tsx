@@ -22,7 +22,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			getData={findAllAutoApprovals}
 			actionIcons={[
 				<BulkImportModal key='bulk' />,
-				<NewLink key='new' href='/registry/clearance/auto-approve/new' />,
+				<NewLink
+					key='new'
+					href='/registry/clearance/auto-approve/new'
+					resource='auto-approvals'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem

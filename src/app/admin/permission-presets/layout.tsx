@@ -12,7 +12,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['permission-presets']}
 			getData={findAllPresets}
 			actionIcons={[
-				<NewLink key={'new-link'} href='/admin/permission-presets/new' />,
+				<NewLink
+					key={'new-link'}
+					href='/admin/permission-presets/new'
+					resource='permission-presets'
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem

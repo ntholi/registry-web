@@ -29,7 +29,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			getData={getData}
 			actionIcons={[
 				<SubjectsFilter key='filter' />,
-				<NewLink key='new-link' href='/admissions/subjects/new' />,
+				<NewLink
+					key='new-link'
+					href='/admissions/subjects/new'
+					resource='subjects'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem

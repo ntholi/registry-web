@@ -15,7 +15,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			}
 			actionIcons={[
 				<ImportBlockedStudentsDialog key='import' />,
-				<NewLink key={'new-link'} href='/registry/blocked-students/new' />,
+				<NewLink
+					key={'new-link'}
+					href='/registry/blocked-students/new'
+					resource='blocked-students'
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.stdNo} description={it.student.name} />

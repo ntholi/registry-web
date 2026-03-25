@@ -12,7 +12,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['certificate-types']}
 			getData={findAllCertificateTypes}
 			actionIcons={[
-				<NewLink key='new-link' href='/admissions/certificate-types/new' />,
+				<NewLink
+					key='new-link'
+					href='/admissions/certificate-types/new'
+					resource='certificate-types'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem

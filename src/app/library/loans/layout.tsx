@@ -43,7 +43,7 @@ export default function LoansLayout({ children }: PropsWithChildren) {
 					value={statusFilter || 'all'}
 					onChange={handleStatusChange}
 				/>,
-				<NewLink key='new' href='/library/loans/new' />,
+				<NewLink key='new' href='/library/loans/new' resource='library' />,
 			]}
 			renderItem={(loan) => {
 				const isOverdue =

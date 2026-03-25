@@ -33,7 +33,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			getData={getData}
 			actionIcons={[
 				<EntryRequirementsFilter key='filter' />,
-				<NewLink key='new-link' href='/admissions/entry-requirements/new' />,
+				<NewLink
+					key='new-link'
+					href='/admissions/entry-requirements/new'
+					resource='entry-requirements'
+				/>,
 			]}
 			renderItem={(item) => (
 				<ListItem id={item.id} label={item.code} description={item.name} />

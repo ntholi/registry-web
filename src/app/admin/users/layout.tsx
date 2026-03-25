@@ -10,7 +10,9 @@ export default function Layout({ children }: PropsWithChildren) {
 			path={'/admin/users'}
 			queryKey={['users']}
 			getData={findAllUsers}
-			actionIcons={[<NewLink key={'new-link'} href='/admin/users/new' />]}
+			actionIcons={[
+				<NewLink key={'new-link'} href='/admin/users/new' resource='users' />,
+			]}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.name} description={it.email} />
 			)}

@@ -2,8 +2,6 @@
 
 import { Badge } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
-import { hasAnyPermission } from '@/core/auth/sessionPermissions';
-import { authClient } from '@/core/auth-client';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import { getCycles } from './_server/actions';
@@ -16,25 +14,18 @@ function getCycleStatus(startDate: string, endDate: string) {
 }
 
 export default function Layout({ children }: PropsWithChildren) {
-	const { data: session } = authClient.useSession();
-	const canCreate =
-		session?.user?.role === 'admin' ||
-		hasAnyPermission(session, 'feedback-cycles', [
-			'create',
-			'update',
-			'delete',
-		]);
-
 	return (
 		<ListLayout
 			path='/appraisals/cycles'
 			queryKey={['feedback-cycles']}
 			getData={getCycles}
-			actionIcons={
-				canCreate
-					? [<NewLink key='new-link' href='/appraisals/cycles/new' />]
-					: []
-			}
+			actionIcons={[
+				<NewLink
+					key='new-link'
+					href='/appraisals/cycles/new'
+					resource='feedback-cycles'
+				/>,
+			]}
 			renderItem={(it) => {
 				const status = getCycleStatus(it.startDate, it.endDate);
 				return (

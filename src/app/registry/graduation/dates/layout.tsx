@@ -11,7 +11,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['graduations']}
 			getData={findAllGraduations}
 			actionIcons={[
-				<NewLink key={'new-link'} href='/registry/graduation/dates/new' />,
+				<NewLink
+					key={'new-link'}
+					href='/registry/graduation/dates/new'
+					resource='graduation'
+				/>,
 			]}
 			renderItem={(it) => <ListItem id={it.date} label={it.date} />}
 		>

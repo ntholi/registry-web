@@ -11,7 +11,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['categories']}
 			getData={getCategories}
 			actionIcons={[
-				<NewLink key={'new-link'} href='/library/categories/new' />,
+				<NewLink
+					key={'new-link'}
+					href='/library/categories/new'
+					resource='library'
+				/>,
 			]}
 			renderItem={(it) => <ListItem id={it.id} label={it.name} />}
 		>
