@@ -44,6 +44,7 @@ export default function TemplatePicker({
 }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const selected = templates.find((t) => t.id === value);
+	const disabled = !studentData;
 
 	function resolvedSubject(tpl: Template) {
 		if (!tpl.subject) return null;
@@ -54,16 +55,18 @@ export default function TemplatePicker({
 	return (
 		<>
 			<Input.Wrapper label='Letter Template' required>
-				<UnstyledButton onClick={open} style={{ display: 'block', width: '100%' }}>
+				<UnstyledButton
+					onClick={disabled ? undefined : open}
+					disabled={disabled}
+					style={{ display: 'block', width: '100%' }}
+				>
 					<Paper
 						withBorder
 						p='sm'
 						mt={4}
 						style={(theme) => ({
-							borderRadius: theme.radius.sm,
-							borderColor: selected ? theme.colors.blue[6] : undefined,
-							transition: 'border-color 150ms',
-							cursor: 'pointer',
+							cursor: disabled ? 'not-allowed' : 'pointer',
+							opacity: disabled ? 0.5 : 1,
 						})}
 					>
 						{selected ? (
@@ -93,7 +96,9 @@ export default function TemplatePicker({
 									<IconFileText size={18} />
 								</ThemeIcon>
 								<Text size='sm' c='dimmed'>
-									Click to choose a letter template…
+									{disabled
+									? 'Select a student first…'
+									: 'Click to choose a letter template…'}
 								</Text>
 							</Group>
 						)}
