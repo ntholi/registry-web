@@ -1,34 +1,26 @@
 import { countPendingGraduationClearances } from '@registry/graduation';
 import {
-	IconCalendar,
 	IconCalendarEvent,
 	IconCertificate,
 	IconChartBar,
+	IconChecklist,
 	IconClipboardCheck,
 	IconClipboardData,
 	IconDeviceDesktopAnalytics,
-	IconDoor,
 	IconEye,
 	IconGavel,
-	IconLayoutGrid,
 	IconListCheck,
 	IconMessageQuestion,
 	IconMessageStar,
 	IconPresentation,
 	IconReportAnalytics,
 	IconSchool,
-	IconTags,
 	IconUsers,
 } from '@tabler/icons-react';
 import { createElement } from 'react';
-import type { Session } from '@/core/auth';
-import { hasAnyPermission } from '@/core/auth/sessionPermissions';
+import { countUncompletedTasks } from '@/app/admin/tasks';
 import type { NavItem } from '../types';
 import { LmsLabel } from './LmsLabel';
-
-function isTimetableEditor(session: Session | null) {
-	return hasAnyPermission(session, 'timetable', ['create', 'update', 'delete']);
-}
 
 export const academicNav: NavItem[] = [
 	{
@@ -71,64 +63,27 @@ export const academicNav: NavItem[] = [
 		permissions: [{ resource: 'assigned-modules', action: 'read' }],
 	},
 	{
+		label: 'Tasks',
+		href: '/admin/tasks',
+		icon: IconChecklist,
+		permissions: [{ resource: 'tasks', action: 'read' }],
+		notificationCount: {
+			queryKey: ['tasks', 'uncompleted'],
+			queryFn: () => countUncompletedTasks(),
+			color: 'red',
+		},
+	},
+	{
 		label: 'Schools',
 		href: '/academic/schools',
 		icon: IconSchool,
 		permissions: [{ resource: 'school-structures', action: 'read' }],
 	},
 	{
-		label: 'Timetable',
-		icon: IconCalendar,
-		collapsed: false,
-		children: [
-			{
-				label: 'Viewer',
-				icon: IconCalendar,
-				href: '/timetable/viewer',
-				permissions: [{ resource: 'timetable', action: 'read' }],
-			},
-			{
-				label: 'Allocations',
-				icon: IconLayoutGrid,
-				href: '/timetable/timetable-allocations',
-				isVisible: isTimetableEditor,
-			},
-			{
-				label: 'Venues',
-				icon: IconDoor,
-				href: '/timetable/venues',
-				permissions: [{ resource: 'venues', action: 'read' }],
-			},
-			{
-				label: 'Venue Types',
-				icon: IconTags,
-				href: '/timetable/venue-types',
-				permissions: [{ resource: 'venues', action: 'read' }],
-			},
-		],
-	},
-	{
-		label: 'Graduations',
-		icon: IconSchool,
-		collapsed: false,
-		permissions: [{ resource: 'graduation', action: 'read' }],
-		children: [
-			{
-				label: 'Requests',
-				href: '/registry/graduation/requests',
-				icon: IconCertificate,
-			},
-			{
-				label: 'Dates',
-				href: '/registry/graduation/dates',
-				icon: IconCalendarEvent,
-			},
-		],
-	},
-	{
 		label: 'Graduation Clearance',
 		href: '/registry/graduation/clearance',
 		icon: IconCertificate,
+		collapsed: false,
 		permissions: [{ resource: 'graduation-clearance', action: 'read' }],
 		notificationCount: {
 			queryKey: ['graduation-clearances', 'pending'],
