@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, Group, Select, Stack } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -84,6 +85,13 @@ export default function GenerateLetterForm() {
 			if (!letter) return;
 			queryClient.invalidateQueries({ queryKey: ['letters'] });
 			router.push(`/registry/letters/generate/${letter.id}`);
+		},
+		onError: (error: Error) => {
+			notifications.show({
+				title: 'Error',
+				message: error.message || 'An unexpected error occurred',
+				color: 'red',
+			});
 		},
 	});
 

@@ -10,7 +10,7 @@ import withPermission, {
 	requireSessionUserId,
 } from '@/core/platform/withPermission';
 import { UserFacingError } from '@/shared/lib/actions/extractError';
-import { resolveTemplate } from '../_lib/resolve';
+import { findMissingPlaceholders, resolveTemplate } from '../_lib/resolve';
 import { evaluateRestrictions } from '../_lib/restrictions';
 import LetterTemplateRepository, {
 	LetterRecipientRepository,
@@ -85,6 +85,16 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 			if (template.restrictions?.length) {
 				const error = evaluateRestrictions(template.restrictions, studentData);
 				if (error) throw new UserFacingError(error);
+			}
+
+			const allContent = template.subject
+				? `${template.content} ${template.subject}`
+				: template.content;
+			const missing = findMissingPlaceholders(allContent, studentData);
+			if (missing.length > 0) {
+				throw new UserFacingError(
+					`Cannot generate letter. The student is missing required data: ${missing.join(', ')}`
+				);
 			}
 
 			const content = resolveTemplate(template.content, studentData);
