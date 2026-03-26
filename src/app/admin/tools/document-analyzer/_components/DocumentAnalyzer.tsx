@@ -4,6 +4,7 @@ import {
 	Badge,
 	Box,
 	Button,
+	Card,
 	Code,
 	Container,
 	Divider,
@@ -198,6 +199,7 @@ export default function DocumentAnalyzer() {
 								Document Type
 							</Text>
 							<SegmentedControl
+								size='md'
 								value={docType}
 								onChange={(val) => {
 									setDocType(val as DocType);
@@ -316,15 +318,7 @@ function ResultView({ result }: ResultViewProps) {
 function IdentityResult({ data }: { data: IdentityDocumentResult }) {
 	return (
 		<SimpleGrid cols={{ base: 1, md: 2 }} spacing='md'>
-			<Paper
-				p='md'
-				radius='md'
-				style={{
-					background:
-						'linear-gradient(135deg, var(--mantine-color-dark-7) 0%, var(--mantine-color-dark-8) 100%)',
-					border: '1px solid var(--mantine-color-dark-4)',
-				}}
-			>
+			<Card withBorder p='md' radius='md'>
 				<Stack gap='md' pt='xs'>
 					<Group justify='space-between' align='flex-start'>
 						<Stack gap={4}>
@@ -387,7 +381,7 @@ function IdentityResult({ data }: { data: IdentityDocumentResult }) {
 						</>
 					)}
 				</Stack>
-			</Paper>
+			</Card>
 			<RawData data={data} />
 		</SimpleGrid>
 	);
@@ -398,15 +392,7 @@ function CertificateResult({ data }: { data: CertificateDocumentResult }) {
 
 	return (
 		<SimpleGrid cols={{ base: 1, md: 2 }} spacing='md'>
-			<Paper
-				p={0}
-				radius='md'
-				style={{
-					background:
-						'linear-gradient(180deg, var(--mantine-color-dark-7) 0%, var(--mantine-color-dark-8) 100%)',
-					border: '1px double var(--mantine-color-dark-4)',
-				}}
-			>
+			<Card withBorder p={0} radius='md'>
 				<Box bg='dark.8'>
 					<Box p='md'>
 						<Group justify='center' gap='sm'>
@@ -515,7 +501,7 @@ function CertificateResult({ data }: { data: CertificateDocumentResult }) {
 						</>
 					)}
 				</Stack>
-			</Paper>
+			</Card>
 			<RawData data={data} />
 		</SimpleGrid>
 	);
@@ -526,15 +512,7 @@ function ReceiptResultCard({ data }: { data: ReceiptResult }) {
 
 	return (
 		<SimpleGrid cols={{ base: 1, md: 2 }} spacing='md'>
-			<Paper
-				p='md'
-				radius='md'
-				style={{
-					background:
-						'linear-gradient(135deg, var(--mantine-color-dark-7) 0%, var(--mantine-color-dark-8) 100%)',
-					border: '1px solid var(--mantine-color-dark-4)',
-				}}
-			>
+			<Card withBorder p='md' radius='md'>
 				<Stack gap='md' pt='xs'>
 					<Group justify='space-between' align='flex-start'>
 						<Stack gap={4}>
@@ -587,7 +565,7 @@ function ReceiptResultCard({ data }: { data: ReceiptResult }) {
 						)}
 					</Stack>
 				</Stack>
-			</Paper>
+			</Card>
 			<RawData data={data} />
 		</SimpleGrid>
 	);
@@ -604,7 +582,7 @@ function RawData({
 				<Text size='sm' fw={500} c='dimmed'>
 					Raw Analysis Data
 				</Text>
-				<ScrollArea.Autosize mah={400}>
+				<ScrollArea.Autosize mah={650}>
 					<Code block>{JSON.stringify(data, null, 2)}</Code>
 				</ScrollArea.Autosize>
 			</Stack>
