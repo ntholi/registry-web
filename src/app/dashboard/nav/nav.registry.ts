@@ -9,7 +9,6 @@ import {
 	IconCalendarEvent,
 	IconCertificate,
 	IconChecklist,
-	IconClipboardCheck,
 	IconClipboardList,
 	IconDoor,
 	IconFileSearch,
@@ -23,11 +22,11 @@ import {
 	IconTemplate,
 	IconUserExclamation,
 	IconUserOff,
+	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
 import { countPendingDocumentsForReview } from '@/app/admissions/documents/_server/actions';
 import { countPendingGraduationClearances } from '@/app/registry/graduation';
-import { countPendingClearances } from '@/app/registry/registration';
 import { countPendingStudentStatuses } from '@/app/registry/student-statuses';
 import type { NavItem } from '../types';
 
@@ -45,15 +44,10 @@ export const registryNav: NavItem[] = [
 		permissions: [{ resource: 'tasks', action: 'read' }],
 	},
 	{
-		label: 'Registration Clearance',
-		href: '/registry/registration/clearance',
-		icon: IconClipboardCheck,
-		permissions: [{ resource: 'registration-clearance', action: 'read' }],
-		notificationCount: {
-			queryKey: ['clearances', 'pending'],
-			queryFn: () => countPendingClearances(),
-			color: 'red',
-		},
+		label: 'Registration',
+		href: '/registry/registration/requests',
+		icon: IconUserPlus,
+		permissions: [{ resource: 'registration', action: 'read' }],
 	},
 	{
 		label: 'Graduations',

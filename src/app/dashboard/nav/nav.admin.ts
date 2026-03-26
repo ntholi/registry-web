@@ -2,7 +2,6 @@ import { countUncompletedTasks } from '@admin/tasks';
 import { countPendingDocumentsForReview } from '@admissions/documents/_server/actions';
 import { countPendingPaymentsForReview } from '@admissions/payments/_server/actions';
 import { countPendingGraduationClearances } from '@registry/graduation';
-import { countPendingClearances } from '@registry/registration';
 import { countPendingStudentStatuses } from '@registry/student-statuses';
 import {
 	IconActivity,
@@ -158,17 +157,6 @@ export const adminNav: NavItem[] = [
 		href: '/registry/registration/requests',
 		icon: IconUserPlus,
 		permissions: [{ resource: 'registration', action: 'read' }],
-	},
-	{
-		label: 'Registration Clearance',
-		href: '/registry/registration/clearance',
-		icon: IconClipboardCheck,
-		permissions: [{ resource: 'registration-clearance', action: 'read' }],
-		notificationCount: {
-			queryKey: ['clearances', 'pending'],
-			queryFn: () => countPendingClearances(),
-			color: 'red',
-		},
 	},
 	{
 		label: 'Auto-Approvals',
