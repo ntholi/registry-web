@@ -3,6 +3,7 @@ import type { entryRequirements } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import EntryRequirementRepository, {
 	type EntryRequirementsFilter,
 } from './repository';
@@ -103,8 +104,8 @@ class EntryRequirementService extends BaseService<
 					data.certificateTypeId
 				);
 				if (existing) {
-					throw new Error(
-						'DUPLICATE_ENTRY_REQUIREMENT: Entry requirement already exists for this program and certificate type'
+					throw new UserFacingError(
+						'Entry requirement already exists for this program and certificate type'
 					);
 				}
 				return this.repo.create(data);

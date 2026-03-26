@@ -2,6 +2,7 @@ import type { timetableAllocations } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import type { TimetableAllocationInsert } from './repository';
 import TimetableAllocationRepository from './repository';
 
@@ -57,7 +58,7 @@ class TimetableAllocationService extends BaseService<
 					const groupInfo = allocation.groupName
 						? `Group ${allocation.groupName}`
 						: 'All Students';
-					throw new Error(
+					throw new UserFacingError(
 						`This class (${groupInfo}) has already been allocated for this module in the current term. Each class can only have one ${allocation.classType} allocation per module.`
 					);
 				}

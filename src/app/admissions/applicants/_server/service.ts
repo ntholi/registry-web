@@ -83,9 +83,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				if (data.nationalId) {
 					const existing = await this.repo.findByNationalId(data.nationalId);
 					if (existing) {
-						throw new Error(
-							'DUPLICATE_NATIONAL_ID: National ID already exists'
-						);
+						throw new UserFacingError('National ID already exists');
 					}
 				}
 				return this.repo.create(
@@ -217,7 +215,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 						applicantData.nationalId
 					);
 					if (existing) {
-						throw new Error(
+						throw new UserFacingError(
 							'An applicant with this National ID already exists'
 						);
 					}

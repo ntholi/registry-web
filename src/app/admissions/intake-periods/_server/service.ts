@@ -3,6 +3,7 @@ import type { intakePeriods } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import IntakePeriodRepository from './repository';
 
 class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
@@ -73,8 +74,8 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 					data.endDate
 				);
 				if (overlap) {
-					throw new Error(
-						'INTAKE_PERIOD_OVERLAP: Intake period dates overlap with existing period'
+					throw new UserFacingError(
+						'Intake period dates overlap with existing period'
 					);
 				}
 				return this.repo.create(
@@ -99,8 +100,8 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 						id
 					);
 					if (overlap) {
-						throw new Error(
-							'INTAKE_PERIOD_OVERLAP: Intake period dates overlap with existing period'
+						throw new UserFacingError(
+							'Intake period dates overlap with existing period'
 						);
 					}
 				}
@@ -119,8 +120,8 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 			async (session) => {
 				const hasApps = await this.repo.hasApplications(id);
 				if (hasApps) {
-					throw new Error(
-						'INTAKE_PERIOD_HAS_APPLICATIONS: Cannot delete intake period with applications'
+					throw new UserFacingError(
+						'Cannot delete intake period with applications'
 					);
 				}
 				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));

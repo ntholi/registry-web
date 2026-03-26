@@ -11,6 +11,7 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission, {
 	requireSessionUserId,
 } from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
 import type { NoteVisibility } from '../_schema/studentNotes';
 import StudentNotesRepository from './repository';
@@ -194,11 +195,11 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 				}
 
 				if (file.size > MAX_ATTACHMENT_SIZE) {
-					throw new Error('Attachment must not exceed 5 MB');
+					throw new UserFacingError('Attachment must not exceed 5 MB');
 				}
 
 				if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
-					throw new Error('Unsupported attachment type');
+					throw new UserFacingError('Unsupported attachment type');
 				}
 
 				const key = generateUploadKey(

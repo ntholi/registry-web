@@ -5,6 +5,7 @@ import type { autoApprovals } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import AutoApprovalRepository from './repository';
 
 type Rule = typeof autoApprovals.$inferInsert;
@@ -41,7 +42,9 @@ class AutoApprovalService {
 			async (session) => {
 				const role = session?.user?.role as DashboardRole;
 				if (role !== 'admin' && data.department !== role) {
-					throw new Error('You can only create rules for your own department');
+					throw new UserFacingError(
+						'You can only create rules for your own department'
+					);
 				}
 				return this.repository.create(
 					{
@@ -69,7 +72,9 @@ class AutoApprovalService {
 
 				const role = session?.user?.role as DashboardRole;
 				if (role !== 'admin' && existing.department !== role) {
-					throw new Error('You can only update rules for your own department');
+					throw new UserFacingError(
+						'You can only update rules for your own department'
+					);
 				}
 				return this.repository.update(id, data, {
 					userId: session!.user!.id!,
@@ -91,7 +96,9 @@ class AutoApprovalService {
 
 				const role = session?.user?.role as DashboardRole;
 				if (role !== 'admin' && existing.department !== role) {
-					throw new Error('You can only delete rules for your own department');
+					throw new UserFacingError(
+						'You can only delete rules for your own department'
+					);
 				}
 				return this.repository.delete(id, {
 					userId: session!.user!.id!,

@@ -5,6 +5,7 @@ import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { withPermission } from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { mailAssignmentRepo } from '../../assignments/_server/repository';
 import { mailAccountRepo } from './repository';
 
@@ -74,7 +75,9 @@ class MailAccountService extends BaseService<typeof mailAccounts, 'id'> {
 			const isOwner = account.userId === session.user.id;
 			const isAdmin = session.user.role === 'admin';
 			if (!isOwner && !isAdmin) {
-				throw new Error('You do not have permission to revoke this email');
+				throw new UserFacingError(
+					'You do not have permission to revoke this email'
+				);
 			}
 
 			if (account.accessToken) {

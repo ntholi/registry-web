@@ -3,6 +3,7 @@ import type { certificateTypes, gradeMappings } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import CertificateTypeRepository from './repository';
 
 type GradeMapping = {
@@ -62,7 +63,7 @@ class CertificateTypeService extends BaseService<
 		return withPermission(
 			async (session) => {
 				if (data.lqfLevel < 4) {
-					throw new Error('INVALID_LQF_LEVEL: LQF level must be 4 or higher');
+					throw new UserFacingError('LQF level must be 4 or higher');
 				}
 
 				return this.repo.createWithMappings(
@@ -87,7 +88,7 @@ class CertificateTypeService extends BaseService<
 		return withPermission(
 			async (session) => {
 				if (data.lqfLevel !== undefined && data.lqfLevel < 4) {
-					throw new Error('INVALID_LQF_LEVEL: LQF level must be 4 or higher');
+					throw new UserFacingError('LQF level must be 4 or higher');
 				}
 
 				return this.repo.updateWithMappings(
@@ -106,9 +107,7 @@ class CertificateTypeService extends BaseService<
 			async (session) => {
 				const isInUse = await this.repo.isInUse(id);
 				if (isInUse) {
-					throw new Error(
-						'CERTIFICATE_TYPE_IN_USE: Cannot delete certificate type in use'
-					);
+					throw new UserFacingError('Cannot delete certificate type in use');
 				}
 
 				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));

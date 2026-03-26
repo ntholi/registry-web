@@ -14,6 +14,7 @@ import {
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { calculateAllScores } from '../_lib/scoring';
 import type { ApplicationFilters } from '../_lib/types';
 import ApplicationRepository from './repository';
@@ -63,8 +64,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					data.intakePeriodId
 				);
 				if (exists) {
-					throw new Error(
-						'DUPLICATE_APPLICATION: Application already exists for this intake'
+					throw new UserFacingError(
+						'Application already exists for this intake'
 					);
 				}
 
@@ -80,8 +81,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				const isActive = intake.startDate <= today && intake.endDate >= today;
 
 				if (!isActive) {
-					throw new Error(
-						'INACTIVE_INTAKE_PERIOD: Cannot create application for inactive intake'
+					throw new UserFacingError(
+						'Cannot create application for inactive intake'
 					);
 				}
 
@@ -161,8 +162,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				const isActive = intake.startDate <= today && intake.endDate >= today;
 
 				if (!isActive) {
-					throw new Error(
-						'INACTIVE_INTAKE_PERIOD: Cannot create application for inactive intake'
+					throw new UserFacingError(
+						'Cannot create application for inactive intake'
 					);
 				}
 
@@ -208,7 +209,9 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				}
 
 				if (newStatus === 'rejected' && !rejectionReason) {
-					throw new Error('Rejection reason is required when rejecting');
+					throw new UserFacingError(
+						'Rejection reason is required when rejecting'
+					);
 				}
 
 				const fromStatus = application.status;

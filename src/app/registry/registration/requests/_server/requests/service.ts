@@ -13,6 +13,7 @@ import type {
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { withPermission } from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { getStudentSemesterModulesLogic } from './getStudentSemesterModules';
 import RegistrationRequestRepository from './repository';
@@ -95,7 +96,9 @@ class RegistrationRequestService {
 		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
 		if (!data.semesterNumber?.trim()) {
-			throw new Error('Semester number is required and cannot be blank.');
+			throw new UserFacingError(
+				'Semester number is required and cannot be blank.'
+			);
 		}
 
 		return withPermission(

@@ -9,6 +9,7 @@ import {
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import type { DepositFilters } from '../_lib/types';
 import PaymentRepository from './repository';
 
@@ -105,12 +106,12 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 				}
 
 				if (deposit.status !== 'pending') {
-					throw new Error('Deposit is not pending');
+					throw new UserFacingError('Deposit is not pending');
 				}
 
 				const existingReceipt = await this.repo.findReceiptByNo(receiptNo);
 				if (existingReceipt) {
-					throw new Error('Receipt number already exists');
+					throw new UserFacingError('Receipt number already exists');
 				}
 
 				const audit = this.buildAuditOptions(session, 'update');
@@ -151,7 +152,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 				}
 
 				if (deposit.status !== 'pending') {
-					throw new Error('Deposit is not pending');
+					throw new UserFacingError('Deposit is not pending');
 				}
 
 				const audit = this.buildAuditOptions(session, 'update');

@@ -4,6 +4,7 @@ import type { UserRole } from '@/core/auth/permissions';
 import type { tasks } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import TaskRepository, { type TaskInsert } from './repository';
 
 type TaskStatus = (typeof tasks.$inferSelect)['status'];
@@ -163,7 +164,9 @@ class TaskService {
 						: false;
 
 				if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
-					throw new Error('You do not have permission to update this task');
+					throw new UserFacingError(
+						'You do not have permission to update this task'
+					);
 				}
 
 				const assigneeIds = data.assigneeIds;
@@ -207,7 +210,7 @@ class TaskService {
 						: false;
 
 				if (!isAdmin && !isCreator && !hasRoleAssignee) {
-					throw new Error(
+					throw new UserFacingError(
 						'Only the creator, manager, or admin can delete this task'
 					);
 				}
@@ -246,7 +249,7 @@ class TaskService {
 						: false;
 
 				if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
-					throw new Error(
+					throw new UserFacingError(
 						'You do not have permission to update this task status'
 					);
 				}

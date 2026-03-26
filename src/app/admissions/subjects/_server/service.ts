@@ -3,6 +3,7 @@ import type { subjects } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import SubjectRepository from './repository';
 
 class SubjectService extends BaseService<typeof subjects, 'id'> {
@@ -80,7 +81,7 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 			async (session) => {
 				const isInUse = await this.repo.isInUse(id);
 				if (isInUse) {
-					throw new Error('SUBJECT_IN_USE: Cannot delete subject in use');
+					throw new UserFacingError('Cannot delete subject in use');
 				}
 				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));
 			},

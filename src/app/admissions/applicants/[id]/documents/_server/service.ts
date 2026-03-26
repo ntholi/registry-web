@@ -8,6 +8,7 @@ import type {
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import ApplicantDocumentRepository from './repository';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -65,7 +66,7 @@ class ApplicantDocumentService extends BaseService<
 		return withPermission(
 			async (session) => {
 				if (fileSize > MAX_FILE_SIZE) {
-					throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
+					throw new UserFacingError('Document exceeds 5MB limit');
 				}
 				return this.repo.createWithDocument(
 					documentData,
@@ -89,7 +90,7 @@ class ApplicantDocumentService extends BaseService<
 		return withPermission(
 			async (session) => {
 				if (status === 'rejected' && !rejectionReason) {
-					throw new Error('Rejection reason is required');
+					throw new UserFacingError('Rejection reason is required');
 				}
 				return this.repo.updateVerificationStatus(
 					id,
