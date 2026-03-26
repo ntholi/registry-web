@@ -102,20 +102,22 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 				const userId = requireSessionUserId(session);
 
 				const student = await this.repository.findStudentByStdNo(data.stdNo);
-				if (!student) throw new Error('Student not found');
+				if (!student) throw new UserFacingError('Student not found');
 
 				const hasPending = await this.repository.hasPending(
 					data.stdNo,
 					data.type as StudentStatusType
 				);
 				if (hasPending)
-					throw new Error(
+					throw new UserFacingError(
 						`Student already has a pending ${data.type} application`
 					);
 
 				if (data.type === 'withdrawal' || data.type === 'deferment') {
 					if (!data.semesterId)
-						throw new Error('Semester is required for withdrawal/deferment');
+						throw new UserFacingError(
+							'Semester is required for withdrawal/deferment'
+						);
 				}
 
 				if (data.type === 'reinstatement') {
@@ -133,7 +135,9 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 					}
 
 					if (!isEligibleByStatus && !isEligibleBySemester)
-						throw new Error('Student is not eligible for reinstatement');
+						throw new UserFacingError(
+							'Student is not eligible for reinstatement'
+						);
 				}
 
 				const approvalRoles: StudentStatusApprovalRole[] = [];
@@ -172,9 +176,9 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 			async (session) => {
 				const userId = requireSessionUserId(session);
 				const app = await this.repository.findById(id);
-				if (!app) throw new Error('Application not found');
+				if (!app) throw new UserFacingError('Application not found');
 				if (app.status !== 'pending') {
-					throw new Error('Only pending applications can be edited');
+					throw new UserFacingError('Only pending applications can be edited');
 				}
 
 				const baseAudit = this.buildAuditOptions(session, 'update');
@@ -188,7 +192,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 
 				const updated = await this.repository.updateEditable(id, data, audit);
 				if (!updated) {
-					throw new Error('Failed to update application');
+					throw new UserFacingError('Failed to update application');
 				}
 
 				return this.repository.findById(id);
@@ -329,9 +333,11 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 				const userId = requireSessionUserId(session);
 
 				const app = await this.repository.findById(id);
-				if (!app) throw new Error('Application not found');
+				if (!app) throw new UserFacingError('Application not found');
 				if (app.status !== 'pending')
-					throw new Error('Only pending applications can be cancelled');
+					throw new UserFacingError(
+						'Only pending applications can be cancelled'
+					);
 
 				const baseAudit = this.buildAuditOptions(session, 'update');
 				const audit: AuditOptions = {
@@ -358,13 +364,13 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 				const userId = requireSessionUserId(session);
 
 				const approval = await this.repository.findApprovalById(approvalId);
-				if (!approval) throw new Error('Approval step not found');
+				if (!approval) throw new UserFacingError('Approval step not found');
 				if (!canUserApproveRole(session!, approval.approverRole))
-					throw new Error('Unauthorized for this approval step');
+					throw new UserFacingError('Unauthorized for this approval step');
 
 				const app = approval.application;
 				if (app.status === 'approved')
-					throw new Error('Application is already approved');
+					throw new UserFacingError('Application is already approved');
 
 				const baseAudit = this.buildAuditOptions(session, 'update');
 				const activityType =
