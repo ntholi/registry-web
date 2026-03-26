@@ -74,6 +74,8 @@ const ACADEMIC_RULES = `- institutionName: Student's school (not examining body 
   * Common NSC subjects: Life Orientation, Mathematical Literacy, Physical Sciences, Life Sciences, Consumer Studies, Tourism, Agricultural Sciences, Engineering Graphics and Design.
   * Column labeled "Prestasievlak" / "Achievement Level" contains the grade (1-7).
 - NSC VERIFICATION LETTERS: ECoL documents verifying NSC results may provide COSC/LGCSE equivalent letter grades (A-G, U). In that case, extract those letter grades as subjects. Still set certificateType to "NSC".
+  * These verification letters typically state admission eligibility (e.g., "met minimum requirements for bachelor's degree admission"). This is NOT an overallClassification — set overallClassification to null for these documents.
+  * Only set overallClassification when the document explicitly states a classification like Distinction, Merit, Credit, Pass, or Fail.
 
 ISSUING AUTHORITY:
 - issuingAuthority: Extract examining body (ECoL, Cambridge, Pearson/Edexcel, IEB, Umalusi). "Examinations Council of Lesotho" → "ECoL".

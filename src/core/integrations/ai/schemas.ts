@@ -230,6 +230,7 @@ const academicSchema = z
 			certificateType.includes('lgcse') ||
 			(certificateType.includes('igcse') && !isEdexcelIgcse);
 		const isNsc = certificateType === 'nsc';
+		const isEcolNscVerification = isNsc && value.isEcol;
 		for (const subject of subjects) {
 			const grade = subject.grade.trim().toUpperCase();
 			if (isEdexcelIgcse && !edexcelIgcseGrades.has(grade)) {
@@ -246,11 +247,22 @@ const academicSchema = z
 					message: `LGCSE/IGCSE grades must be A*, A, B, C, D, E, F, G, or U. Invalid grade for ${subject.name}.`,
 				});
 			}
-			if (isNsc && !nscGrades.has(grade)) {
+			if (isNsc && !isEcolNscVerification && !nscGrades.has(grade)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
 					path: ['subjects'],
 					message: `NSC grades must be achievement levels 1-7. Invalid grade for ${subject.name}.`,
+				});
+			}
+			if (
+				isEcolNscVerification &&
+				!lgcseIgcseGrades.has(grade) &&
+				!nscGrades.has(grade)
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ['subjects'],
+					message: `ECoL NSC verification grades must be LGCSE letter grades (A*-G, U) or achievement levels 1-7. Invalid grade for ${subject.name}.`,
 				});
 			}
 		}
