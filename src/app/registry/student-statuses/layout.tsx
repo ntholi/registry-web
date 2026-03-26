@@ -2,7 +2,7 @@
 
 import { Badge, Group } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
-import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import { getTypeLabel } from './_lib/labels';
 import { findAllStudentStatuses } from './_server/actions';
@@ -23,30 +23,40 @@ export default function Layout({ children }: PropsWithChildren) {
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}
-					label={
-						<Group gap='xs'>
-							{it.stdNo}
-							<Badge
-								size='xs'
-								color={getStatusColor(it.status as AllStatusType)}
-								variant='light'
-							>
-								{it.status}
-							</Badge>
-						</Group>
-					}
+					label={it.student?.name}
 					description={
 						<Group gap='xs'>
-							{it.student?.name}
-							<Badge size='xs' variant='outline'>
+							{it.student?.stdNo}
+							<Badge
+								size='xs'
+								radius={'sm'}
+								variant='light'
+								color={getColorType(it.type)}
+							>
 								{getTypeLabel(it.type)}
 							</Badge>
 						</Group>
 					}
+					rightSection={getStatusIcon(it.status as StatusType, {
+						withColor: true,
+					})}
 				/>
 			)}
 		>
 			{children}
 		</ListLayout>
 	);
+}
+
+function getColorType(type: string) {
+	switch (type) {
+		case 'withdrawal':
+			return 'red';
+		case 'deferment':
+			return 'yellow';
+		case 'reinstatement':
+			return 'green';
+		default:
+			return 'gray';
+	}
 }
