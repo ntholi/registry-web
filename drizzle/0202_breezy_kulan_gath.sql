@@ -48,6 +48,8 @@ CREATE TABLE "letters" (
 	CONSTRAINT "letters_serial_number_unique" UNIQUE("serial_number")
 );
 --> statement-breakpoint
+DROP TABLE IF EXISTS "letter_templates" CASCADE;
+--> statement-breakpoint
 CREATE TABLE "letter_templates" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
