@@ -213,6 +213,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Notes',
 		href: '/registry/student-notes',
+		description: 'Notes on Students',
 		icon: IconNote,
 		permissions: [{ resource: 'student-notes', action: 'read' }],
 	},

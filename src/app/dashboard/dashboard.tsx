@@ -20,6 +20,7 @@ import { libraryNav } from './nav/nav.library';
 import { marketingNav } from './nav/nav.marketing';
 import { registryNav } from './nav/nav.registry';
 import { resourceNav } from './nav/nav.resource';
+import { studentServicesNav } from './nav/nav.student-services';
 import SearchInput from './search/SearchInput';
 import SearchSpotlight from './search/SearchSpotlight';
 import type { NavItem } from './types';
@@ -30,7 +31,7 @@ const roleNavMap: Record<DashboardRole, NavItem[]> = {
 	leap: academicNav,
 	finance: financeNav,
 	registry: registryNav,
-	student_services: registryNav,
+	student_services: studentServicesNav,
 	admin: adminNav,
 	library: libraryNav,
 	marketing: marketingNav,

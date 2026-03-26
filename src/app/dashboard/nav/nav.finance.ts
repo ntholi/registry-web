@@ -9,6 +9,7 @@ import {
 	IconClipboardCheck,
 	IconCreditCard,
 	IconListCheck,
+	IconNote,
 	IconReportAnalytics,
 	IconRobot,
 	IconSchool,
@@ -93,6 +94,13 @@ export const financeNav: NavItem[] = [
 		href: '/finance/sponsors',
 		icon: IconBuildingBank,
 		permissions: [{ resource: 'sponsors', action: 'read' }],
+	},
+	{
+		label: 'Notes',
+		description: 'Notes on Students',
+		href: '/registry/student-notes',
+		icon: IconNote,
+		permissions: [{ resource: 'student-notes', action: 'read' }],
 	},
 	{
 		label: 'Reports',

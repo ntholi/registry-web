@@ -2,8 +2,8 @@ import {
 	IconCalendar,
 	IconChecklist,
 	IconDoor,
+	IconNote,
 	IconTags,
-	IconUserPlus,
 } from '@tabler/icons-react';
 import type { NavItem } from '../types';
 
@@ -13,12 +13,6 @@ export const resourceNav: NavItem[] = [
 		icon: IconCalendar,
 		collapsed: false,
 		children: [
-			{
-				label: 'Timetables',
-				icon: IconCalendar,
-				href: '/timetable/viewer',
-				permissions: [{ resource: 'timetable', action: 'read' }],
-			},
 			{
 				label: 'Venues',
 				icon: IconDoor,
@@ -34,15 +28,16 @@ export const resourceNav: NavItem[] = [
 		],
 	},
 	{
-		label: 'Registration',
-		href: '/registry/registration/requests',
-		icon: IconUserPlus,
-		permissions: [{ resource: 'registration', action: 'read' }],
-	},
-	{
 		label: 'Tasks',
 		href: '/admin/tasks',
 		icon: IconChecklist,
 		permissions: [{ resource: 'tasks', action: 'read' }],
+	},
+	{
+		label: 'Notes',
+		description: 'Notes on Students',
+		href: '/registry/student-notes',
+		icon: IconNote,
+		permissions: [{ resource: 'student-notes', action: 'read' }],
 	},
 ];
