@@ -315,7 +315,7 @@ function ResultView({ result }: ResultViewProps) {
 
 function IdentityResult({ data }: { data: IdentityDocumentResult }) {
 	return (
-		<Stack gap='md'>
+		<SimpleGrid cols={{ base: 1, md: 2 }} spacing='md'>
 			<Paper
 				p='md'
 				radius='md'
@@ -389,7 +389,7 @@ function IdentityResult({ data }: { data: IdentityDocumentResult }) {
 				</Stack>
 			</Paper>
 			<RawData data={data} />
-		</Stack>
+		</SimpleGrid>
 	);
 }
 
@@ -397,7 +397,7 @@ function CertificateResult({ data }: { data: CertificateDocumentResult }) {
 	const hasSubjects = data.subjects && data.subjects.length > 0;
 
 	return (
-		<Stack gap='md'>
+		<SimpleGrid cols={{ base: 1, md: 2 }} spacing='md'>
 			<Paper
 				p={0}
 				radius='md'
@@ -517,7 +517,7 @@ function CertificateResult({ data }: { data: CertificateDocumentResult }) {
 				</Stack>
 			</Paper>
 			<RawData data={data} />
-		</Stack>
+		</SimpleGrid>
 	);
 }
 
@@ -525,7 +525,7 @@ function ReceiptResultCard({ data }: { data: ReceiptResult }) {
 	const isSalesReceipt = data.receiptType === 'sales_receipt';
 
 	return (
-		<Stack gap='md'>
+		<SimpleGrid cols={{ base: 1, md: 2 }} spacing='md'>
 			<Paper
 				p='md'
 				radius='md'
@@ -589,7 +589,7 @@ function ReceiptResultCard({ data }: { data: ReceiptResult }) {
 				</Stack>
 			</Paper>
 			<RawData data={data} />
-		</Stack>
+		</SimpleGrid>
 	);
 }
 
