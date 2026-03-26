@@ -3,7 +3,6 @@
 import { Badge, ThemeIcon } from '@mantine/core';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
@@ -22,7 +21,6 @@ type ReviewItem = {
 };
 
 export default function DocumentsLayout({ children }: PropsWithChildren) {
-	const router = useRouter();
 	const searchParams = useSearchParams();
 	const statusFilter = searchParams.get('status') || 'pending';
 	const typeFilter = searchParams.get('type') || 'all';
@@ -38,41 +36,12 @@ export default function DocumentsLayout({ children }: PropsWithChildren) {
 		return getDocumentsForReview(page, search, filters);
 	}
 
-	function handleFilterApply(filters: { status: string; type: string }) {
-		const params = new URLSearchParams(searchParams);
-
-		if (filters.status !== 'pending') {
-			params.set('status', filters.status);
-		} else {
-			params.delete('status');
-		}
-
-		if (filters.type !== 'all') {
-			params.set('type', filters.type);
-		} else {
-			params.delete('type');
-		}
-
-		params.delete('page');
-		const query = params.toString();
-		router.push(
-			query ? `/admissions/documents?${query}` : '/admissions/documents'
-		);
-	}
-
 	return (
 		<ListLayout<ReviewItem>
 			path='/admissions/documents'
-			queryKey={['documents-review', statusFilter, typeFilter]}
+			queryKey={['documents-review', searchParams.toString()]}
 			getData={fetchDocs}
-			actionIcons={[
-				<DocumentReviewFilter
-					key='documents-filter'
-					statusValue={statusFilter}
-					typeValue={typeFilter}
-					onApply={handleFilterApply}
-				/>,
-			]}
+			actionIcons={[<DocumentReviewFilter key='documents-filter' />]}
 			renderItem={(doc) => (
 				<ListItem
 					id={doc.id}

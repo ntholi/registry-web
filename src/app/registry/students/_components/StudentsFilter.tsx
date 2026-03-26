@@ -1,30 +1,17 @@
 'use client';
 
 import { getAllSchools, getProgramsBySchoolId } from '@academic/schools';
-import {
-	ActionIcon,
-	Button,
-	Fieldset,
-	Group,
-	HoverCard,
-	Loader,
-	Modal,
-	Select,
-	Stack,
-	Text,
-	Tooltip,
-} from '@mantine/core';
+import { ActionIcon, Loader, Select, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconFilter, IconFocus2 } from '@tabler/icons-react';
+import { IconFocus2 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import { useQueryState } from 'nuqs';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback } from 'react';
 import { getTermByCode } from '@/app/registry/terms';
-import type { Term } from '@/core/database';
+import { useFilterState } from '@/shared/lib/hooks/use-filter-state';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
-import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import { FilterButton, FilterModal } from '@/shared/ui/adease';
 import { getStudentFilterInfo } from '../_server/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
@@ -35,23 +22,21 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	};
 });
 
+const filterConfig = [
+	{ key: 'schoolId' },
+	{ key: 'programId' },
+	{ key: 'termId' },
+	{ key: 'semesterNumber' },
+];
+
 export default function StudentsFilter() {
-	const [opened, { toggle, close }] = useDisclosure(false);
+	const [opened, { open, close }] = useDisclosure(false);
 	const params = useParams();
 	const stdNo = params.id ? Number(params.id) : null;
 	const queryClient = useQueryClient();
 
-	const [schoolId, setSchoolId] = useQueryState('schoolId');
-	const [programId, setProgramId] = useQueryState('programId');
-	const [termId, setTermId] = useQueryState('termId');
-	const [semesterNumber, setSemesterNumber] = useQueryState('semesterNumber');
-
-	const [filters, setFilters] = useState({
-		schoolId: schoolId || '',
-		programId: programId || '',
-		termId: termId || '',
-		semesterNumber: semesterNumber || '',
-	});
+	const { filters, setFilter, sync, applyFilters, clearFilters, activeCount } =
+		useFilterState(filterConfig);
 
 	const { data: schools = [], isLoading: schoolLoading } = useQuery({
 		queryKey: ['schools'],
@@ -84,227 +69,101 @@ export default function StudentsFilter() {
 
 		const term = info.termCode ? await getTermByCode(info.termCode) : undefined;
 
-		setFilters({
-			schoolId: info.schoolId.toString(),
-			programId: info.programId.toString(),
-			termId: term?.id?.toString() || '',
-			semesterNumber: info.semesterNumber || '',
-		});
-	}, [stdNo, queryClient]);
+		setFilter('schoolId', info.schoolId.toString());
+		setFilter('programId', info.programId.toString());
+		setFilter('termId', term?.id?.toString() || null);
+		setFilter('semesterNumber', info.semesterNumber || null);
+	}, [stdNo, queryClient, setFilter]);
 
-	const addSemesterDescription = useCallback(
-		(
-			desc: string,
-			selectedSemester: string | null,
-			selectedTerm: Term | undefined
-		) => {
-			if (selectedSemester && selectedTerm) {
-				return `${desc} in ${selectedSemester}`;
-			} else if (selectedSemester) {
-				return `${desc} having ${selectedSemester}`;
-			}
-			return desc;
-		},
-		[]
-	);
+	function handleOpen() {
+		sync();
+		open();
+	}
 
-	const previewDescription = useMemo(() => {
-		const selectedSchool = schools.find(
-			(s: { id: number }) => s.id?.toString() === (filters.schoolId || '')
-		);
-		const selectedProgram = programs.find(
-			(p) => p.id?.toString() === (filters.programId || '')
-		);
-		const selectedTerm = terms.find(
-			(t) => t.id?.toString() === (filters.termId || '')
-		);
-		const selectedSemester = filters.semesterNumber
-			? formatSemester(filters.semesterNumber, 'mini')
-			: null;
-
-		if (selectedProgram) {
-			let desc = `${selectedProgram.code} students`;
-			desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
-
-			if (selectedTerm) {
-				desc += ` registered for ${selectedTerm.code}`;
-			}
-
-			return desc;
-		}
-
-		if (selectedSchool) {
-			let desc = `All ${selectedSchool.code} students`;
-			desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
-
-			if (selectedTerm) {
-				desc += ` registered for ${selectedTerm.code}`;
-			}
-
-			return desc;
-		}
-
-		if (selectedTerm || selectedSemester) {
-			let desc = 'All students';
-			desc = addSemesterDescription(desc, selectedSemester, selectedTerm);
-
-			if (selectedTerm) {
-				desc += ` registered for ${selectedTerm.code}`;
-			}
-
-			return desc;
-		}
-
-		return 'All students';
-	}, [
-		filters.schoolId,
-		filters.programId,
-		filters.termId,
-		filters.semesterNumber,
-		schools,
-		programs,
-		terms,
-		addSemesterDescription,
-	]);
-
-	const handleApplyFilters = () => {
-		setSchoolId(filters.schoolId || null);
-		setProgramId(filters.programId || null);
-		setTermId(filters.termId || null);
-		setSemesterNumber(filters.semesterNumber || null);
+	function handleApply() {
+		applyFilters();
 		close();
-	};
+	}
 
-	const handleClearFilters = () => {
-		setFilters({
-			schoolId: '',
-			programId: '',
-			termId: '',
-			semesterNumber: '',
-		});
-		setSchoolId(null);
-		setProgramId(null);
-		setTermId(null);
-		setSemesterNumber(null);
+	function handleClear() {
+		clearFilters();
 		close();
-	};
-
-	const hasActiveFilters = schoolId || programId || termId || semesterNumber;
+	}
 
 	return (
 		<>
-			<HoverCard withArrow position='top'>
-				<HoverCard.Target>
-					<ActionIcon
-						variant={hasActiveFilters ? 'white' : 'default'}
-						size={33}
-						onClick={toggle}
-						color={getBooleanColor(!!hasActiveFilters, 'highlight')}
-					>
-						<IconFilter size={'1rem'} />
-					</ActionIcon>
-				</HoverCard.Target>
-				<HoverCard.Dropdown>
-					<Text size='xs'>Filter Students</Text>
-				</HoverCard.Dropdown>
-			</HoverCard>
-
-			<Modal opened={opened} onClose={close} title='Filter Students' size='md'>
-				<Stack gap='md'>
-					<Select
-						label='School'
-						placeholder='Select school'
-						data={schools.map((school: { id: number; name: string }) => ({
-							value: school.id?.toString() || '',
-							label: school.name,
-						}))}
-						rightSection={schoolLoading && <Loader size={'xs'} />}
-						value={filters.schoolId || null}
-						onChange={(value) =>
-							setFilters((prev) => ({
-								...prev,
-								schoolId: value || '',
-								programId: '',
-							}))
-						}
-						searchable
-						clearable
-					/>
-
-					<Select
-						label='Program'
-						placeholder='Select program'
-						data={programs.map((program) => ({
-							value: program.id?.toString() || '',
-							label: program.name,
-						}))}
-						rightSection={programsLoading && <Loader size={'xs'} />}
-						value={filters.programId || null}
-						onChange={(value) =>
-							setFilters((prev) => ({
-								...prev,
-								programId: value || '',
-							}))
-						}
-						searchable
-						clearable
-						disabled={!filters.schoolId}
-					/>
-
-					<Select
-						label='Term'
-						placeholder='Select term'
-						data={terms.map((term) => ({
-							value: term.id?.toString() || '',
-							label: term.code,
-						}))}
-						value={filters.termId || null}
-						onChange={(value) =>
-							setFilters((prev) => ({
-								...prev,
-								termId: value || '',
-							}))
-						}
-						searchable
-						clearable
-					/>
-
-					<Select
-						label='Semester'
-						placeholder='Select semester'
-						data={semesterOptions}
-						value={filters.semesterNumber || null}
-						onChange={(value) =>
-							setFilters((prev) => ({
-								...prev,
-								semesterNumber: value || '',
-							}))
-						}
-						searchable
-						clearable
-					/>
-
-					<Fieldset legend='Description'>
-						<Text size='sm'>{previewDescription}</Text>
-					</Fieldset>
-
-					<Group justify='space-between' gap='sm'>
-						{stdNo && (
-							<Tooltip label='Fill from current student'>
-								<ActionIcon variant='light' onClick={handleAutoFill}>
-									<IconFocus2 size='1rem' />
-								</ActionIcon>
-							</Tooltip>
-						)}
-						<Group gap='sm' ml='auto'>
-							<Button variant='outline' onClick={handleClearFilters}>
-								Clear All
-							</Button>
-							<Button onClick={handleApplyFilters}>Apply Filters</Button>
-						</Group>
-					</Group>
-				</Stack>
-			</Modal>
+			<FilterButton
+				label='Filter Students'
+				activeCount={activeCount}
+				opened={opened}
+				onClick={handleOpen}
+			/>
+			<FilterModal
+				opened={opened}
+				onClose={close}
+				title='Filter Students'
+				onApply={handleApply}
+				onClear={handleClear}
+			>
+				<Select
+					label='School'
+					placeholder='Select school'
+					data={schools.map((school: { id: number; name: string }) => ({
+						value: school.id?.toString() || '',
+						label: school.name,
+					}))}
+					rightSection={schoolLoading && <Loader size='xs' />}
+					value={filters.schoolId || null}
+					onChange={(value) => {
+						setFilter('schoolId', value);
+						setFilter('programId', null);
+					}}
+					searchable
+					clearable
+				/>
+				<Select
+					label='Program'
+					placeholder='Select program'
+					data={programs.map((program) => ({
+						value: program.id?.toString() || '',
+						label: program.name,
+					}))}
+					rightSection={programsLoading && <Loader size='xs' />}
+					value={filters.programId || null}
+					onChange={(value) => setFilter('programId', value)}
+					searchable
+					clearable
+					disabled={!filters.schoolId}
+				/>
+				<Select
+					label='Term'
+					placeholder='Select term'
+					data={terms.map((term) => ({
+						value: term.id?.toString() || '',
+						label: term.code,
+					}))}
+					value={filters.termId || null}
+					onChange={(value) => setFilter('termId', value)}
+					searchable
+					clearable
+				/>
+				<Select
+					label='Semester'
+					placeholder='Select semester'
+					data={semesterOptions}
+					value={filters.semesterNumber || null}
+					onChange={(value) => setFilter('semesterNumber', value)}
+					searchable
+					clearable
+				/>
+				{stdNo && (
+					<Tooltip label='Fill from current student'>
+						<ActionIcon variant='light' onClick={handleAutoFill}>
+							<IconFocus2 size='1rem' />
+						</ActionIcon>
+					</Tooltip>
+				)}
+			</FilterModal>
 		</>
 	);
 }

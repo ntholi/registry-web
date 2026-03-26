@@ -3,7 +3,6 @@
 import { ThemeIcon } from '@mantine/core';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { getDepositStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
@@ -16,43 +15,21 @@ import type {
 import { getBankDeposits } from './_server/actions';
 
 export default function PaymentsLayout({ children }: PropsWithChildren) {
-	const router = useRouter();
 	const searchParams = useSearchParams();
-	const statusFilter =
-		(searchParams.get('status') as DepositStatus | 'all' | null) || 'pending';
+	const statusFilter = searchParams.get('status') || 'pending';
 
 	async function fetchDeposits(page: number, search: string) {
 		const filters: DepositFilters = {};
-		if (statusFilter !== 'all') filters.status = statusFilter;
+		if (statusFilter !== 'all') filters.status = statusFilter as DepositStatus;
 		return getBankDeposits(page, search, filters);
-	}
-
-	function handleStatusChange(value: string | null) {
-		const params = new URLSearchParams(searchParams);
-		if (value && value !== 'pending') {
-			params.set('status', value);
-		} else {
-			params.delete('status');
-		}
-		params.delete('page');
-		const query = params.toString();
-		router.push(
-			query ? `/admissions/payments?${query}` : '/admissions/payments'
-		);
 	}
 
 	return (
 		<ListLayout<GroupedPaymentReviewItem>
 			path='/admissions/payments'
-			queryKey={['payments-review', statusFilter]}
+			queryKey={['payments-review', searchParams.toString()]}
 			getData={fetchDeposits}
-			actionIcons={[
-				<DepositStatusFilter
-					key='status-filter'
-					value={statusFilter}
-					onChange={handleStatusChange}
-				/>,
-			]}
+			actionIcons={[<DepositStatusFilter key='status-filter' />]}
 			renderItem={(deposit) => (
 				<ListItem
 					id={deposit.id}

@@ -6,6 +6,9 @@ export {
 	type DetailsViewHeaderProps,
 } from './DetailsViewHeader';
 export { FieldView, type FieldViewProps } from './FieldView';
+export { FilterButton, type FilterButtonProps } from './FilterButton';
+export { FilterMenu, type FilterMenuProps } from './FilterMenu';
+export { FilterModal, type FilterModalProps } from './FilterModal';
 export { Form, type FormProps } from './Form';
 export { default as FormHeader } from './FormHeader';
 export { ListItem, type ListItemProps } from './ListItem';

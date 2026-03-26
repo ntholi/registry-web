@@ -1,21 +1,9 @@
 'use client';
 
-import {
-	ActionIcon,
-	Button,
-	Group,
-	Indicator,
-	Modal,
-	Select,
-	Stack,
-	Tooltip,
-} from '@mantine/core';
+import { Select } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconFilter, IconX } from '@tabler/icons-react';
-import { useState } from 'react';
-
-const DEFAULT_STATUS = 'pending';
-const DEFAULT_TYPE = 'all';
+import { useFilterState } from '@/shared/lib/hooks/use-filter-state';
+import { FilterButton, FilterModal } from '@/shared/ui/adease';
 
 const statusOptions = [
 	{ value: 'all', label: 'All Status' },
@@ -31,101 +19,64 @@ const typeOptions = [
 	{ value: 'academic_record', label: 'Academic Record' },
 ];
 
-interface Props {
-	statusValue: string;
-	typeValue: string;
-	onApply: (filters: { status: string; type: string }) => void;
-}
+const filterConfig = [
+	{ key: 'status', defaultValue: 'pending' },
+	{ key: 'type', defaultValue: 'all' },
+];
 
-export default function DocumentReviewFilter({
-	statusValue,
-	typeValue,
-	onApply,
-}: Props) {
+export default function DocumentReviewFilter() {
 	const [opened, { open, close }] = useDisclosure(false);
-	const [status, setStatus] = useState(statusValue);
-	const [type, setType] = useState(typeValue);
 
-	const activeFiltersCount = [
-		statusValue !== DEFAULT_STATUS,
-		typeValue !== DEFAULT_TYPE,
-	].filter(Boolean).length;
-
-	const isDefaultFilter =
-		statusValue === DEFAULT_STATUS && typeValue === DEFAULT_TYPE;
+	const { filters, setFilter, sync, applyFilters, clearFilters, activeCount } =
+		useFilterState(filterConfig);
 
 	function handleOpen() {
-		setStatus(statusValue);
-		setType(typeValue);
+		sync();
 		open();
 	}
 
-	function handleClear() {
-		setStatus(DEFAULT_STATUS);
-		setType(DEFAULT_TYPE);
-		onApply({ status: DEFAULT_STATUS, type: DEFAULT_TYPE });
+	function handleApply() {
+		applyFilters();
 		close();
 	}
 
-	function handleApply() {
-		onApply({ status, type });
+	function handleClear() {
+		clearFilters();
 		close();
 	}
 
 	return (
 		<>
-			<Tooltip label='Filter documents'>
-				<Indicator
-					label={activeFiltersCount || undefined}
-					size={16}
-					color='red'
-					disabled={activeFiltersCount === 0}
-				>
-					<ActionIcon
-						variant={isDefaultFilter ? 'default' : 'filled'}
-						color='blue'
-						onClick={handleOpen}
-						size='input-sm'
-					>
-						<IconFilter size={16} />
-					</ActionIcon>
-				</Indicator>
-			</Tooltip>
-
-			<Modal opened={opened} onClose={close} title='Filter Documents' size='sm'>
-				<Stack gap='md'>
-					<Select
-						label='Verification Status'
-						placeholder='Select status'
-						data={statusOptions}
-						value={status}
-						onChange={(value) => setStatus(value || DEFAULT_STATUS)}
-						clearable
-					/>
-
-					<Select
-						label='Document Type'
-						placeholder='Select type'
-						data={typeOptions}
-						value={type}
-						onChange={(value) => setType(value || DEFAULT_TYPE)}
-						clearable
-					/>
-
-					<Group justify='space-between' mt='md'>
-						<Button
-							variant='subtle'
-							color='gray'
-							leftSection={<IconX size={16} />}
-							onClick={handleClear}
-							disabled={isDefaultFilter}
-						>
-							Clear All
-						</Button>
-						<Button onClick={handleApply}>Apply Filters</Button>
-					</Group>
-				</Stack>
-			</Modal>
+			<FilterButton
+				label='Filter Documents'
+				activeCount={activeCount}
+				opened={opened}
+				onClick={handleOpen}
+			/>
+			<FilterModal
+				opened={opened}
+				onClose={close}
+				title='Filter Documents'
+				onApply={handleApply}
+				onClear={handleClear}
+			>
+				<Select
+					label='Verification Status'
+					placeholder='Select status'
+					data={statusOptions}
+					value={filters.status || 'pending'}
+					onChange={(value) => setFilter('status', value || 'pending')}
+					clearable
+				/>
+				<Select
+					label='Document Type'
+					placeholder='Select type'
+					data={typeOptions}
+					value={filters.type || 'all'}
+					onChange={(value) => setFilter('type', value || 'all')}
+					clearable
+				/>
+			</FilterModal>
 		</>
 	);
 }

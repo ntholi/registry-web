@@ -2,52 +2,18 @@
 
 import { Badge, Group, Text } from '@mantine/core';
 import { IconPaperclip } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
-import { useCallback, useEffect } from 'react';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
-import type { AccessibleAccount, InboxThread } from '../_lib/types';
-import {
-	getAccessibleMailAccounts,
-	getInbox,
-} from '../accounts/_server/actions';
+import type { InboxThread } from '../_lib/types';
+import { getInbox } from '../accounts/_server/actions';
 import { AccountSelector } from './_components/AccountSelector';
 import { ComposeModal } from './_components/ComposeModal';
 
 export default function InboxLayout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();
-	const router = useRouter();
-
-	const { data: accounts = [] } = useQuery({
-		queryKey: ['accessible-mail-accounts'],
-		queryFn: () => getAccessibleMailAccounts() as Promise<AccessibleAccount[]>,
-	});
-
-	const accountId = searchParams.get('account') || accounts[0]?.id || '';
-
-	useEffect(() => {
-		if (!searchParams.get('account') && accounts[0]?.id) {
-			const params = new URLSearchParams(searchParams);
-			params.set('account', accounts[0].id);
-			router.replace(`/mail/inbox?${params.toString()}`);
-		}
-	}, [accounts, searchParams, router]);
-
-	const handleAccountChange = useCallback(
-		(id: string | null) => {
-			const params = new URLSearchParams(searchParams);
-			if (id) {
-				params.set('account', id);
-			} else {
-				params.delete('account');
-			}
-			router.replace(`/mail/inbox?${params.toString()}`);
-		},
-		[searchParams, router]
-	);
+	const accountId = searchParams.get('account') || '';
 
 	async function getData(page: number, search: string) {
 		if (!accountId) return { items: [] as InboxThread[], totalPages: 0 };
@@ -64,15 +30,11 @@ export default function InboxLayout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout<InboxThread>
 			path='/mail/inbox'
-			queryKey={['inbox-threads', accountId]}
+			queryKey={['inbox-threads', searchParams.toString()]}
 			getData={getData}
 			actionIcons={[
 				<ComposeModal key='compose' />,
-				<AccountSelector
-					key='account'
-					value={accountId || null}
-					onChange={handleAccountChange}
-				/>,
+				<AccountSelector key='account' />,
 			]}
 			renderItem={(thread) => (
 				<ListItem

@@ -1,10 +1,11 @@
 'use client';
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import { getModules } from '@academic/modules';
-import { type PropsWithChildren, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import type { PropsWithChildren } from 'react';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
-import { ListItem, ListLayout, ModuleViewToggle } from '@/shared/ui/adease';
+import { FilterMenu, ListItem, ListLayout } from '@/shared/ui/adease';
 
 interface Module {
 	id: number;
@@ -31,9 +32,16 @@ interface AssignedModule {
 
 type ModuleItem = Module | AssignedModule;
 
+const viewOptions = [
+	{ value: 'assigned', label: 'Assigned' },
+	{ value: 'all', label: 'All Modules' },
+];
+
 export default function Layout({ children }: PropsWithChildren) {
 	const { data: session } = authClient.useSession();
-	const [showAssignedOnly, setShowAssignedOnly] = useState(true);
+	const searchParams = useSearchParams();
+	const showAssignedOnly = searchParams.get('view') !== 'all';
+
 	const getData = async (page: number, search: string) => {
 		if (showAssignedOnly) {
 			const data = await getAssignedModulesByCurrentUser();
@@ -86,9 +94,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
 			path={'/academic/assessments'}
-			queryKey={
-				showAssignedOnly ? ['assessments-assigned'] : ['assessments-all']
-			}
+			queryKey={['assessments', searchParams.toString()]}
 			getData={getData}
 			renderItem={renderItem}
 			actionIcons={[
@@ -98,10 +104,12 @@ export default function Layout({ children }: PropsWithChildren) {
 							'create',
 							'update',
 						]))) && (
-					<ModuleViewToggle
-						key='module-toggle'
-						onToggle={setShowAssignedOnly}
-						defaultValue={showAssignedOnly}
+					<FilterMenu
+						key='view-toggle'
+						label='View'
+						queryParam='view'
+						defaultValue='assigned'
+						options={viewOptions}
 					/>
 				),
 			]}
