@@ -66,7 +66,7 @@ import { createElement } from 'react';
 import type { Session } from '@/core/auth';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import type { NavItem } from '../types';
-import { LmsLabel } from './LmsLabel';
+import { FiveDaysLabel } from './FiveDaysLabel';
 
 function isTimetableEditor(session: Session | null) {
 	return hasAnyPermission(session, 'timetable', ['create', 'update', 'delete']);
@@ -292,7 +292,7 @@ export const adminNav: NavItem[] = [
 		permissions: [{ resource: 'school-structures', action: 'read' }],
 	},
 	{
-		label: createElement(LmsLabel),
+		label: createElement(FiveDaysLabel),
 		description: 'Learning Management System',
 		icon: IconDeviceDesktopAnalytics,
 		href: '/lms/courses',

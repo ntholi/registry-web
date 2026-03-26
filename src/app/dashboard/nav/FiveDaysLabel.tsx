@@ -1,6 +1,6 @@
 import { Text } from '@mantine/core';
 
-export function LmsLabel() {
+export function FiveDaysLabel() {
 	return (
 		<Text size='sm'>
 			<Text component='span' variant='gradient'>

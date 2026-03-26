@@ -25,7 +25,7 @@ import { createElement } from 'react';
 import { countUncompletedTasks } from '@/app/admin/tasks';
 import { countPendingStudentStatuses } from '@/app/registry/student-statuses';
 import type { NavItem } from '../types';
-import { LmsLabel } from './LmsLabel';
+import { FiveDaysLabel } from './FiveDaysLabel';
 
 export const academicNav: NavItem[] = [
 	{
@@ -61,7 +61,7 @@ export const academicNav: NavItem[] = [
 		permissions: [{ resource: 'gradebook', action: 'read' }],
 	},
 	{
-		label: createElement(LmsLabel),
+		label: createElement(FiveDaysLabel),
 		description: 'Learning Management System',
 		icon: IconDeviceDesktopAnalytics,
 		href: '/lms/courses',
