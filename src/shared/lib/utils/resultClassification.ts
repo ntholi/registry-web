@@ -18,8 +18,8 @@ export function normalizeResultClassification(
 	if (!raw) return null;
 	const compact = raw.replace(/\s+/g, '');
 
-	if (raw.includes('first class')) return 'Merit';
-	if (raw.includes('second class')) {
+	if (raw.includes('first class') || raw === 'class 1') return 'Merit';
+	if (raw.includes('second class') || raw === 'class 2') {
 		if (
 			raw.includes('upper') ||
 			raw.includes('2 1') ||
@@ -42,7 +42,11 @@ export function normalizeResultClassification(
 		}
 		return 'Credit';
 	}
-	if (raw.includes('third class')) return 'Pass';
+	if (raw.includes('third class') || raw === 'class 3') return 'Pass';
+
+	if (compact === 'i' || compact === '1') return 'Merit';
+	if (compact === 'ii' || compact === '2') return 'Credit';
+	if (compact === 'iii' || compact === '3') return 'Pass';
 
 	if (compact.includes('withdistinction') || compact === 'distinction')
 		return 'Distinction';
