@@ -13,6 +13,7 @@ import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import { getEligiblePrograms } from '../_lib/eligibility';
 import {
@@ -341,7 +342,18 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 
 	async updateUserId(applicantId: string, userId: string | null) {
 		return withPermission(
-			async () => this.repo.update(applicantId, { userId }),
+			async () => {
+				if (userId) {
+					const existing = await this.repo.findByUserId(userId);
+					if (existing && existing.id !== applicantId) {
+						throw new UserFacingError(
+							'This user is already linked to another applicant',
+							'DUPLICATE_USER'
+						);
+					}
+				}
+				return this.repo.update(applicantId, { userId });
+			},
 			{ applicants: ['update'] }
 		);
 	}
