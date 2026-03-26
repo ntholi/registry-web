@@ -50,6 +50,7 @@ export const statusColors = {
 		approved: semantic.success,
 		confirmed: semantic.success,
 		rejected: semantic.error,
+		cancelled: semantic.error,
 		pending: semantic.warning,
 		applied: semantic.warning,
 		partial: semantic.caution,
@@ -322,6 +323,10 @@ export type ModuleTypeColorKey =
 	| ModuleType
 	| `Repeat${number}`
 	| `Resit${number}`;
+export type StudentStatusTypeColor =
+	| 'withdrawal'
+	| 'deferment'
+	| 'reinstatement';
 
 function getColorFromMap<T extends Record<string, string>, V extends string>(
 	value: V,
@@ -519,6 +524,17 @@ export function getTaskPriorityColor(priority: TaskPriorityType) {
 
 export function getTaskStatusColor(status: TaskStatusType) {
 	return getColorFromMap(status, statusColors.taskStatus);
+}
+
+export function getStudentStatusTypeColor(type: StudentStatusTypeColor) {
+	switch (type) {
+		case 'withdrawal':
+			return semantic.error;
+		case 'deferment':
+			return semantic.warning;
+		case 'reinstatement':
+			return semantic.success;
+	}
 }
 
 export type LoanStatusType = 'Active' | 'Returned' | 'Overdue';

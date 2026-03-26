@@ -7,15 +7,19 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { authClient } from '@/core/auth-client';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
+import {
+	getStatusColor,
+	getStudentStatusTypeColor,
+} from '@/shared/lib/utils/colors';
 import { DeleteButton } from '@/shared/ui/adease';
 import { getTypeLabel } from '../_lib/labels';
-import type { StudentStatusType } from '../_lib/types';
+import type { StudentStatusState, StudentStatusType } from '../_lib/types';
 import { cancelStudentStatus } from '../_server/actions';
 
 type Props = {
 	title: string;
 	type: StudentStatusType;
-	status: string;
+	status: StudentStatusState;
 	id: string;
 };
 
@@ -52,7 +56,12 @@ export default function StatusHeader({ title, type, status, id }: Props) {
 					</Title>
 				)}
 				<Group>
-					<Badge variant='light'>{getTypeLabel(type)}</Badge>
+					<Badge variant='light' color={getStudentStatusTypeColor(type)}>
+						{getTypeLabel(type)}
+					</Badge>
+					<Badge variant='light' color={getStatusColor(status)}>
+						{status}
+					</Badge>
 					{canDelete && (
 						<DeleteButton
 							handleDelete={async () => cancelStudentStatus(id)}

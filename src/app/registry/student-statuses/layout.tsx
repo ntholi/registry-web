@@ -2,6 +2,7 @@
 
 import { Badge, Group } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
+import { getStudentStatusTypeColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import { getTypeLabel } from './_lib/labels';
@@ -31,7 +32,7 @@ export default function Layout({ children }: PropsWithChildren) {
 								size='xs'
 								radius={'sm'}
 								variant='light'
-								color={getColorType(it.type)}
+								color={getStudentStatusTypeColor(it.type)}
 							>
 								{getTypeLabel(it.type)}
 							</Badge>
@@ -46,17 +47,4 @@ export default function Layout({ children }: PropsWithChildren) {
 			{children}
 		</ListLayout>
 	);
-}
-
-function getColorType(type: string) {
-	switch (type) {
-		case 'withdrawal':
-			return 'red';
-		case 'deferment':
-			return 'yellow';
-		case 'reinstatement':
-			return 'green';
-		default:
-			return 'gray';
-	}
 }
