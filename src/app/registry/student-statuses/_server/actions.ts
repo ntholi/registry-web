@@ -16,7 +16,7 @@ export async function getStudentStatus(id: string) {
 	return studentStatusesService.get(id);
 }
 
-interface StudentStatusFilter {
+export interface StudentStatusFilter {
 	type?: (typeof studentStatuses.type.enumValues)[number];
 	status?: (typeof studentStatuses.status.enumValues)[number];
 }
