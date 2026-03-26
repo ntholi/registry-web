@@ -38,9 +38,15 @@ function exportToCsv(columns: string[], rows: Record<string, unknown>[]) {
 			columns
 				.map((col) => {
 					const val = formatCellValue(row[col]);
-					return val.includes(',') || val.includes('"')
-						? `"${val.replace(/"/g, '""')}"`
-						: val;
+					if (
+						val.includes(',') ||
+						val.includes('"') ||
+						val.includes('\n') ||
+						val.includes('\r')
+					) {
+						return `"${val.replace(/"/g, '""')}"`;
+					}
+					return val;
 				})
 				.join(',')
 		)
@@ -52,7 +58,7 @@ function exportToCsv(columns: string[], rows: Record<string, unknown>[]) {
 	a.href = url;
 	a.download = `query-results-${Date.now()}.csv`;
 	a.click();
-	URL.revokeObjectURL(url);
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export default function ResultsTable({
