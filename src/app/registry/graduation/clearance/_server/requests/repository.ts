@@ -479,7 +479,69 @@ export default class GraduationRequestRepository extends BaseRepository<
 		return 'approved';
 	}
 
-	async findAllPaginated(params: QueryOptions<typeof graduationRequests>) {
+	private buildStatusCondition(status: 'pending' | 'approved' | 'rejected') {
+		const deptFilter = sql`c.department IN (${sql.join(
+			GRADUATION_CLEARANCE_DEPTS.map((d) => sql`${d}`),
+			sql`, `
+		)})`;
+
+		if (status === 'rejected') {
+			return sql`EXISTS (
+				SELECT 1 FROM clearance c
+				INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id
+				WHERE gc.graduation_request_id = ${graduationRequests.id}
+				AND ${deptFilter}
+				AND c.status = 'rejected'
+			)`;
+		}
+
+		if (status === 'approved') {
+			return and(
+				sql`NOT EXISTS (
+					SELECT 1 FROM clearance c
+					INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id
+					WHERE gc.graduation_request_id = ${graduationRequests.id}
+					AND ${deptFilter}
+					AND c.status = 'rejected'
+				)`,
+				sql`NOT EXISTS (
+					SELECT 1 FROM clearance c
+					INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id
+					WHERE gc.graduation_request_id = ${graduationRequests.id}
+					AND ${deptFilter}
+					AND c.status = 'pending'
+				)`,
+				sql`EXISTS (
+					SELECT 1 FROM graduation_clearance gc
+					INNER JOIN clearance c ON c.id = gc.clearance_id
+					WHERE gc.graduation_request_id = ${graduationRequests.id}
+					AND ${deptFilter}
+				)`
+			);
+		}
+
+		return and(
+			sql`NOT EXISTS (
+				SELECT 1 FROM clearance c
+				INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id
+				WHERE gc.graduation_request_id = ${graduationRequests.id}
+				AND ${deptFilter}
+				AND c.status = 'rejected'
+			)`,
+			sql`EXISTS (
+				SELECT 1 FROM clearance c
+				INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id
+				WHERE gc.graduation_request_id = ${graduationRequests.id}
+				AND ${deptFilter}
+				AND c.status = 'pending'
+			)`
+		);
+	}
+
+	async findAllPaginated(
+		params: QueryOptions<typeof graduationRequests>,
+		status?: 'pending' | 'approved' | 'rejected'
+	) {
 		const { offset, limit } = this.buildQueryCriteria(params);
 		const searchCondition = params.search
 			? sql`EXISTS (
@@ -490,8 +552,14 @@ export default class GraduationRequestRepository extends BaseRepository<
         )`
 			: undefined;
 
+		const statusCondition = status
+			? this.buildStatusCondition(status)
+			: undefined;
+
+		const combinedWhere = and(searchCondition, statusCondition);
+
 		const requests = await db.query.graduationRequests.findMany({
-			where: searchCondition,
+			where: combinedWhere,
 			with: {
 				studentProgram: {
 					with: {
@@ -514,11 +582,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 			offset,
 		});
 
-		const totalResult = await (searchCondition
+		const totalResult = await (combinedWhere
 			? db
 					.select({ value: sql`count(*)`.as<number>() })
 					.from(graduationRequests)
-					.where(searchCondition)
+					.where(combinedWhere)
 			: db
 					.select({ value: sql`count(*)`.as<number>() })
 					.from(graduationRequests));

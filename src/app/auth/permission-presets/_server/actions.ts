@@ -1,6 +1,8 @@
 'use server';
 
+import { eq } from 'drizzle-orm';
 import { z } from 'zod/v4';
+import { permissionPresets } from '@/core/database';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import {
 	dashboardRoleSchema,
@@ -15,11 +17,13 @@ export async function getPreset(id: string) {
 	return service.get(idSchema.parse(id));
 }
 
-export async function findAllPresets(page = 1, search = '') {
+export async function findAllPresets(page = 1, search = '', role?: string) {
+	const filter = role ? eq(permissionPresets.role, role) : undefined;
 	return service.findAllWithCounts({
 		page,
 		search: search.trim(),
 		searchColumns: ['name', 'role', 'description'],
+		filter,
 	});
 }
 

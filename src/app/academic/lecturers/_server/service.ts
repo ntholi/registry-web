@@ -14,10 +14,15 @@ class LecturerService {
 		});
 	}
 
-	async getAll(params: QueryOptions<typeof users>) {
+	async getAll(params: QueryOptions<typeof users>, schoolId?: number) {
 		return withPermission(
 			async (session) => {
-				const userSchools = await getUserSchoolIds(session?.user?.id);
+				let userSchools = await getUserSchoolIds(session?.user?.id);
+				if (schoolId) {
+					userSchools = userSchools.includes(schoolId)
+						? [schoolId]
+						: userSchools;
+				}
 				return this.repository.getBySchools(userSchools, params);
 			},
 			{ lecturers: ['read'] }

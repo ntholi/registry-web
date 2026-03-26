@@ -1,22 +1,30 @@
 'use client';
 
 import { Badge, Group, Text } from '@mantine/core';
+import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { statusColors } from '@/shared/lib/utils/colors';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { getQueueItems } from '../queues/_server/actions';
+import QueueStatusFilter from './_components/QueueStatusFilter';
 
 type QueueItem = NonNullable<
 	Awaited<ReturnType<typeof getQueueItems>>
 >['items'][number];
 
 export default function QueueLayout({ children }: PropsWithChildren) {
+	const searchParams = useSearchParams();
+	const status = searchParams.get('status') || 'all';
+
 	return (
 		<ListLayout<QueueItem>
 			path='/mail/queue'
-			queryKey={['mail-queue']}
-			getData={(page) => getQueueItems(page)}
+			queryKey={['mail-queue', searchParams.toString()]}
+			getData={(page) =>
+				getQueueItems(page, status !== 'all' ? status : undefined)
+			}
+			actionIcons={[<QueueStatusFilter key='status-filter' />]}
 			renderItem={(item) => (
 				<ListItem
 					id={item.id}

@@ -1,10 +1,12 @@
 'use client';
 
 import { Badge, Group, Text } from '@mantine/core';
+import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { formatTableName } from '@/shared/lib/utils/utils';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
+import AuditLogsFilter from './_components/AuditLogsFilter';
 import { getAuditLogs } from './_server/actions';
 
 type AuditLogItem = {
@@ -28,11 +30,18 @@ const operationColor: Record<string, string> = {
 };
 
 export default function Layout({ children }: PropsWithChildren) {
+	const searchParams = useSearchParams();
+	const operation = searchParams.get('operation') || undefined;
+	const tableName = searchParams.get('tableName') || undefined;
+
 	return (
 		<ListLayout<AuditLogItem>
 			path='/audit-logs'
-			queryKey={['audit-logs']}
-			getData={async (page, search) => getAuditLogs(page, search)}
+			queryKey={['audit-logs', searchParams.toString()]}
+			actionIcons={[<AuditLogsFilter key='filter' />]}
+			getData={async (page, search) =>
+				getAuditLogs(page, search, tableName, operation)
+			}
 			renderItem={(item) => (
 				<ListItem
 					id={String(item.id)}

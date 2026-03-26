@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { and, eq, type SQL } from 'drizzle-orm';
 import { users } from '@/core/database';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import { usersService as service } from './service';
@@ -22,8 +22,23 @@ export async function getUserSchools(userId?: string) {
 	return service.getUserSchools(userId);
 }
 
-export async function findAllUsers(page: number = 1, search = '') {
-	return service.findAll({ page, search, searchColumns: ['email', 'name'] });
+export async function findAllUsers(
+	page: number = 1,
+	search = '',
+	role?: string,
+	presetId?: string
+) {
+	const conditions: SQL[] = [];
+	if (role)
+		conditions.push(eq(users.role, role as typeof users.$inferSelect.role));
+	if (presetId) conditions.push(eq(users.presetId, presetId));
+
+	return service.findAll({
+		page,
+		search,
+		searchColumns: ['email', 'name'],
+		filter: conditions.length ? and(...conditions) : undefined,
+	});
 }
 
 export async function findAllByRole(

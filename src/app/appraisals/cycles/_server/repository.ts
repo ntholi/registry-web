@@ -43,21 +43,31 @@ export default class FeedbackCycleRepository extends BaseRepository<
 
 	async queryWithSchoolCodes(
 		options: QueryOptions<typeof feedbackCycles>,
-		userSchoolIds?: number[]
+		userSchoolIds?: number[],
+		status?: string
 	) {
 		const { orderBy, where, offset, limit } = this.buildQueryCriteria(options);
+
+		const statusCondition =
+			status === 'upcoming'
+				? sql`${feedbackCycles.startDate} > CURRENT_DATE`
+				: status === 'open'
+					? sql`${feedbackCycles.startDate} <= CURRENT_DATE AND ${feedbackCycles.endDate} >= CURRENT_DATE`
+					: status === 'closed'
+						? sql`${feedbackCycles.endDate} < CURRENT_DATE`
+						: undefined;
+
 		const schoolFilter =
 			userSchoolIds && userSchoolIds.length > 0
 				? inArray(feedbackCycleSchools.schoolId, userSchoolIds)
 				: undefined;
+		const baseWhere = and(where, statusCondition);
 		const combinedWhere = schoolFilter
-			? where
-				? and(
-						where,
-						sql`${feedbackCycles.id} in (select ${feedbackCycleSchools.cycleId} from ${feedbackCycleSchools} where ${schoolFilter})`
-					)
-				: sql`${feedbackCycles.id} in (select ${feedbackCycleSchools.cycleId} from ${feedbackCycleSchools} where ${schoolFilter})`
-			: where;
+			? and(
+					baseWhere,
+					sql`${feedbackCycles.id} in (select ${feedbackCycleSchools.cycleId} from ${feedbackCycleSchools} where ${schoolFilter})`
+				)
+			: baseWhere;
 		const items = await db
 			.select({
 				...getTableColumns(feedbackCycles),

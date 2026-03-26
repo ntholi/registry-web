@@ -1,6 +1,7 @@
 'use server';
 
-import type { venues } from '@/core/database';
+import { eq } from 'drizzle-orm';
+import { venues } from '@/core/database';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import type { VenueInsert } from './repository';
 import { venueService as service } from './service';
@@ -11,12 +12,13 @@ export async function getVenueWithRelations(id: string) {
 	return service.getWithRelations(id);
 }
 
-export async function findAllVenues(page = 1, search = '') {
+export async function findAllVenues(page = 1, search = '', typeId?: string) {
 	return service.findAllWithRelations({
 		page,
 		search,
 		searchColumns: ['name'],
 		sort: [{ column: 'name', order: 'asc' }],
+		filter: typeId ? eq(venues.typeId, typeId) : undefined,
 	});
 }
 

@@ -67,8 +67,12 @@ export const getOrCreateApplicantForCurrentUser = createAction(async () =>
 	applicantsService.getOrCreateForCurrentUser()
 );
 
-export async function findAllApplicants(page = 1, search = '') {
-	return applicantsService.search(page, search);
+export async function findAllApplicants(
+	page = 1,
+	search = '',
+	intakePeriodId?: string
+) {
+	return applicantsService.search(page, search, intakePeriodId);
 }
 
 export const createApplicant = createAction(async (data: Applicant) =>

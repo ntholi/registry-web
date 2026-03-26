@@ -10,12 +10,15 @@ import { feedbackCyclesService as service } from './service';
 type Cycle = typeof feedbackCycles.$inferInsert;
 type CycleWithSchools = Cycle & { schoolIds?: number[] };
 
-export async function getCycles(page = 1, search = '') {
-	return service.findAllWithSchoolCodes({
-		page,
-		search: search.trim(),
-		searchColumns: ['name'],
-	});
+export async function getCycles(page = 1, search = '', status?: string) {
+	return service.findAllWithSchoolCodes(
+		{
+			page,
+			search: search.trim(),
+			searchColumns: ['name'],
+		},
+		status
+	);
 }
 
 export async function getCycle(id: string) {

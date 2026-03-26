@@ -71,10 +71,13 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return this.repo.findByNationalIdWithUser(nationalId);
 	}
 
-	async search(page: number, search: string) {
-		return withPermission(async () => this.repo.search(page, search), {
-			applicants: ['read'],
-		});
+	async search(page: number, search: string, intakePeriodId?: string) {
+		return withPermission(
+			async () => this.repo.search(page, search, intakePeriodId),
+			{
+				applicants: ['read'],
+			}
+		);
 	}
 
 	override async create(data: typeof applicants.$inferInsert) {

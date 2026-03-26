@@ -10,11 +10,14 @@ export type ObservationDetailData = NonNullable<
 	Awaited<ReturnType<typeof service.findObservation>>
 >;
 
-export async function getObservations(page = 1, search = '') {
-	return service.queryObservations({
-		page,
-		search: search.trim(),
-	});
+export async function getObservations(page = 1, search = '', status?: string) {
+	return service.queryObservations(
+		{
+			page,
+			search: search.trim(),
+		},
+		status ? { status } : undefined
+	);
 }
 
 export async function getObservation(id: string) {

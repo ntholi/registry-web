@@ -79,9 +79,15 @@ export async function getQueueItem(id: number) {
 	});
 }
 
-export async function getSentLog(page = 1, search = '') {
+export async function getSentLog(
+	page = 1,
+	search = '',
+	status?: string,
+	triggerType?: string
+) {
 	return withPermission(
-		async () => mailQueueRepo.getSentLog(page, search || undefined),
+		async () =>
+			mailQueueRepo.getSentLog(page, search || undefined, status, triggerType),
 		{ mails: ['read'] }
 	);
 }

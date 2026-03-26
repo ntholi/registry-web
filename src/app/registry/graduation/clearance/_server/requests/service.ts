@@ -72,9 +72,16 @@ class GraduationRequestService {
 		return withPermission(async () => this.repository.query(params), adminOnly);
 	}
 
-	async findAll(params: QueryOptions<typeof graduationRequests>) {
+	async findAll(
+		params: QueryOptions<typeof graduationRequests> & {
+			status?: 'pending' | 'approved' | 'rejected';
+		}
+	) {
 		return withPermission(
-			async () => this.repository.findAllPaginated(params),
+			async () => {
+				const { status, ...queryParams } = params;
+				return this.repository.findAllPaginated(queryParams, status);
+			},
 			async (session) =>
 				session?.user?.role === 'registry' || session?.user?.role === 'admin'
 		);

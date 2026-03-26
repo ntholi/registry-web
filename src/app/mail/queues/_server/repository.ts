@@ -1,5 +1,14 @@
 import { APPROVAL_PRESET_ROLES } from '@registry/student-statuses/_lib/approvalRoles';
-import { and, count as countFn, eq, gte, inArray, or, sql } from 'drizzle-orm';
+import {
+	and,
+	count as countFn,
+	eq,
+	gte,
+	inArray,
+	or,
+	type SQL,
+	sql,
+} from 'drizzle-orm';
 import {
 	db,
 	mailAccounts,
@@ -292,15 +301,37 @@ class MailQueueRepository extends BaseRepository<typeof mailQueue, 'id'> {
 		});
 	}
 
-	async getSentLog(page: number, search?: string) {
+	async getSentLog(
+		page: number,
+		search?: string,
+		status?: string,
+		triggerType?: string
+	) {
 		const limit = 15;
 		const offset = (page - 1) * limit;
-		const conditions = search
-			? or(
+		const parts: SQL[] = [];
+
+		if (search) {
+			parts.push(
+				or(
 					sql`${mailSentLog.to} ILIKE ${`%${search}%`}`,
 					sql`${mailSentLog.subject} ILIKE ${`%${search}%`}`
+				)!
+			);
+		}
+		if (status) {
+			parts.push(eq(mailSentLog.status, status));
+		}
+		if (triggerType) {
+			parts.push(
+				eq(
+					mailSentLog.triggerType,
+					triggerType as typeof mailSentLog.$inferSelect.triggerType
 				)
-			: undefined;
+			);
+		}
+
+		const conditions = parts.length ? and(...parts) : undefined;
 
 		const items = await db
 			.select({

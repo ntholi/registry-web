@@ -27,12 +27,13 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 	}
 
 	async findAllWithSchoolCodes(
-		params: Parameters<typeof this.repo.queryWithSchoolCodes>[0]
+		params: Parameters<typeof this.repo.queryWithSchoolCodes>[0],
+		status?: string
 	) {
 		return withPermission(
 			async (session) => {
 				const userSchoolIds = await getUserSchoolIds(session?.user?.id);
-				return this.repo.queryWithSchoolCodes(params, userSchoolIds);
+				return this.repo.queryWithSchoolCodes(params, userSchoolIds, status);
 			},
 			{ 'feedback-cycles': ['read'] }
 		);

@@ -1,7 +1,14 @@
 'use server';
 
 import type { Grade } from '@registry/_database';
-import type { semesterModules } from '@/core/database';
+import { and, eq, inArray, type SQL } from 'drizzle-orm';
+import {
+	db,
+	programs,
+	semesterModules,
+	structureSemesters,
+	structures,
+} from '@/core/database';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import { semesterModulesService } from './service';
 
@@ -11,10 +18,51 @@ export async function getSemesterModule(id: number) {
 	return semesterModulesService.get(id);
 }
 
-export async function findAllModules(page: number = 1, search = '') {
+export async function findAllModules(
+	page: number = 1,
+	search = '',
+	schoolId?: string,
+	programId?: string
+) {
+	const conditions: SQL[] = [];
+
+	if (schoolId) {
+		conditions.push(
+			inArray(
+				semesterModules.semesterId,
+				db
+					.select({ id: structureSemesters.id })
+					.from(structureSemesters)
+					.innerJoin(
+						structures,
+						eq(structureSemesters.structureId, structures.id)
+					)
+					.innerJoin(programs, eq(structures.programId, programs.id))
+					.where(eq(programs.schoolId, Number(schoolId)))
+			)
+		);
+	}
+
+	if (programId) {
+		conditions.push(
+			inArray(
+				semesterModules.semesterId,
+				db
+					.select({ id: structureSemesters.id })
+					.from(structureSemesters)
+					.innerJoin(
+						structures,
+						eq(structureSemesters.structureId, structures.id)
+					)
+					.where(eq(structures.programId, Number(programId)))
+			)
+		);
+	}
+
 	return semesterModulesService.search(
 		{
 			page,
+			filter: conditions.length ? and(...conditions) : undefined,
 		},
 		search
 	);

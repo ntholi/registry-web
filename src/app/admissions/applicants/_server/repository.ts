@@ -1,10 +1,11 @@
-import { and, count, eq, exists, ilike, or } from 'drizzle-orm';
+import { and, count, eq, exists, ilike, or, type SQL } from 'drizzle-orm';
 import {
 	academicRecords,
 	applicantDocuments,
 	applicantLocations,
 	applicantPhones,
 	applicants,
+	applications,
 	db,
 	documents,
 	guardianPhones,
@@ -184,12 +185,15 @@ export default class ApplicantRepository extends BaseRepository<
 		});
 	}
 
-	async search(page: number, search: string) {
+	async search(page: number, search: string, intakePeriodId?: string) {
 		const pageSize = 15;
 		const offset = (page - 1) * pageSize;
 
-		const where = search
-			? or(
+		const parts: SQL[] = [];
+
+		if (search) {
+			parts.push(
+				or(
 					ilike(applicants.fullName, `%${search}%`),
 					ilike(applicants.nationalId, `%${search}%`),
 					exists(
@@ -214,8 +218,27 @@ export default class ApplicantRepository extends BaseRepository<
 								)
 							)
 					)
+				)!
+			);
+		}
+
+		if (intakePeriodId) {
+			parts.push(
+				exists(
+					db
+						.select({ id: applications.id })
+						.from(applications)
+						.where(
+							and(
+								eq(applications.applicantId, applicants.id),
+								eq(applications.intakePeriodId, intakePeriodId)
+							)
+						)
 				)
-			: undefined;
+			);
+		}
+
+		const where = parts.length ? and(...parts) : undefined;
 
 		const [items, [{ total }]] = await Promise.all([
 			db.query.applicants.findMany({

@@ -1,4 +1,5 @@
-import type { employees } from '@/core/database';
+import { and, eq, type SQL } from 'drizzle-orm';
+import { employees } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { StoragePaths } from '@/core/integrations/storage-utils';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -31,7 +32,23 @@ class EmployeeService {
 		);
 	}
 
-	async findAll(page = 1, search = '') {
+	async findAll(page = 1, search = '', department?: string, status?: string) {
+		const conditions: SQL[] = [];
+		if (department)
+			conditions.push(
+				eq(
+					employees.department,
+					department as NonNullable<typeof employees.$inferSelect.department>
+				)
+			);
+		if (status)
+			conditions.push(
+				eq(
+					employees.status,
+					status as NonNullable<typeof employees.$inferSelect.status>
+				)
+			);
+
 		return withPermission(
 			async () =>
 				this.repository.query({
@@ -39,6 +56,7 @@ class EmployeeService {
 					search,
 					searchColumns: ['empNo', 'name'],
 					sort: [{ column: 'createdAt', order: 'desc' }],
+					filter: conditions.length ? and(...conditions) : undefined,
 				}),
 			{ employees: ['read'] }
 		);

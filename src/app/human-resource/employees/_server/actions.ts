@@ -17,8 +17,13 @@ export async function getCurrentEmployee() {
 	return service.getCurrent();
 }
 
-export async function findAllEmployees(page: number = 1, search = '') {
-	return service.findAll(page, search);
+export async function findAllEmployees(
+	page: number = 1,
+	search = '',
+	department?: string,
+	status?: string
+) {
+	return service.findAll(page, search, department, status);
 }
 
 export const createEmployee = createAction(

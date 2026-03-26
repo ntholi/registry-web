@@ -26,10 +26,13 @@ class CertificateReprintsService {
 		});
 	}
 
-	async queryAll(page: number, search: string) {
-		return withPermission(() => this.repository.queryPaginated(page, search), {
-			'certificate-reprints': ['read'],
-		});
+	async queryAll(page: number, search: string, status?: string) {
+		return withPermission(
+			() => this.repository.queryPaginated(page, search, status),
+			{
+				'certificate-reprints': ['read'],
+			}
+		);
 	}
 
 	async create(data: CertificateReprint) {

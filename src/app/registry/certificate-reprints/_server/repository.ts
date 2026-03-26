@@ -37,11 +37,27 @@ class CertificateReprintsRepository extends BaseRepository<
 		});
 	}
 
-	async queryPaginated(page = 1, search = '', size = 10) {
+	async queryPaginated(page = 1, search = '', status?: string, size = 10) {
 		const offset = (page - 1) * size;
-		const where = search
-			? sql`${certificateReprints.stdNo}::text ILIKE ${`%${search}%`} OR ${certificateReprints.receiptNumber}::text ILIKE ${`%${search}%`}`
-			: undefined;
+		const conditions: ReturnType<typeof eq>[] = [];
+
+		if (search) {
+			conditions.push(
+				sql`${certificateReprints.stdNo}::text ILIKE ${`%${search}%`} OR ${certificateReprints.receiptNumber}::text ILIKE ${`%${search}%`}` as ReturnType<
+					typeof eq
+				>
+			);
+		}
+		if (status) {
+			conditions.push(
+				eq(
+					certificateReprints.status,
+					status as typeof certificateReprints.$inferSelect.status
+				)
+			);
+		}
+
+		const where = conditions.length > 0 ? and(...conditions) : undefined;
 
 		const items = await db.query.certificateReprints.findMany({
 			where,

@@ -61,9 +61,14 @@ export async function countByStatus(
 	return service.countByStatus(status);
 }
 
-export async function findAllGraduationRequests(page = 1, search = '') {
+export async function findAllGraduationRequests(
+	page = 1,
+	search = '',
+	status?: 'pending' | 'approved' | 'rejected'
+) {
 	return service.findAll({
 		page,
 		search,
+		status,
 	});
 }

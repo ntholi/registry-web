@@ -18,8 +18,12 @@ export async function getCertificateReprintsByStdNo(stdNo: number) {
 	return service.findByStdNo(stdNo);
 }
 
-export async function findAllCertificateReprints(page = 1, search = '') {
-	return service.queryAll(page, search);
+export async function findAllCertificateReprints(
+	page = 1,
+	search = '',
+	status?: string
+) {
+	return service.queryAll(page, search, status);
 }
 
 export const createCertificateReprint = createAction(
