@@ -1,9 +1,8 @@
 'use client';
 
 import { Select } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { useFilterState } from '@/shared/lib/hooks/use-filter-state';
-import { FilterButton, FilterModal } from '@/shared/ui/adease';
+import { FilterModal } from '@/shared/ui/adease';
 
 const statusOptions = [
 	{ value: '', label: 'All' },
@@ -25,57 +24,34 @@ const triggerOptions = [
 const filterConfig = [{ key: 'status' }, { key: 'triggerType' }];
 
 export default function SentFilter() {
-	const [opened, { open, close }] = useDisclosure(false);
 	const { filters, setFilter, sync, applyFilters, clearFilters, activeCount } =
 		useFilterState(filterConfig);
 
-	function handleOpen() {
-		sync();
-		open();
-	}
-
-	function handleApply() {
-		applyFilters();
-		close();
-	}
-
-	function handleClear() {
-		clearFilters();
-		close();
-	}
-
 	return (
-		<>
-			<FilterButton
-				label='Filter Sent Mail'
-				activeCount={activeCount}
-				opened={opened}
-				onClick={handleOpen}
+		<FilterModal
+			label='Filter Sent Mail'
+			title='Filter Sent Mail'
+			activeCount={activeCount}
+			onApply={applyFilters}
+			onClear={clearFilters}
+			onOpen={sync}
+		>
+			<Select
+				label='Status'
+				placeholder='All statuses'
+				data={statusOptions}
+				value={filters.status || null}
+				onChange={(v) => setFilter('status', v)}
+				clearable
 			/>
-			<FilterModal
-				opened={opened}
-				onClose={close}
-				title='Filter Sent Mail'
-				onApply={handleApply}
-				onClear={handleClear}
-			>
-				<Select
-					label='Status'
-					placeholder='All statuses'
-					data={statusOptions}
-					value={filters.status || null}
-					onChange={(v) => setFilter('status', v)}
-					clearable
-				/>
-				<Select
-					label='Trigger Type'
-					placeholder='All types'
-					data={triggerOptions}
-					value={filters.triggerType || null}
-					onChange={(v) => setFilter('triggerType', v)}
-					clearable
-				/>
-			</FilterModal>
-		</>
+			<Select
+				label='Trigger Type'
+				placeholder='All types'
+				data={triggerOptions}
+				value={filters.triggerType || null}
+				onChange={(v) => setFilter('triggerType', v)}
+				clearable
+			/>
+		</FilterModal>
 	);
 }

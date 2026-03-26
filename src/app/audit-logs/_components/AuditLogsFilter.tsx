@@ -1,10 +1,9 @@
 'use client';
 
 import { Loader, Select } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useFilterState } from '@/shared/lib/hooks/use-filter-state';
-import { FilterButton, FilterModal } from '@/shared/ui/adease';
+import { FilterModal } from '@/shared/ui/adease';
 import { getDistinctTables } from './../_server/actions';
 
 const operationOptions = [
@@ -17,65 +16,62 @@ const operationOptions = [
 const filterConfig = [{ key: 'operation' }, { key: 'tableName' }];
 
 export default function AuditLogsFilter() {
-	const [opened, { open, close }] = useDisclosure(false);
 	const { filters, setFilter, sync, applyFilters, clearFilters, activeCount } =
 		useFilterState(filterConfig);
 
+	return (
+		<FilterModal
+			label='Filter Audit Logs'
+			title='Filter Audit Logs'
+			activeCount={activeCount}
+			onApply={applyFilters}
+			onClear={clearFilters}
+			onOpen={sync}
+		>
+			{(opened) => (
+				<AuditLogsFields
+					opened={opened}
+					filters={filters}
+					setFilter={setFilter}
+				/>
+			)}
+		</FilterModal>
+	);
+}
+
+type FieldsProps = {
+	opened: boolean;
+	filters: Record<string, string | null>;
+	setFilter: (key: string, value: string | null) => void;
+};
+
+function AuditLogsFields({ opened, filters, setFilter }: FieldsProps) {
 	const { data: tables = [], isLoading: tablesLoading } = useQuery({
 		queryKey: ['audit-log-tables'],
 		queryFn: getDistinctTables,
 		enabled: opened,
 	});
 
-	function handleOpen() {
-		sync();
-		open();
-	}
-
-	function handleApply() {
-		applyFilters();
-		close();
-	}
-
-	function handleClear() {
-		clearFilters();
-		close();
-	}
-
 	return (
 		<>
-			<FilterButton
-				label='Filter Audit Logs'
-				activeCount={activeCount}
-				opened={opened}
-				onClick={handleOpen}
+			<Select
+				label='Operation'
+				placeholder='All operations'
+				data={operationOptions}
+				value={filters.operation || null}
+				onChange={(v) => setFilter('operation', v)}
+				clearable
 			/>
-			<FilterModal
-				opened={opened}
-				onClose={close}
-				title='Filter Audit Logs'
-				onApply={handleApply}
-				onClear={handleClear}
-			>
-				<Select
-					label='Operation'
-					placeholder='All operations'
-					data={operationOptions}
-					value={filters.operation || null}
-					onChange={(v) => setFilter('operation', v)}
-					clearable
-				/>
-				<Select
-					label='Table'
-					placeholder='All tables'
-					data={tables.map((t: string) => ({ value: t, label: t }))}
-					rightSection={tablesLoading && <Loader size='xs' />}
-					value={filters.tableName || null}
-					onChange={(v) => setFilter('tableName', v)}
-					searchable
-					clearable
-				/>
-			</FilterModal>
+			<Select
+				label='Table'
+				placeholder='All tables'
+				data={tables.map((t: string) => ({ value: t, label: t }))}
+				rightSection={tablesLoading && <Loader size='xs' />}
+				value={filters.tableName || null}
+				onChange={(v) => setFilter('tableName', v)}
+				searchable
+				clearable
+			/>
 		</>
 	);
 }

@@ -5,11 +5,10 @@ import {
 	paymentStatusEnum,
 } from '@admissions/_database';
 import { Loader, Select } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useFilterState } from '@/shared/lib/hooks/use-filter-state';
-import { FilterButton, FilterModal } from '@/shared/ui/adease';
+import { FilterModal } from '@/shared/ui/adease';
 import { findAllIntakePeriods } from '../../intake-periods/_server/actions';
 
 const statusOptions = applicationStatusEnum.enumValues.map((s) => ({
@@ -25,11 +24,36 @@ const paymentOptions = paymentStatusEnum.enumValues.map((s) => ({
 const filterConfig = [{ key: 'status' }, { key: 'payment' }, { key: 'intake' }];
 
 export default function ApplicationsFilter() {
-	const [opened, { open, close }] = useDisclosure(false);
-
 	const { filters, setFilter, sync, applyFilters, clearFilters, activeCount } =
 		useFilterState(filterConfig);
 
+	return (
+		<FilterModal
+			label='Filter Applications'
+			title='Filter Applications'
+			activeCount={activeCount}
+			onApply={applyFilters}
+			onClear={clearFilters}
+			onOpen={sync}
+		>
+			{(opened) => (
+				<ApplicationsFields
+					opened={opened}
+					filters={filters}
+					setFilter={setFilter}
+				/>
+			)}
+		</FilterModal>
+	);
+}
+
+type FieldsProps = {
+	opened: boolean;
+	filters: Record<string, string | null>;
+	setFilter: (key: string, value: string | null) => void;
+};
+
+function ApplicationsFields({ opened, filters, setFilter }: FieldsProps) {
 	const { data: intakePeriods, isLoading: intakeLoading } = useQuery({
 		queryKey: ['intake-periods', 'list'],
 		queryFn: () => findAllIntakePeriods(1, ''),
@@ -45,63 +69,34 @@ export default function ApplicationsFilter() {
 		[intakePeriods]
 	);
 
-	function handleOpen() {
-		sync();
-		open();
-	}
-
-	function handleApply() {
-		applyFilters();
-		close();
-	}
-
-	function handleClear() {
-		clearFilters();
-		close();
-	}
-
 	return (
 		<>
-			<FilterButton
-				label='Filter Applications'
-				activeCount={activeCount}
-				opened={opened}
-				onClick={handleOpen}
+			<Select
+				label='Status'
+				placeholder='Select status'
+				data={statusOptions}
+				value={filters.status || null}
+				onChange={(value) => setFilter('status', value)}
+				clearable
 			/>
-			<FilterModal
-				opened={opened}
-				onClose={close}
-				title='Filter Applications'
-				onApply={handleApply}
-				onClear={handleClear}
-			>
-				<Select
-					label='Status'
-					placeholder='Select status'
-					data={statusOptions}
-					value={filters.status || null}
-					onChange={(value) => setFilter('status', value)}
-					clearable
-				/>
-				<Select
-					label='Payment Status'
-					placeholder='Select payment status'
-					data={paymentOptions}
-					value={filters.payment || null}
-					onChange={(value) => setFilter('payment', value)}
-					clearable
-				/>
-				<Select
-					label='Intake Period'
-					placeholder='Select intake'
-					data={intakeOptions}
-					rightSection={intakeLoading && <Loader size='xs' />}
-					value={filters.intake || null}
-					onChange={(value) => setFilter('intake', value)}
-					searchable
-					clearable
-				/>
-			</FilterModal>
+			<Select
+				label='Payment Status'
+				placeholder='Select payment status'
+				data={paymentOptions}
+				value={filters.payment || null}
+				onChange={(value) => setFilter('payment', value)}
+				clearable
+			/>
+			<Select
+				label='Intake Period'
+				placeholder='Select intake'
+				data={intakeOptions}
+				rightSection={intakeLoading && <Loader size='xs' />}
+				value={filters.intake || null}
+				onChange={(value) => setFilter('intake', value)}
+				searchable
+				clearable
+			/>
 		</>
 	);
 }
