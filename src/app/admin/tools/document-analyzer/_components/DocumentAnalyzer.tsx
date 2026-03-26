@@ -164,19 +164,31 @@ export default function DocumentAnalyzer() {
 			<Stack gap='xl'>
 				<Paper withBorder radius='md' p='lg'>
 					<Stack gap='md'>
-						<Group gap='xs' align='center'>
-							<ThemeIcon size='xl' radius='sm' variant='light' color='gray'>
-								<IconFileSearch size={24} />
-							</ThemeIcon>
-							<Box>
-								<Title fw={400} size='h4'>
-									Document Analyzer
-								</Title>
-								<Text size='sm' c='dimmed'>
-									Simulate how the apply wizard analyzes academic, identity, and
-									payment documents
-								</Text>
-							</Box>
+						<Group justify='space-between' align='center'>
+							<Group gap='xs' align='center'>
+								<ThemeIcon size='xl' radius='sm' variant='light' color='gray'>
+									<IconFileSearch size={24} />
+								</ThemeIcon>
+								<Box>
+									<Title fw={400} size='h4'>
+										Document Analyzer
+									</Title>
+									<Text size='sm' c='dimmed'>
+										Simulate how the apply wizard analyzes academic, identity,
+										and payment documents
+									</Text>
+								</Box>
+							</Group>
+							{state === 'done' && (
+								<Button
+									variant='light'
+									size='xs'
+									leftSection={<IconRefresh size={14} />}
+									onClick={handleReset}
+								>
+									Analyze Another
+								</Button>
+							)}
 						</Group>
 
 						<Divider />
@@ -284,21 +296,7 @@ export default function DocumentAnalyzer() {
 							</Paper>
 						)}
 
-						{state === 'done' && result && (
-							<Stack gap='md'>
-								<Group justify='flex-end'>
-									<Button
-										variant='light'
-										size='xs'
-										leftSection={<IconRefresh size={14} />}
-										onClick={handleReset}
-									>
-										Analyze Another
-									</Button>
-								</Group>
-								<ResultView result={result} />
-							</Stack>
-						)}
+						{state === 'done' && result && <ResultView result={result} />}
 					</Stack>
 				</Paper>
 			</Stack>
