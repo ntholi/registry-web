@@ -94,7 +94,7 @@ function toBase64(file: File): Promise<string> {
 }
 
 export default function DocumentAnalyzer() {
-	const [docType, setDocType] = useState<DocType>('identity');
+	const [docType, setDocType] = useState<DocType>('academic');
 	const [state, setState] = useState<ProcessState>('idle');
 	const [result, setResult] = useState<AnalysisState | null>(null);
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);

@@ -1,13 +1,6 @@
 'use client';
 
 import { Tabs, TabsPanel, TabsTab } from '@mantine/core';
-import {
-	IconCertificate,
-	IconFileText,
-	IconPhone,
-	IconUser,
-	IconUsers,
-} from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import type { getApplicant } from '../../_server/actions';
@@ -48,21 +41,11 @@ export default function ApplicantTabs({ applicant }: Props) {
 	return (
 		<Tabs value={activeTab} onChange={setActiveTab} variant='outline'>
 			<ScrollableTabsList actions={renderTabActions()}>
-				<TabsTab value='personal' leftSection={<IconUser size={16} />}>
-					Personal
-				</TabsTab>
-				<TabsTab value='contact' leftSection={<IconPhone size={16} />}>
-					Contact
-				</TabsTab>
-				<TabsTab value='guardians' leftSection={<IconUsers size={16} />}>
-					Guardians
-				</TabsTab>
-				<TabsTab value='academic' leftSection={<IconCertificate size={16} />}>
-					Academic
-				</TabsTab>
-				<TabsTab value='documents' leftSection={<IconFileText size={16} />}>
-					Documents
-				</TabsTab>
+				<TabsTab value='personal'>Personal</TabsTab>
+				<TabsTab value='contact'>Contact</TabsTab>
+				<TabsTab value='guardians'>Guardians</TabsTab>
+				<TabsTab value='academic'>Academic</TabsTab>
+				<TabsTab value='documents'>Documents</TabsTab>
 			</ScrollableTabsList>
 
 			<TabsPanel value='personal' pt='lg'>
