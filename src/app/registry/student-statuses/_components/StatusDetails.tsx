@@ -212,11 +212,7 @@ function OtherRolesView({ app }: OtherRolesProps) {
 	const reasons = getSafeReasonsHtml(app.reasons);
 	const [comment, setComment] = useState<string | undefined>(undefined);
 	const [accordion, setAccordion] = useState<string | null>(
-		reasons
-			? 'reasons'
-			: app.attachments.length > 0
-				? 'attachments'
-				: 'comments'
+		reasons ? 'reasons' : 'comments'
 	);
 
 	const comments = (app.approvals ?? [])
@@ -303,25 +299,25 @@ function OtherRolesView({ app }: OtherRolesProps) {
 						)}
 					</AccordionPanel>
 				</AccordionItem>
-				<AccordionItem value='attachments'>
-					<AccordionControl>Attachments</AccordionControl>
-					<AccordionPanel>
-						{app.attachments.length > 0 ? (
-							<AttachmentList
-								items={app.attachments.map((attachment) => ({
-									id: attachment.id,
-									fileKey: attachment.fileKey,
-									fileName: attachment.fileName,
-								}))}
-							/>
-						) : (
-							<Text size='sm' c='dimmed'>
-								No attachments
-							</Text>
-						)}
-					</AccordionPanel>
-				</AccordionItem>
 			</Accordion>
+			<Paper withBorder p='lg'>
+				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
+					Attachments
+				</Title>
+				{app.attachments.length > 0 ? (
+					<AttachmentList
+						items={app.attachments.map((attachment) => ({
+							id: attachment.id,
+							fileKey: attachment.fileKey,
+							fileName: attachment.fileName,
+						}))}
+					/>
+				) : (
+					<Text size='sm' c='dimmed' fs='italic'>
+						No Attachments
+					</Text>
+				)}
+			</Paper>
 		</Stack>
 	);
 }
