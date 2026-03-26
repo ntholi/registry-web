@@ -129,6 +129,11 @@ export const adminNav: NavItem[] = [
 				href: '/admin/tools/grade-finder',
 				icon: IconSearch,
 			},
+			{
+				label: 'Document Analyzer',
+				href: '/admin/tools/document-analyzer',
+				icon: IconFileSearch,
+			},
 		] as NavItem[],
 	},
 	{
