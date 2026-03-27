@@ -17,7 +17,6 @@ import { DetailsView } from '@/shared/ui/adease';
 import StatusDetails from '../_components/StatusDetails';
 import StatusHeader from '../_components/StatusHeader';
 import StatusTimeline from '../_components/StatusTimeline';
-import { getApprovalRolesByUser } from '../_lib/approvalRoles';
 import { getStudentStatus } from '../_server/actions';
 
 type Props = {
@@ -36,15 +35,6 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 	const viewer = getEffectiveViewer(session);
 	const role = viewer?.role;
 
-	const approvalRoles = getApprovalRolesByUser(viewer);
-	let timelineStatus = app.status;
-	if (approvalRoles.length > 0 && app.approvals) {
-		const match = app.approvals.find((a) =>
-			approvalRoles.includes(a.approverRole)
-		);
-		if (match) timelineStatus = match.status;
-	}
-
 	return (
 		<DetailsView>
 			<StatusHeader
@@ -62,11 +52,11 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 					<TabsTab value='timeline'>
 						<Group gap='xs'>
 							<ThemeIcon
-								color={getStatusColor(timelineStatus)}
+								color={getStatusColor(app.status)}
 								variant='light'
 								size={20}
 							>
-								{getStatusIcon(timelineStatus as StatusType, { size: 16 })}
+								{getStatusIcon(app.status as StatusType, { size: 16 })}
 							</ThemeIcon>
 							Timeline
 						</Group>
