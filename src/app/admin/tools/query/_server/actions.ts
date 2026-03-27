@@ -128,6 +128,7 @@ Respond with:
 		let currentSql = sqlOutput.sql;
 		let currentExplanation = sqlOutput.explanation;
 		let lastError = '';
+		const previousAttempts: Array<{ sql: string; error: string }> = [];
 
 		for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
 			try {
@@ -152,6 +153,7 @@ Respond with:
 				const errorMessage =
 					err instanceof Error ? err.message : 'Unknown error';
 				lastError = errorMessage;
+				previousAttempts.push({ sql: currentSql, error: errorMessage });
 
 				if (attempt < MAX_RETRIES - 1) {
 					steps.push({
@@ -159,6 +161,12 @@ Respond with:
 						attempt: attempt + 1,
 						error: errorMessage,
 					});
+
+					const attemptHistory = previousAttempts
+						.map(
+							(a, i) => `Attempt ${i + 1}:\nSQL: ${a.sql}\nError: ${a.error}`
+						)
+						.join('\n\n');
 
 					const { output: refined } = await generateText({
 						model,
@@ -171,13 +179,14 @@ Respond with:
 						messages: [
 							{
 								role: 'user',
-								content: `The previous query failed. Fix it.
+								content: `The previous query failed. Fix it using ONLY tables and columns from the DATABASE SCHEMA provided.
 
 Original request: "${userQuery}"
-Previous SQL: ${currentSql}
-Error: ${errorMessage}
 
-Generate a corrected query. If the error indicates a missing table or column, adjust accordingly.`,
+Previous failed attempts:
+${attemptHistory}
+
+IMPORTANT: Carefully check the DATABASE SCHEMA above. Only use tables and columns that actually exist. If a table or column doesn't exist, find the correct alternative from the schema.`,
 							},
 						],
 					});
