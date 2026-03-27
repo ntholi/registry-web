@@ -1,13 +1,23 @@
-import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import {
+	Group,
+	Tabs,
+	TabsList,
+	TabsPanel,
+	TabsTab,
+	ThemeIcon,
+} from '@mantine/core';
 import { AcademicsLoader } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
 import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
 import { getSession } from '@/core/platform/withPermission';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
 import { DetailsView } from '@/shared/ui/adease';
 import StatusDetails from '../_components/StatusDetails';
 import StatusHeader from '../_components/StatusHeader';
 import StatusTimeline from '../_components/StatusTimeline';
 import type { ApprovalSubject } from '../_lib/approvalRoles';
+import { getApprovalRolesByUser } from '../_lib/approvalRoles';
 import { getStudentStatus } from '../_server/actions';
 
 type Props = {
@@ -32,6 +42,15 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 		: null;
 	const role = viewer?.role;
 
+	const approvalRoles = getApprovalRolesByUser(viewer);
+	let timelineStatus = app.status;
+	if (approvalRoles.length > 0 && app.approvals) {
+		const match = app.approvals.find((a) =>
+			approvalRoles.includes(a.approverRole)
+		);
+		if (match) timelineStatus = match.status;
+	}
+
 	return (
 		<DetailsView>
 			<StatusHeader
@@ -46,7 +65,18 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 					<TabsTab value='details'>Details</TabsTab>
 					{role === 'finance' && <TabsTab value='finance'>Finance</TabsTab>}
 					{role === 'finance' && <TabsTab value='academics'>Academics</TabsTab>}
-					<TabsTab value='timeline'>Timeline</TabsTab>
+					<TabsTab value='timeline'>
+						<Group gap='xs'>
+							<ThemeIcon
+								color={getStatusColor(timelineStatus)}
+								variant='light'
+								size={20}
+							>
+								{getStatusIcon(timelineStatus as StatusType, { size: 16 })}
+							</ThemeIcon>
+							Timeline
+						</Group>
+					</TabsTab>
 				</TabsList>
 				<TabsPanel value='details'>
 					<StatusDetails app={app} viewer={viewer} />
