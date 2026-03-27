@@ -1,5 +1,28 @@
 import type { Session } from '../auth';
-import type { Action, PermissionGrant, Resource } from './permissions';
+import type {
+	Action,
+	DashboardRole,
+	PermissionGrant,
+	Resource,
+} from './permissions';
+
+export interface EffectiveViewer {
+	role: DashboardRole;
+	presetName: string | null;
+	permissions: PermissionGrant[];
+}
+
+export function getEffectiveViewer(
+	session: Session | null | undefined
+): EffectiveViewer | null {
+	if (!session?.user) return null;
+	return {
+		role: (session.viewingAs?.role ?? session.user.role) as DashboardRole,
+		presetName:
+			session.viewingAs?.presetName ?? session.user.presetName ?? null,
+		permissions: session.viewingAs?.permissions ?? session.permissions ?? [],
+	};
+}
 
 export function hasPermission(
 	session: { permissions?: PermissionGrant[] } | null | undefined,

@@ -9,6 +9,7 @@ import {
 import { AcademicsLoader } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
 import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
+import { getEffectiveViewer } from '@/core/auth/sessionPermissions';
 import { getSession } from '@/core/platform/withPermission';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
@@ -16,7 +17,6 @@ import { DetailsView } from '@/shared/ui/adease';
 import StatusDetails from '../_components/StatusDetails';
 import StatusHeader from '../_components/StatusHeader';
 import StatusTimeline from '../_components/StatusTimeline';
-import type { ApprovalSubject } from '../_lib/approvalRoles';
 import { getApprovalRolesByUser } from '../_lib/approvalRoles';
 import { getStudentStatus } from '../_server/actions';
 
@@ -33,13 +33,7 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 		return notFound();
 	}
 
-	const viewer: ApprovalSubject | null = session
-		? {
-				role: session.viewingAs?.role ?? session.user.role,
-				presetName: session.viewingAs?.presetName ?? session.user.presetName,
-				permissions: session.viewingAs?.permissions ?? session.permissions,
-			}
-		: null;
+	const viewer = getEffectiveViewer(session);
 	const role = viewer?.role;
 
 	const approvalRoles = getApprovalRolesByUser(viewer);

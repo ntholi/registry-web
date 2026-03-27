@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { IconArrowLeft, IconMail } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
+import { getEffectiveViewer } from '@/core/auth/sessionPermissions';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { getSession } from '@/core/platform/withPermission';
 import { getRoleColor, getStatusColor } from '@/shared/lib/utils/colors';
@@ -31,8 +32,9 @@ export default async function ProfilePage() {
 		return notFound();
 	}
 
-	const role = session.viewingAs?.role ?? session.user.role;
-	const presetName = session.viewingAs?.presetName ?? session.user.presetName;
+	const viewer = getEffectiveViewer(session);
+	const role = viewer?.role ?? session.user.role;
+	const presetName = viewer?.presetName ?? session.user.presetName;
 	const schools = employee?.employeeSchools
 		.map((item) => item.school?.name)
 		.filter(Boolean)
