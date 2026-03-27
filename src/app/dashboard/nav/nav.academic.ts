@@ -14,6 +14,7 @@ import {
 	IconMailSpark,
 	IconMessageQuestion,
 	IconMessageStar,
+	IconNote,
 	IconPresentation,
 	IconReportAnalytics,
 	IconSchool,
@@ -33,6 +34,17 @@ export const academicNav: NavItem[] = [
 		href: '/registry/students',
 		icon: IconUsers,
 		permissions: [{ resource: 'students', action: 'read' }],
+	},
+	{
+		label: 'Student Status',
+		href: '/registry/student-statuses',
+		icon: IconUserExclamation,
+		permissions: [{ resource: 'student-statuses', action: 'read' }],
+		notificationCount: {
+			queryKey: ['student-statuses', 'pending'],
+			queryFn: () => countPendingStudentStatuses(),
+			color: 'red',
+		},
 	},
 	{
 		label: 'Lecturers',
@@ -97,17 +109,7 @@ export const academicNav: NavItem[] = [
 			},
 		],
 	},
-	{
-		label: 'Student Status',
-		href: '/registry/student-statuses',
-		icon: IconUserExclamation,
-		permissions: [{ resource: 'student-statuses', action: 'read' }],
-		notificationCount: {
-			queryKey: ['student-statuses', 'pending'],
-			queryFn: () => countPendingStudentStatuses(),
-			color: 'red',
-		},
-	},
+
 	{
 		label: 'Schools',
 		href: '/academic/schools',
@@ -185,6 +187,13 @@ export const academicNav: NavItem[] = [
 				],
 			},
 		],
+	},
+	{
+		label: 'Notes',
+		href: '/registry/student-notes',
+		description: 'Notes on Students',
+		icon: IconNote,
+		permissions: [{ resource: 'student-notes', action: 'read' }],
 	},
 	{
 		label: 'Reports',

@@ -6,7 +6,10 @@ import { IconArrowNarrowLeft, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
-import { getStudentStatusTypeColor } from '@/shared/lib/utils/colors';
+import {
+	getStatusColor,
+	getStudentStatusTypeColor,
+} from '@/shared/lib/utils/colors';
 import { DeleteButton } from '@/shared/ui/adease';
 import { getTypeLabel } from '../_lib/labels';
 import type { StudentStatusState, StudentStatusType } from '../_lib/types';
@@ -57,6 +60,9 @@ export default function StatusHeader({ title, type, status, id, role }: Props) {
 						color={getStudentStatusTypeColor(type)}
 					>
 						{getTypeLabel(type)}
+					</Badge>
+					<Badge variant='light' color={getStatusColor(status)} tt='capitalize'>
+						{status}
 					</Badge>
 					{canDelete && (
 						<DeleteButton
