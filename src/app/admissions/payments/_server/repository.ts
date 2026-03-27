@@ -510,6 +510,14 @@ export default class PaymentRepository extends BaseRepository<
 					terminalNumber: item.terminalNumber,
 				});
 			}
+
+			const appId = items[0]?.applicationId;
+			if (appId) {
+				await tx
+					.update(applications)
+					.set({ paymentStatus: 'paid', updatedAt: new Date() })
+					.where(eq(applications.id, appId));
+			}
 		});
 	}
 
@@ -613,7 +621,7 @@ export default class PaymentRepository extends BaseRepository<
 
 	async updateApplicationPaymentStatus(
 		applicationId: string,
-		paymentStatus: 'paid' | 'unpaid'
+		paymentStatus: 'paid' | 'unpaid' | 'verified'
 	) {
 		const [updated] = await db
 			.update(applications)

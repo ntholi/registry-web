@@ -165,7 +165,10 @@ export async function getPaymentPageData(applicationId: string) {
 		application,
 		fee,
 		bankDeposits: deposits ?? [],
-		isPaid: !!verifiedDeposit || application.paymentStatus === 'paid',
+		isPaid:
+			!!verifiedDeposit ||
+			application.paymentStatus === 'paid' ||
+			application.paymentStatus === 'verified',
 		hasPendingDeposit: !!pendingDeposit,
 		intakeStartDate: intake?.startDate ?? null,
 		intakeEndDate: intake?.endDate ?? null,

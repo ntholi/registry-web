@@ -25,7 +25,11 @@ export const applicationStatusEnum = pgEnum('application_status', [
 export type ApplicationStatus =
 	(typeof applicationStatusEnum.enumValues)[number];
 
-export const paymentStatusEnum = pgEnum('payment_status', ['unpaid', 'paid']);
+export const paymentStatusEnum = pgEnum('payment_status', [
+	'unpaid',
+	'paid',
+	'verified',
+]);
 export type PaymentStatus = (typeof paymentStatusEnum.enumValues)[number];
 
 export const applications = pgTable(

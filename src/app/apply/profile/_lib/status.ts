@@ -66,7 +66,11 @@ export function getOverallStatusSummary(
 	}
 
 	if (status === 'submitted' && paymentStatus === 'paid') {
-		return 'Payment confirmed — application to be reviewed';
+		return 'Payment submitted — awaiting verification';
+	}
+
+	if (status === 'submitted' && paymentStatus === 'verified') {
+		return 'Payment verified — application to be reviewed';
 	}
 
 	return 'Application submitted';
@@ -91,6 +95,9 @@ export function getOverallStatusColor(
 		return hasDeposits ? 'blue' : 'red';
 	}
 	if (status === 'submitted' && paymentStatus === 'paid') {
+		return 'yellow';
+	}
+	if (status === 'submitted' && paymentStatus === 'verified') {
 		return 'teal';
 	}
 

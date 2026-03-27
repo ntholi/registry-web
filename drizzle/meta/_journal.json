@@ -1443,6 +1443,13 @@
 			"when": 1774516480172,
 			"tag": "0207_lecturer_parity_permissions",
 			"breakpoints": true
+		},
+		{
+			"idx": 208,
+			"version": "7",
+			"when": 1774596955736,
+			"tag": "0208_great_oracle",
+			"breakpoints": true
 		}
 	]
 }

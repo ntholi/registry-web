@@ -84,11 +84,17 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 
 	async createBankDeposit(data: typeof bankDeposits.$inferInsert) {
 		return withPermission(
-			async (session) =>
-				this.repo.createBankDeposit(
+			async (session) => {
+				const deposit = await this.repo.createBankDeposit(
 					data,
 					this.buildAuditOptions(session, 'create')
-				),
+				);
+				await this.repo.updateApplicationPaymentStatus(
+					data.applicationId,
+					'paid'
+				);
+				return deposit;
+			},
 			async (session) =>
 				hasSessionPermission(session, 'admissions-payments', 'create', [
 					'applicant',
@@ -126,7 +132,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 				if (deposit.application?.id) {
 					await this.repo.updateApplicationPaymentStatus(
 						deposit.application.id,
-						'paid'
+						'verified'
 					);
 				}
 
@@ -298,6 +304,8 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 						};
 					}
 
+					await this.repo.updateApplicationPaymentStatus(applicationId, 'paid');
+
 					return {
 						success: true,
 						transactionId: deposit.id,
@@ -353,7 +361,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 					if (deposit.application?.id) {
 						await this.repo.updateApplicationPaymentStatus(
 							deposit.application.id,
-							'paid'
+							'verified'
 						);
 					}
 

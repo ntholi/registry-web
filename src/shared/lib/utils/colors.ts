@@ -216,7 +216,8 @@ export const statusColors = {
 	},
 	paymentStatus: {
 		unpaid: semantic.error,
-		paid: semantic.success,
+		paid: semantic.warning,
+		verified: semantic.success,
 	},
 	bookCondition: {
 		new: semantic.success,

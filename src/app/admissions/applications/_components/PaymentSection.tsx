@@ -57,7 +57,11 @@ export default function PaymentSection({
 					variant='light'
 					size='lg'
 				>
-					{paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
+					{paymentStatus === 'verified'
+						? 'Payment Verified'
+						: paymentStatus === 'paid'
+							? 'Payment Submitted'
+							: 'Unpaid'}
 				</Badge>
 			</Group>
 
