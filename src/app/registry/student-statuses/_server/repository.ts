@@ -117,8 +117,8 @@ export default class StudentStatusRepository extends BaseRepository<
 		approvalRoles: ApprovalRole[],
 		audit?: AuditOptions
 	) {
-		return db.transaction(async (tx) => {
-			const [created] = await tx
+		const created = await db.transaction(async (tx) => {
+			const [inserted] = await tx
 				.insert(studentStatuses)
 				.values(data)
 				.returning();
@@ -126,7 +126,7 @@ export default class StudentStatusRepository extends BaseRepository<
 			if (approvalRoles.length > 0) {
 				await tx.insert(studentStatusApprovals).values(
 					approvalRoles.map((role) => ({
-						applicationId: created.id,
+						applicationId: inserted.id,
 						approverRole: role,
 						status: 'pending' as const,
 					}))
@@ -137,9 +137,9 @@ export default class StudentStatusRepository extends BaseRepository<
 				await this.writeAuditLog(
 					tx,
 					'INSERT',
-					String(created.id),
+					String(inserted.id),
 					null,
-					created,
+					inserted,
 					{
 						...audit,
 						activityType: 'student_status_created',
@@ -148,8 +148,10 @@ export default class StudentStatusRepository extends BaseRepository<
 				);
 			}
 
-			return this.findById(created.id);
+			return inserted;
 		});
+
+		return this.findById(created.id);
 	}
 
 	async createAttachment(
