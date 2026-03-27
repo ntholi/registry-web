@@ -7,6 +7,7 @@ import { DetailsView } from '@/shared/ui/adease';
 import StatusDetails from '../_components/StatusDetails';
 import StatusHeader from '../_components/StatusHeader';
 import StatusTimeline from '../_components/StatusTimeline';
+import type { ApprovalSubject } from '../_lib/approvalRoles';
 import { getStudentStatus } from '../_server/actions';
 
 type Props = {
@@ -22,7 +23,14 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 		return notFound();
 	}
 
-	const role = session?.user?.role;
+	const viewer: ApprovalSubject | null = session
+		? {
+				role: session.viewingAs?.role ?? session.user.role,
+				presetName: session.viewingAs?.presetName ?? session.user.presetName,
+				permissions: session.viewingAs?.permissions ?? session.permissions,
+			}
+		: null;
+	const role = viewer?.role;
 
 	return (
 		<DetailsView>
@@ -31,6 +39,7 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 				type={app.type}
 				status={app.status}
 				id={id}
+				role={role}
 			/>
 			<Tabs defaultValue='details' variant='outline'>
 				<TabsList>
@@ -40,7 +49,7 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 					<TabsTab value='timeline'>Timeline</TabsTab>
 				</TabsList>
 				<TabsPanel value='details'>
-					<StatusDetails app={app} />
+					<StatusDetails app={app} viewer={viewer} />
 				</TabsPanel>
 				{role === 'finance' && (
 					<TabsPanel value='finance' p='md' pt='lg'>

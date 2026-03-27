@@ -2,7 +2,7 @@ import type { Session } from '@/core/auth';
 import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { StudentStatusApprovalRole } from './types';
 
-interface ApprovalSubject {
+export interface ApprovalSubject {
 	role?: string | null;
 	presetName?: string | null;
 	permissions?: Session['permissions'];

@@ -5,7 +5,6 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { authClient } from '@/core/auth-client';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import {
 	getStatusColor,
@@ -21,10 +20,10 @@ type Props = {
 	type: StudentStatusType;
 	status: StudentStatusState;
 	id: string;
+	role?: string | null;
 };
 
-export default function StatusHeader({ title, type, status, id }: Props) {
-	const { data: session } = authClient.useSession();
+export default function StatusHeader({ title, type, status, id, role }: Props) {
 	const pathname = usePathname();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [, setView] = useViewSelect();
@@ -32,7 +31,6 @@ export default function StatusHeader({ title, type, status, id }: Props) {
 	const newSearchParams = new URLSearchParams(searchParams);
 	newSearchParams.set('view', 'details');
 
-	const role = session?.user?.role;
 	const canEdit =
 		status === 'pending' && (role === 'registry' || role === 'admin');
 	const canDelete =

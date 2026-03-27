@@ -24,7 +24,6 @@ import {
 } from '@mantine/core';
 import { IconFile } from '@tabler/icons-react';
 import { useState } from 'react';
-import { authClient } from '@/core/auth-client';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
@@ -32,24 +31,25 @@ import { isRichTextEmpty } from '@/shared/lib/utils/files';
 import { FieldView, RichTextContent } from '@/shared/ui/adease';
 import Copyable from '@/shared/ui/Copyable';
 import Link from '@/shared/ui/Link';
+import type { ApprovalSubject } from '../_lib/approvalRoles';
 import { getApprovalRoleLabel, getJustificationLabel } from '../_lib/labels';
 import type { getStudentStatus } from '../_server/actions';
 import ApprovalSwitch from './ApprovalSwitch';
 
 type Props = {
 	app: NonNullable<Awaited<ReturnType<typeof getStudentStatus>>>;
+	viewer: ApprovalSubject | null;
 };
 
-export default function StatusDetails({ app }: Props) {
-	const { data: session } = authClient.useSession();
-	const role = session?.user?.role;
+export default function StatusDetails({ app, viewer }: Props) {
+	const role = viewer?.role;
 	const isAdminOrRegistry = role === 'admin' || role === 'registry';
 
 	if (isAdminOrRegistry) {
-		return <AdminRegistryView app={app} />;
+		return <AdminRegistryView app={app} viewer={viewer} />;
 	}
 
-	return <OtherRolesView app={app} />;
+	return <OtherRolesView app={app} viewer={viewer} />;
 }
 
 function AdminRegistryView({ app }: Props) {
@@ -206,9 +206,7 @@ function AdminRegistryView({ app }: Props) {
 	);
 }
 
-type OtherRolesProps = Props & { role?: string };
-
-function OtherRolesView({ app }: OtherRolesProps) {
+function OtherRolesView({ app, viewer }: Props) {
 	const reasons = getSafeReasonsHtml(app.reasons);
 	const [comment, setComment] = useState<string | undefined>(undefined);
 	const [accordion, setAccordion] = useState<string | null>(
@@ -255,6 +253,7 @@ function OtherRolesView({ app }: OtherRolesProps) {
 						applicationId={app.id}
 						comment={comment}
 						setAccordion={setAccordion}
+						viewer={viewer}
 					/>
 				</GridCol>
 			</Grid>

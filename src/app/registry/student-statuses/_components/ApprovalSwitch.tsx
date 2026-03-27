@@ -11,11 +11,13 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { authClient } from '@/core/auth-client';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
-import { getApprovalRolesByUser } from '../_lib/approvalRoles';
+import {
+	type ApprovalSubject,
+	getApprovalRolesByUser,
+} from '../_lib/approvalRoles';
 import { getApprovalRoleLabel } from '../_lib/labels';
 import type { StudentStatusApprovalRole } from '../_lib/types';
 import { respondToStudentStatusStep } from '../_server/actions';
@@ -36,6 +38,7 @@ type Props = {
 	applicationId: string;
 	comment?: string;
 	setAccordion?: (value: string) => void;
+	viewer: ApprovalSubject | null;
 };
 
 type ApprovalStatus = 'pending' | 'approved' | 'rejected';
@@ -46,9 +49,9 @@ export default function ApprovalSwitch({
 	applicationId,
 	comment,
 	setAccordion,
+	viewer,
 }: Props) {
-	const { data: session } = authClient.useSession();
-	const userRoles = getApprovalRolesByUser(session);
+	const userRoles = getApprovalRolesByUser(viewer);
 
 	const myApproval = approvals.find((a) => userRoles.includes(a.approverRole));
 
