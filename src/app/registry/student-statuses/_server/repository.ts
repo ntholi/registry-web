@@ -58,7 +58,7 @@ export default class StudentStatusRepository extends BaseRepository<
 
 		const items = await db.query.studentStatuses.findMany({
 			where,
-			with: { student: true },
+			with: { student: true, approvals: true },
 			orderBy: sql`${studentStatuses.createdAt} DESC`,
 			limit: size,
 			offset,
