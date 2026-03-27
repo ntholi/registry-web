@@ -532,7 +532,7 @@ export function getStudentStatusTypeColor(type: StudentStatusTypeColor) {
 		case 'withdrawal':
 			return semantic.error;
 		case 'deferment':
-			return semantic.warning;
+			return semantic.caution;
 		case 'reinstatement':
 			return semantic.success;
 	}

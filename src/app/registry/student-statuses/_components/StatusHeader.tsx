@@ -54,7 +54,11 @@ export default function StatusHeader({ title, type, status, id, role }: Props) {
 					</Title>
 				)}
 				<Group>
-					<Badge variant='light' color={getStudentStatusTypeColor(type)}>
+					<Badge
+						variant='light'
+						radius={'xs'}
+						color={getStudentStatusTypeColor(type)}
+					>
 						{getTypeLabel(type)}
 					</Badge>
 					<Badge variant='light' color={getStatusColor(status)}>
