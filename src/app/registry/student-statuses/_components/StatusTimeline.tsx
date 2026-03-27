@@ -35,7 +35,12 @@ export default function StatusTimeline({
 	const isFinalized = status !== 'pending';
 
 	return (
-		<Timeline active={approvals.length + (isFinalized ? 1 : 0)} bulletSize={24}>
+		<Timeline
+			variant='light'
+			active={approvals.length + (isFinalized ? 1 : 0)}
+			bulletSize={24}
+			lineWidth={1}
+		>
 			<Timeline.Item
 				bullet={<IconFileDescription size={14} />}
 				title='Application Created'
@@ -54,7 +59,13 @@ export default function StatusTimeline({
 				<Timeline.Item
 					key={approval.id}
 					bullet={getStatusIcon(approval.status as StatusType, { size: 14 })}
-					color={getStatusColor(approval.status as AllStatusType)}
+					color={
+						approval.status === 'approved'
+							? 'green'
+							: approval.status === 'rejected'
+								? 'red'
+								: 'gray'
+					}
 					title={getApprovalRoleLabel(approval.approverRole)}
 				>
 					<Text size='sm' c='dimmed' tt='capitalize'>

@@ -79,7 +79,7 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 						<AcademicsLoader stdNo={app.stdNo} />
 					</TabsPanel>
 				)}
-				<TabsPanel value='timeline' p='lg'>
+				<TabsPanel value='timeline' p='lg' pt={'xl'}>
 					<StatusTimeline
 						createdAt={app.createdAt}
 						creatorName={app.creator?.name ?? null}
