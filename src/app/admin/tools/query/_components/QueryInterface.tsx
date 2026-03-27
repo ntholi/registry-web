@@ -24,7 +24,7 @@ import {
 	IconX,
 } from '@tabler/icons-react';
 import { useState, useTransition } from 'react';
-import type { QueryStep } from '../_server/actions';
+import type { QueryStep } from '../_lib/types';
 import {
 	executeWithConfirmedColumns,
 	generateAndExecuteQuery,
