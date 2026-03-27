@@ -84,17 +84,11 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 
 	async createBankDeposit(data: typeof bankDeposits.$inferInsert) {
 		return withPermission(
-			async (session) => {
-				const deposit = await this.repo.createBankDeposit(
+			async (session) =>
+				this.repo.createBankDeposit(
 					data,
 					this.buildAuditOptions(session, 'create')
-				);
-				await this.repo.updateApplicationPaymentStatus(
-					data.applicationId,
-					'paid'
-				);
-				return deposit;
-			},
+				),
 			async (session) =>
 				hasSessionPermission(session, 'admissions-payments', 'create', [
 					'applicant',

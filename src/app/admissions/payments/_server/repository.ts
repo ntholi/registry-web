@@ -525,11 +525,27 @@ export default class PaymentRepository extends BaseRepository<
 		data: typeof bankDeposits.$inferInsert,
 		audit?: AuditOptions
 	) {
-		if (!audit) {
-			const [deposit] = await db.insert(bankDeposits).values(data).returning();
+		return db.transaction(async (tx) => {
+			const [deposit] = await tx.insert(bankDeposits).values(data).returning();
+
+			await tx
+				.update(applications)
+				.set({ paymentStatus: 'paid', updatedAt: new Date() })
+				.where(eq(applications.id, data.applicationId));
+
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					deposit.id,
+					null,
+					deposit,
+					audit
+				);
+			}
+
 			return deposit;
-		}
-		return this.create(data, audit);
+		});
 	}
 
 	async updateBankDepositStatus(
