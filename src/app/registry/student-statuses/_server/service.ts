@@ -409,7 +409,9 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 
 				return this.repository.findById(app.id);
 			},
-			{ 'student-statuses': ['update'] }
+			async (session) =>
+				hasPermission(session, 'student-statuses', 'approve') ||
+				hasPermission(session, 'student-statuses', 'reject')
 		);
 	}
 
