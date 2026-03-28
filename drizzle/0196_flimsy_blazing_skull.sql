@@ -24,13 +24,17 @@ WHERE id = 'IxJS8JWrkjmSa7J8FATq0';
 
 -- Step 6: Add aliases to "Mathematical Literacy" (PvHp4pTkQxEZxgXeiYUFZ)
 INSERT INTO subject_aliases (id, subject_id, alias, created_at)
-VALUES
-    (gen_random_uuid()::text, 'PvHp4pTkQxEZxgXeiYUFZ', 'Maths Literacy', NOW()),
-    (gen_random_uuid()::text, 'PvHp4pTkQxEZxgXeiYUFZ', 'Maths Lit', NOW()),
-    (gen_random_uuid()::text, 'PvHp4pTkQxEZxgXeiYUFZ', 'Math Literacy', NOW()),
-    (gen_random_uuid()::text, 'PvHp4pTkQxEZxgXeiYUFZ', 'Mathematical Lit', NOW()),
-    (gen_random_uuid()::text, 'PvHp4pTkQxEZxgXeiYUFZ', 'MATHEMATICAL LITERACY', NOW()),
-    (gen_random_uuid()::text, 'PvHp4pTkQxEZxgXeiYUFZ', 'Mathemetical Literacy', NOW())
+SELECT gen_random_uuid()::text, s.id, a.alias, NOW()
+FROM subjects s
+CROSS JOIN (VALUES
+    ('Maths Literacy'),
+    ('Maths Lit'),
+    ('Math Literacy'),
+    ('Mathematical Lit'),
+    ('MATHEMATICAL LITERACY'),
+    ('Mathemetical Literacy')
+) AS a(alias)
+WHERE s.id = 'PvHp4pTkQxEZxgXeiYUFZ'
 ON CONFLICT (alias) DO NOTHING;
 
 -- Step 7: Remove any math literacy aliases from Mathematics (safety)

@@ -5,4 +5,5 @@
 DELETE FROM timetable_allocation_allowed_venues WHERE timetable_allocation_id = 27;
 
 INSERT INTO timetable_allocation_allowed_venues (timetable_allocation_id, venue_id, allow_overflow)
-VALUES (27, 'IEoB5xq03Nen3AvAIsxR4', true);
+SELECT 27, 'IEoB5xq03Nen3AvAIsxR4', true
+WHERE EXISTS (SELECT 1 FROM timetable_allocations WHERE id = 27);
