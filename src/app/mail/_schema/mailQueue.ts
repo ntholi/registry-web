@@ -27,6 +27,7 @@ export const mailTriggerType = pgEnum('mail_trigger_type', [
 	'notification_mirror',
 	'manual',
 	'reply',
+	'referral_created',
 ]);
 
 type Attachment = {

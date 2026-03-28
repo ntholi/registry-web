@@ -52,6 +52,12 @@ export const mailTriggers: MailTrigger[] = [
 		description: 'Replies to received emails',
 		toggleable: false,
 	},
+	{
+		type: 'referral_created',
+		label: 'Student Referral Created',
+		description: 'Email sent when a student referral is created',
+		toggleable: true,
+	},
 ];
 
 export const toggleableTriggers = mailTriggers.filter((t) => t.toggleable);

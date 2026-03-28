@@ -280,6 +280,12 @@ export const statusColors = {
 		failed: semantic.error,
 		sent: semantic.success,
 	},
+	referralStatus: {
+		pending: semantic.warning,
+		in_progress: semantic.info,
+		resolved: semantic.success,
+		closed: semantic.neutral,
+	},
 } as const;
 
 const allStatuses = {

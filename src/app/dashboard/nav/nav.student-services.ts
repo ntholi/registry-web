@@ -1,5 +1,7 @@
+import { countPendingReferrals } from '@student-services/referrals';
 import {
 	IconChecklist,
+	IconMessageReport,
 	IconNote,
 	IconUserExclamation,
 	IconUserPlus,
@@ -26,6 +28,17 @@ export const studentServicesNav: NavItem[] = [
 		href: '/registry/registration/requests',
 		icon: IconUserPlus,
 		permissions: [{ resource: 'registration', action: 'read' }],
+	},
+	{
+		label: 'Referrals',
+		href: '/student-services/referrals',
+		icon: IconMessageReport,
+		permissions: [{ resource: 'student-referrals', action: 'read' }],
+		notificationCount: {
+			queryKey: ['referrals', 'pending'],
+			queryFn: () => countPendingReferrals(),
+			color: 'orange',
+		},
 	},
 	{
 		label: 'Student Status',

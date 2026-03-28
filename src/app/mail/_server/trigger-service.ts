@@ -169,3 +169,32 @@ export async function triggerGenericEmail(
 		mailAccountId: primary.id,
 	});
 }
+
+type ReferralTriggerParams = {
+	referralId: string;
+	studentName: string;
+	stdNo: number;
+	reason: string;
+	description: string;
+	referrerName: string;
+	recipientEmails: string[];
+};
+
+export async function triggerReferralCreatedEmail(
+	params: ReferralTriggerParams
+): Promise<void> {
+	if (params.recipientEmails.length === 0) return;
+
+	const portalUrl = `${BASE_URL}/student-services/referrals/${params.referralId}`;
+	const reasonLabel = params.reason.replace(/_/g, ' ');
+
+	await triggerGenericEmail({
+		to: params.recipientEmails,
+		heading: `Student Referral: ${params.studentName} (${params.stdNo})`,
+		body: `<p><strong>${params.referrerName}</strong> has referred student <strong>${params.studentName}</strong> (${params.stdNo}) for <strong>${reasonLabel}</strong>.</p><p>${params.description.slice(0, 300)}</p>`,
+		ctaText: 'View Referral',
+		ctaUrl: portalUrl,
+		triggerType: 'referral_created',
+		triggerEntityId: params.referralId,
+	});
+}

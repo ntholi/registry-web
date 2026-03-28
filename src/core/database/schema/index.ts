@@ -9,6 +9,7 @@ export * from '@human-resource/_database';
 export * from '@library/_database';
 export * from '@mail/_database';
 export * from '@registry/_database';
+export * from '@student-services/_database';
 export * from '@timetable/_database';
 export * from './auditLogs';
 export * from './auditLogsRelations';

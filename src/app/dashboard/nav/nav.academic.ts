@@ -1,4 +1,5 @@
 import { countPendingGraduationClearances } from '@registry/graduation';
+import { countPendingReferrals } from '@student-services/referrals';
 import {
 	IconCalendarEvent,
 	IconCertificate,
@@ -13,6 +14,7 @@ import {
 	IconMail,
 	IconMailSpark,
 	IconMessageQuestion,
+	IconMessageReport,
 	IconMessageStar,
 	IconNote,
 	IconPresentation,
@@ -44,6 +46,17 @@ export const academicNav: NavItem[] = [
 			queryKey: ['student-statuses', 'pending'],
 			queryFn: () => countPendingStudentStatuses(),
 			color: 'red',
+		},
+	},
+	{
+		label: 'Referrals',
+		href: '/student-services/referrals',
+		icon: IconMessageReport,
+		permissions: [{ resource: 'student-referrals', action: 'read' }],
+		notificationCount: {
+			queryKey: ['referrals', 'pending'],
+			queryFn: () => countPendingReferrals(),
+			color: 'orange',
 		},
 	},
 	{

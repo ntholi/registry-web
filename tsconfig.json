@@ -37,6 +37,7 @@
 			"@library/*": ["./src/app/library/*"],
 			"@human-resource/*": ["./src/app/human-resource/*"],
 			"@mail/*": ["./src/app/mail/*"],
+			"@student-services/*": ["./src/app/student-services/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},

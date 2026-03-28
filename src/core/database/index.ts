@@ -10,6 +10,7 @@ import * as library from '@library/_database';
 import * as mail from '@mail/_database';
 import { Pool as NeonPool } from '@neondatabase/serverless';
 import * as registry from '@registry/_database';
+import * as studentServices from '@student-services/_database';
 import * as timetable from '@timetable/_database';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleNode } from 'drizzle-orm/node-postgres';
@@ -31,6 +32,7 @@ const schema = {
 	...library,
 	...mail,
 	...registry,
+	...studentServices,
 	...timetable,
 };
 
@@ -68,6 +70,7 @@ export * from '@human-resource/_database';
 export * from '@library/_database';
 export * from '@mail/_database';
 export * from '@registry/_database';
+export * from '@student-services/_database';
 export * from '@timetable/_database';
 export * from './types';
 export { db, schema };

@@ -7,6 +7,7 @@ import HUMAN_RESOURCE_ACTIVITIES from '@human-resource/_lib/activities';
 import LIBRARY_ACTIVITIES from '@library/_lib/activities';
 import MAIL_ACTIVITIES from '@mail/_lib/activities';
 import REGISTRY_ACTIVITIES from '@registry/_lib/activities';
+import STUDENT_SERVICES_ACTIVITIES from '@student-services/_lib/activities';
 import TIMETABLE_ACTIVITIES from '@timetable/_lib/activities';
 import {
 	groupByDepartment,
@@ -24,6 +25,7 @@ const ALL_FRAGMENTS = [
 	MAIL_ACTIVITIES,
 	TIMETABLE_ACTIVITIES,
 	HUMAN_RESOURCE_ACTIVITIES,
+	STUDENT_SERVICES_ACTIVITIES,
 ] as const;
 
 export const ACTIVITY_CATALOG = mergeFragments(...ALL_FRAGMENTS);

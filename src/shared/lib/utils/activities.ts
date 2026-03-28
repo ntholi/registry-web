@@ -7,7 +7,8 @@ type Department =
 	| 'marketing'
 	| 'admin'
 	| 'resource'
-	| 'human_resource';
+	| 'human_resource'
+	| 'student_services';
 
 interface ActivityEntry {
 	label: string;
