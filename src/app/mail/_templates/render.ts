@@ -1,6 +1,7 @@
 import { render } from '@react-email/render';
 import { createElement } from 'react';
 import sanitize from 'sanitize-html';
+import ClearanceEmail, { getClearanceSubject } from './ClearanceEmail';
 import GenericEmail from './GenericEmail';
 import NotificationEmail from './NotificationEmail';
 import StudentStatusEmail, {
@@ -35,6 +36,16 @@ type GenericProps = {
 	body: string;
 	ctaText?: string;
 	ctaUrl?: string;
+};
+
+type ClearanceProps = {
+	studentName: string;
+	stdNo: string;
+	department: string;
+	approved: boolean;
+	clearanceType: 'registration' | 'graduation';
+	reason?: string;
+	portalUrl: string;
 };
 
 export async function renderStudentStatusEmail(
@@ -75,4 +86,23 @@ export async function renderGenericEmail(
 		render(element, { plainText: true }),
 	]);
 	return { html, text, subject: props.heading };
+}
+
+export async function renderClearanceEmail(
+	props: ClearanceProps
+): Promise<RenderedEmail> {
+	const element = createElement(ClearanceEmail, props);
+	const [html, text] = await Promise.all([
+		render(element),
+		render(element, { plainText: true }),
+	]);
+	return {
+		html,
+		text,
+		subject: getClearanceSubject(
+			props.approved,
+			props.clearanceType,
+			props.department
+		),
+	};
 }

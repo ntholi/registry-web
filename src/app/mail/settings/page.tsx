@@ -13,7 +13,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { toggleableTriggers } from '../_lib/triggers';
+import { toggleableTriggers, triggerCategories } from '../_lib/triggers';
 import { getMailAccounts } from '../accounts/_server/actions';
 import { getMailTriggerSettings } from './_server/actions';
 import ChangePrimaryButton from './ChangePrimaryButton';
@@ -100,34 +100,43 @@ export default async function SettingsPage() {
 				</Stack>
 			</Card>
 
-			<Card withBorder>
-				<Stack gap='md'>
-					<Title order={5}>System Email Triggers</Title>
-					<Table>
-						<TableThead>
-							<TableTr>
-								<TableTh>Trigger</TableTh>
-								<TableTh>Description</TableTh>
-								<TableTh>Enabled</TableTh>
-							</TableTr>
-						</TableThead>
-						<TableTbody>
-							{toggleableTriggers.map((t) => (
-								<TableTr key={t.type}>
-									<TableTd>{t.label}</TableTd>
-									<TableTd>{t.description}</TableTd>
-									<TableTd>
-										<TriggerSwitch
-											triggerType={t.type}
-											defaultEnabled={enabledMap.get(t.type) ?? true}
-										/>
-									</TableTd>
-								</TableTr>
-							))}
-						</TableTbody>
-					</Table>
-				</Stack>
-			</Card>
+			{triggerCategories.map((category) => {
+				const triggers = toggleableTriggers.filter(
+					(t) => t.category === category.key
+				);
+				if (triggers.length === 0) return null;
+
+				return (
+					<Card withBorder key={category.key}>
+						<Stack gap='md'>
+							<Title order={5}>{category.label} Notifications</Title>
+							<Table>
+								<TableThead>
+									<TableTr>
+										<TableTh>Trigger</TableTh>
+										<TableTh>Description</TableTh>
+										<TableTh>Enabled</TableTh>
+									</TableTr>
+								</TableThead>
+								<TableTbody>
+									{triggers.map((t) => (
+										<TableTr key={t.type}>
+											<TableTd>{t.label}</TableTd>
+											<TableTd>{t.description}</TableTd>
+											<TableTd>
+												<TriggerSwitch
+													triggerType={t.type}
+													defaultEnabled={enabledMap.get(t.type) ?? true}
+												/>
+											</TableTd>
+										</TableTr>
+									))}
+								</TableTbody>
+							</Table>
+						</Stack>
+					</Card>
+				);
+			})}
 		</Stack>
 	);
 }
