@@ -51,14 +51,14 @@ export const mailTriggers: MailTrigger[] = [
 		category: 'student_status',
 	},
 	{
-		type: 'clearance_approved',
+		type: 'registration_clearance_approved',
 		label: 'Registration Clearance Approved',
 		description: 'Email sent when registration clearance is approved',
 		toggleable: true,
 		category: 'clearance',
 	},
 	{
-		type: 'clearance_rejected',
+		type: 'registration_clearance_rejected',
 		label: 'Registration Clearance Rejected',
 		description: 'Email sent when registration clearance is rejected',
 		toggleable: true,

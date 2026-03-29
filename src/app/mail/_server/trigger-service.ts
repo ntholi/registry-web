@@ -216,7 +216,7 @@ export async function triggerClearanceEmail(
 	const prefix =
 		params.clearanceType === 'graduation'
 			? 'graduation_clearance'
-			: 'clearance';
+			: 'registration_clearance';
 	const triggerType: MailTriggerType = params.approved
 		? (`${prefix}_approved` as MailTriggerType)
 		: (`${prefix}_rejected` as MailTriggerType);

@@ -1,6 +1,6 @@
 {
-	"id": "ce679cf0-2731-4d05-96fc-8ab1f68449c9",
-	"prevId": "0a487fbf-0d10-4936-8f6e-3779d5953df2",
+	"id": "92a1132a-6af8-466f-b8d9-3445af8d55d3",
+	"prevId": "ce679cf0-2731-4d05-96fc-8ab1f68449c9",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -14169,8 +14169,8 @@
 				"manual",
 				"reply",
 				"referral_created",
-				"clearance_approved",
-				"clearance_rejected",
+				"registration_clearance_approved",
+				"registration_clearance_rejected",
 				"graduation_clearance_approved",
 				"graduation_clearance_rejected"
 			]
