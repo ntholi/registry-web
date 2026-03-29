@@ -4,6 +4,7 @@ import { mailAccountAssignments } from './mailAccountAssignments';
 import { mailAccounts } from './mailAccounts';
 import { mailQueue } from './mailQueue';
 import { mailSentLog } from './mailSentLog';
+import { mailTemplates } from './mailTemplates';
 
 export const mailAccountsRelations = relations(
 	mailAccounts,
@@ -54,6 +55,13 @@ export const mailSentLogRelations = relations(mailSentLog, ({ one }) => ({
 	}),
 	sentByUser: one(users, {
 		fields: [mailSentLog.sentByUserId],
+		references: [users.id],
+	}),
+}));
+
+export const mailTemplatesRelations = relations(mailTemplates, ({ one }) => ({
+	creator: one(users, {
+		fields: [mailTemplates.createdBy],
 		references: [users.id],
 	}),
 }));
