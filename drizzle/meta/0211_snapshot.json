@@ -1,5 +1,5 @@
 {
-	"id": "d1289d4b-c5d8-4777-82b6-f454d979f5bb",
+	"id": "ce679cf0-2731-4d05-96fc-8ab1f68449c9",
 	"prevId": "0a487fbf-0d10-4936-8f6e-3779d5953df2",
 	"version": "7",
 	"dialect": "postgresql",
@@ -14169,8 +14169,6 @@
 				"manual",
 				"reply",
 				"referral_created",
-				"application_accepted",
-				"application_rejected",
 				"clearance_approved",
 				"clearance_rejected",
 				"graduation_clearance_approved",

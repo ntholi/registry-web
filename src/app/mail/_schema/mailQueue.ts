@@ -28,8 +28,6 @@ export const mailTriggerType = pgEnum('mail_trigger_type', [
 	'manual',
 	'reply',
 	'referral_created',
-	'application_accepted',
-	'application_rejected',
 	'clearance_approved',
 	'clearance_rejected',
 	'graduation_clearance_approved',

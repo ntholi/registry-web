@@ -10,7 +10,6 @@ import {
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
-import { triggerApplicationEmail } from '@mail/_server/trigger-service';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import type {
@@ -71,42 +70,13 @@ export const changeApplicationStatus = createAction(
 		newStatus: ApplicationStatus,
 		notes?: string,
 		rejectionReason?: string
-	) => {
-		const result = await applicationsService.changeStatus(
+	) =>
+		applicationsService.changeStatus(
 			applicationId,
 			newStatus,
 			notes,
 			rejectionReason
-		);
-
-		if (
-			result &&
-			(newStatus === 'accepted_first_choice' ||
-				newStatus === 'accepted_second_choice' ||
-				newStatus === 'rejected')
-		) {
-			const application = await applicationsService.get(applicationId);
-			if (application?.applicant?.userId) {
-				const accepted = newStatus !== 'rejected';
-				const programName = accepted
-					? (application.firstChoiceProgram?.name ??
-						application.secondChoiceProgram?.name ??
-						'your chosen program')
-					: (application.firstChoiceProgram?.name ?? 'your chosen program');
-
-				void triggerApplicationEmail({
-					applicationId,
-					applicantName: application.applicant.fullName,
-					applicantUserId: application.applicant.userId,
-					programName,
-					accepted,
-					rejectionReason,
-				}).catch(() => {});
-			}
-		}
-
-		return result;
-	}
+		)
 );
 
 export const addApplicationNote = createAction(

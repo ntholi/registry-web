@@ -2,11 +2,7 @@ import type { mailTriggerType } from '../_schema/mailQueue';
 
 export type MailTriggerType = (typeof mailTriggerType.enumValues)[number];
 
-export type TriggerCategory =
-	| 'student_status'
-	| 'admissions'
-	| 'clearance'
-	| 'general';
+export type TriggerCategory = 'student_status' | 'clearance' | 'general';
 
 export type MailTrigger = {
 	type: MailTriggerType;
@@ -21,7 +17,6 @@ export const triggerCategories: {
 	label: string;
 }[] = [
 	{ key: 'student_status', label: 'Student Status' },
-	{ key: 'admissions', label: 'Admissions' },
 	{ key: 'clearance', label: 'Clearance' },
 	{ key: 'general', label: 'General' },
 ];
@@ -54,20 +49,6 @@ export const mailTriggers: MailTrigger[] = [
 		description: 'Email sent when approver rejects status',
 		toggleable: true,
 		category: 'student_status',
-	},
-	{
-		type: 'application_accepted',
-		label: 'Application Accepted',
-		description: 'Email sent when an application is accepted',
-		toggleable: true,
-		category: 'admissions',
-	},
-	{
-		type: 'application_rejected',
-		label: 'Application Rejected',
-		description: 'Email sent when an application is rejected',
-		toggleable: true,
-		category: 'admissions',
 	},
 	{
 		type: 'clearance_approved',

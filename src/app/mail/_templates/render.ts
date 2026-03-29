@@ -1,7 +1,6 @@
 import { render } from '@react-email/render';
 import { createElement } from 'react';
 import sanitize from 'sanitize-html';
-import ApplicationEmail, { getApplicationSubject } from './ApplicationEmail';
 import ClearanceEmail, { getClearanceSubject } from './ClearanceEmail';
 import GenericEmail from './GenericEmail';
 import NotificationEmail from './NotificationEmail';
@@ -37,14 +36,6 @@ type GenericProps = {
 	body: string;
 	ctaText?: string;
 	ctaUrl?: string;
-};
-
-type ApplicationProps = {
-	applicantName: string;
-	programName: string;
-	accepted: boolean;
-	rejectionReason?: string;
-	portalUrl: string;
 };
 
 type ClearanceProps = {
@@ -95,21 +86,6 @@ export async function renderGenericEmail(
 		render(element, { plainText: true }),
 	]);
 	return { html, text, subject: props.heading };
-}
-
-export async function renderApplicationEmail(
-	props: ApplicationProps
-): Promise<RenderedEmail> {
-	const element = createElement(ApplicationEmail, props);
-	const [html, text] = await Promise.all([
-		render(element),
-		render(element, { plainText: true }),
-	]);
-	return {
-		html,
-		text,
-		subject: getApplicationSubject(props.accepted, props.programName),
-	};
 }
 
 export async function renderClearanceEmail(

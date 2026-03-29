@@ -1,6 +1,5 @@
 import type { MailTriggerType } from '../_lib/types';
 import {
-	renderApplicationEmail,
 	renderClearanceEmail,
 	renderGenericEmail,
 	renderNotificationEmail,
@@ -198,53 +197,6 @@ export async function triggerReferralCreatedEmail(
 		ctaUrl: portalUrl,
 		triggerType: 'referral_created',
 		triggerEntityId: params.referralId,
-	});
-}
-
-type ApplicationTriggerParams = {
-	applicationId: string;
-	applicantName: string;
-	applicantUserId: string;
-	programName: string;
-	accepted: boolean;
-	rejectionReason?: string;
-};
-
-export async function triggerApplicationEmail(
-	params: ApplicationTriggerParams
-): Promise<void> {
-	const triggerType: MailTriggerType = params.accepted
-		? 'application_accepted'
-		: 'application_rejected';
-
-	if (!(await isTriggerEnabled(triggerType))) return;
-
-	const primary = await mailAccountRepo.findActivePrimary();
-	if (!primary) return;
-
-	if (await mailQueueRepo.isDuplicate(triggerType, params.applicationId))
-		return;
-
-	const emails = await resolveUserEmails([params.applicantUserId]);
-	if (emails.length === 0) return;
-
-	const portalUrl = `${BASE_URL}/apply`;
-	const rendered = await renderApplicationEmail({
-		applicantName: params.applicantName,
-		programName: params.programName,
-		accepted: params.accepted,
-		rejectionReason: params.rejectionReason,
-		portalUrl,
-	});
-
-	await sendEmail({
-		to: emails[0],
-		subject: rendered.subject,
-		htmlBody: rendered.html,
-		textBody: rendered.text,
-		triggerType,
-		triggerEntityId: params.applicationId,
-		mailAccountId: primary.id,
 	});
 }
 

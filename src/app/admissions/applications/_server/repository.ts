@@ -34,7 +34,6 @@ export default class ApplicationRepository extends BaseRepository<
 						fullName: true,
 						nationalId: true,
 						nationality: true,
-						userId: true,
 					},
 				},
 				intakePeriod: {
