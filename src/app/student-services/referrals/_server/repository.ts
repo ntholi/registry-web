@@ -1,5 +1,3 @@
-'use server';
-
 import { and, count, eq, type SQL, sql } from 'drizzle-orm';
 import {
 	db,
