@@ -3,11 +3,9 @@
 import {
 	ActionIcon,
 	Badge,
-	Button,
 	Divider,
 	Fieldset,
 	Group,
-	Menu,
 	Select,
 	SimpleGrid,
 	Stack,
@@ -20,10 +18,10 @@ import { RichTextEditor } from '@mantine/tiptap';
 import { letterTemplates } from '@registry/_database';
 import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import type { ActionResult } from '@/shared/lib/actions/actionResult';
-import { Form } from '@/shared/ui/adease';
+import { Form, PlaceholderMenu } from '@/shared/ui/adease';
 import '@mantine/tiptap/styles.css';
 import { Link } from '@mantine/tiptap';
-import { IconChevronRight, IconTemplate, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
 import SubScript from '@tiptap/extension-subscript';
@@ -219,7 +217,12 @@ export default function TemplateForm({
 								</RichTextEditor.ControlsGroup>
 
 								<RichTextEditor.ControlsGroup>
-									{editor && <PlaceholderMenu editor={editor} />}
+									{editor && (
+										<PlaceholderMenu
+											editor={editor}
+											groups={PLACEHOLDER_GROUPS}
+										/>
+									)}
 								</RichTextEditor.ControlsGroup>
 							</RichTextEditor.Toolbar>
 							<RichTextEditor.Content h={300} />
@@ -333,61 +336,5 @@ function RestrictionsTab({
 				</Table>
 			)}
 		</>
-	);
-}
-
-type PlaceholderMenuProps = {
-	editor: NonNullable<ReturnType<typeof useEditor>>;
-};
-
-function PlaceholderMenu({ editor }: PlaceholderMenuProps) {
-	return (
-		<Menu position='bottom-start' withinPortal>
-			<Menu.Target>
-				<Button
-					variant='default'
-					size='compact-sm'
-					leftSection={<IconTemplate size={16} />}
-				>
-					Placeholder
-				</Button>
-			</Menu.Target>
-			<Menu.Dropdown>
-				{PLACEHOLDER_GROUPS.filter((g) => g.group !== 'General').map(
-					(group) => (
-						<Menu
-							key={group.group}
-							trigger='hover'
-							position='right-start'
-							withinPortal
-						>
-							<Menu.Target>
-								<Menu.Item rightSection={<IconChevronRight size={14} />}>
-									{group.group}
-								</Menu.Item>
-							</Menu.Target>
-							<Menu.Dropdown>
-								{group.items.map((p) => (
-									<Menu.Item
-										key={p.token}
-										onClick={() =>
-											editor?.commands.insertContent(`{{${p.token}}}`)
-										}
-									>
-										{p.label}
-									</Menu.Item>
-								))}
-							</Menu.Dropdown>
-						</Menu>
-					)
-				)}
-				<Menu.Divider />
-				<Menu.Item
-					onClick={() => editor?.commands.insertContent('{{currentDate}}')}
-				>
-					Current Date
-				</Menu.Item>
-			</Menu.Dropdown>
-		</Menu>
 	);
 }

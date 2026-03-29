@@ -1,19 +1,11 @@
 'use client';
 
-import {
-	Button,
-	Menu,
-	Select,
-	SimpleGrid,
-	Stack,
-	TextInput,
-} from '@mantine/core';
+import { Select, SimpleGrid, Stack, TextInput } from '@mantine/core';
 import { RichTextEditor } from '@mantine/tiptap';
 import '@mantine/tiptap/styles.css';
 import { mailTemplates } from '@mail/_database';
 import { mailTriggers } from '@mail/_lib/triggers';
 import { Link } from '@mantine/tiptap';
-import { IconChevronRight, IconTemplate } from '@tabler/icons-react';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
 import SubScript from '@tiptap/extension-subscript';
@@ -26,7 +18,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useRef } from 'react';
 import type { ActionResult } from '@/shared/lib/actions/actionResult';
-import { Form } from '@/shared/ui/adease';
+import { Form, PlaceholderMenu } from '@/shared/ui/adease';
 import { PLACEHOLDER_GROUPS } from '../_lib/placeholders';
 
 type MailTemplate = typeof mailTemplates.$inferInsert;
@@ -163,7 +155,12 @@ export default function MailTemplateForm({
 							</RichTextEditor.ControlsGroup>
 
 							<RichTextEditor.ControlsGroup>
-								{editor && <PlaceholderMenu editor={editor} />}
+								{editor && (
+									<PlaceholderMenu
+										editor={editor}
+										groups={PLACEHOLDER_GROUPS}
+									/>
+								)}
 							</RichTextEditor.ControlsGroup>
 						</RichTextEditor.Toolbar>
 						<RichTextEditor.Content h={300} />
@@ -171,66 +168,5 @@ export default function MailTemplateForm({
 				</Stack>
 			)}
 		</Form>
-	);
-}
-
-type PlaceholderMenuProps = {
-	editor: NonNullable<ReturnType<typeof useEditor>>;
-};
-
-function PlaceholderMenu({ editor }: PlaceholderMenuProps) {
-	return (
-		<Menu position='bottom-start' withinPortal>
-			<Menu.Target>
-				<Button
-					variant='default'
-					size='compact-sm'
-					leftSection={<IconTemplate size={16} />}
-				>
-					Placeholder
-				</Button>
-			</Menu.Target>
-			<Menu.Dropdown>
-				{PLACEHOLDER_GROUPS.filter((g) => g.group !== 'General').map(
-					(group) => (
-						<Menu
-							key={group.group}
-							trigger='hover'
-							position='right-start'
-							withinPortal
-						>
-							<Menu.Target>
-								<Menu.Item rightSection={<IconChevronRight size={14} />}>
-									{group.group}
-								</Menu.Item>
-							</Menu.Target>
-							<Menu.Dropdown>
-								{group.items.map((p) => (
-									<Menu.Item
-										key={p.token}
-										onClick={() =>
-											editor?.commands.insertContent(`{{${p.token}}}`)
-										}
-									>
-										{p.label}
-									</Menu.Item>
-								))}
-							</Menu.Dropdown>
-						</Menu>
-					)
-				)}
-				<Menu.Divider />
-				{PLACEHOLDER_GROUPS.find((g) => g.group === 'General')?.items.map(
-					(p) => (
-						<Menu.Item
-							key={p.token}
-							onClick={() => editor?.commands.insertContent(`{{${p.token}}}`)}
-						>
-							{p.label}
-						</Menu.Item>
-					)
-				)}
-			</Menu.Dropdown>
-		</Menu>
 	);
 }

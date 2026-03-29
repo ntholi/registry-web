@@ -20,6 +20,7 @@ export {
 export { default as NewLink, type NewLinkProps } from './NewLink';
 export { NothingSelected, type NothingSelectedProps } from './NothingSelected';
 export { Pagination, type PaginationProps } from './Pagination';
+export { PlaceholderMenu, type PlaceholderMenuProps } from './PlaceholderMenu';
 export { default as ReceiptInput } from './ReceiptInput';
 export { ReportCard, type ReportLink } from './ReportCard';
 export { RichTextContent } from './RichTextContent';
