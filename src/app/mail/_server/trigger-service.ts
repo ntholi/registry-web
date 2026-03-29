@@ -282,8 +282,8 @@ export async function triggerClearanceEmail(
 
 	const portalUrl =
 		params.clearanceType === 'registration'
-			? `${BASE_URL}/student-portal`
-			: `${BASE_URL}/student-portal`;
+			? `${BASE_URL}/student-portal/registration`
+			: `${BASE_URL}/student-portal/graduation`;
 
 	const rendered = await renderClearanceEmail({
 		studentName: params.studentName,
