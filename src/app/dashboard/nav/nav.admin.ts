@@ -615,6 +615,12 @@ export const adminNav: NavItem[] = [
 				permissions: [{ resource: 'mails', action: 'read' }],
 			},
 			{
+				label: 'Templates',
+				href: '/mail/templates',
+				icon: IconTemplate,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
 				label: 'Settings',
 				href: '/mail/settings',
 				icon: IconSettings,

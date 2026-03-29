@@ -58,6 +58,7 @@ export const RESOURCES = [
 	'reports-sponsored-students',
 	'letter-templates',
 	'letters',
+	'mail-templates',
 	'student-referrals',
 ] as const;
 
