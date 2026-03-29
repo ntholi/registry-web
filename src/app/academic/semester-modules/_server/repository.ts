@@ -35,10 +35,12 @@ type ModuleInfo = {
 		semesterId: number;
 		structureSemesterId: number;
 		semesterName: string;
+		semesterNumber: string;
 		structureId: number;
 		programId: number;
 		programName: string;
 		programCode: string;
+		credits: number;
 		studentCount?: number;
 	}>;
 };
@@ -277,8 +279,10 @@ export default class SemesterModuleRepository extends BaseRepository<
 				code: modules.code,
 				name: modules.name,
 				moduleId: modules.id,
+				credits: semesterModules.credits,
 				structureSemesterId: structureSemesters.id,
 				semesterName: structureSemesters.name,
+				semesterNumber: structureSemesters.semesterNumber,
 				structureId: structureSemesters.structureId,
 				programId: programs.id,
 				programName: programs.name,
@@ -318,8 +322,10 @@ export default class SemesterModuleRepository extends BaseRepository<
 				modules.code,
 				modules.name,
 				modules.id,
+				semesterModules.credits,
 				structureSemesters.id,
 				structureSemesters.name,
+				structureSemesters.semesterNumber,
 				structureSemesters.structureId,
 				programs.id,
 				programs.name,
@@ -346,10 +352,12 @@ export default class SemesterModuleRepository extends BaseRepository<
 				semesterId: it.semesterId!,
 				structureSemesterId: it.structureSemesterId,
 				semesterName: it.semesterName,
+				semesterNumber: it.semesterNumber,
 				structureId: it.structureId,
 				programId: it.programId,
 				programName: it.programName,
 				programCode: it.programCode,
+				credits: it.credits,
 				studentCount: it.studentCount,
 			});
 		}

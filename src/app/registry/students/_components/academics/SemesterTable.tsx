@@ -28,6 +28,7 @@ import EditStudentModuleModal from './EditStudentModuleModal';
 type ModuleTableProps = {
 	modules: {
 		id: number;
+		semesterModuleId: number;
 		code: string;
 		name: string;
 		type: string;
@@ -255,6 +256,7 @@ export default function SemesterTable({
 												stdNo={stdNo}
 												module={{
 													id: module.id,
+													semesterModuleId: module.semesterModuleId,
 													code: module.code,
 													name: module.name,
 													status: module.status as never,

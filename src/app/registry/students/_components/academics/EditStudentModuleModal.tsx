@@ -1,22 +1,27 @@
 'use client';
 
+import { searchModulesWithDetails } from '@academic/semester-modules';
 import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import {
 	ActionIcon,
 	type ActionIconProps,
 	Alert,
+	Badge,
 	Box,
 	Button,
 	Group,
 	Loader,
 	Modal,
+	Paper,
 	Select,
+	Stack,
 	Tabs,
 	Text,
 	TextInput,
+	UnstyledButton,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
+import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	type Grade,
@@ -24,12 +29,13 @@ import {
 	type StudentModuleStatus,
 	studentModuleStatus,
 } from '@registry/_database';
-import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
+import { IconAlertCircle, IconEdit, IconSearch } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { unwrap } from '@/shared/lib/actions/actionResult';
 import { isRichTextEmpty } from '@/shared/lib/utils/files';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import type { AuditAttachmentInfo } from '../../_server/actions';
 import {
 	canEditMarksAndGrades,
@@ -40,12 +46,27 @@ import ReasonsTab from '../shared/ReasonsTab';
 
 interface StudentModule {
 	id: number;
+	semesterModuleId: number;
 	code: string;
 	name: string;
 	status: StudentModuleStatus;
 	marks: string;
 	grade: Grade;
 }
+
+type SemesterModuleSearchResult = Awaited<
+	ReturnType<typeof searchModulesWithDetails>
+>[number];
+
+type SemesterModuleOption = Pick<
+	SemesterModuleSearchResult['semesters'][number],
+	| 'semesterModuleId'
+	| 'credits'
+	| 'programName'
+	| 'semesterName'
+	| 'semesterNumber'
+> &
+	Pick<SemesterModuleSearchResult, 'code' | 'name'>;
 
 type Props = {
 	module: StudentModule;
@@ -71,6 +92,15 @@ export default function EditStudentModuleModal({
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+	const [activeTab, setActiveTab] = useState<string | null>('details');
+	const [search, setSearch] = useState('');
+	const [selectedSemesterModuleId, setSelectedSemesterModuleId] = useState<
+		number | null
+	>(null);
+	const [confirmationCode, setConfirmationCode] = useState('');
+	const [debouncedSearch] = useDebouncedValue(search, 300);
+	const hasSearchTerm = search.trim().length >= 2;
+	const hasDebouncedSearchTerm = debouncedSearch.trim().length >= 2;
 
 	const { data: canEditMarks = false, isLoading: isLoadingPermissions } =
 		useQuery({
@@ -79,6 +109,31 @@ export default function EditStudentModuleModal({
 			staleTime: 1000 * 60 * 15,
 			enabled: opened,
 		});
+
+	const {
+		data: semesterModuleOptions = [],
+		isLoading: isLoadingSemesterModules,
+	} = useQuery<SemesterModuleSearchResult[], Error, SemesterModuleOption[]>({
+		queryKey: ['student-module-replacements', debouncedSearch],
+		queryFn: () => searchModulesWithDetails(debouncedSearch),
+		enabled: opened && activeTab === 'advanced' && hasDebouncedSearchTerm,
+		select: (result: SemesterModuleSearchResult[]) =>
+			result.flatMap((item) =>
+				item.semesters
+					.filter(
+						(semester) => semester.semesterModuleId !== module.semesterModuleId
+					)
+					.map((semester) => ({
+						semesterModuleId: semester.semesterModuleId,
+						code: item.code,
+						name: item.name,
+						credits: semester.credits,
+						programName: semester.programName,
+						semesterName: semester.semesterName,
+						semesterNumber: semester.semesterNumber,
+					}))
+			),
+	});
 
 	const form = useForm({
 		initialValues: {
@@ -100,8 +155,23 @@ export default function EditStudentModuleModal({
 			setPendingFiles([]);
 			setShowReasonWarning(false);
 			setPendingSubmit(false);
+			setActiveTab('details');
+			setSearch('');
+			setSelectedSemesterModuleId(null);
+			setConfirmationCode('');
 		}
 	}, [opened, module, form.setValues]);
+
+	const selectedSemesterModule =
+		semesterModuleOptions.find(
+			(item) => item.semesterModuleId === selectedSemesterModuleId
+		) ?? null;
+
+	const isAdvancedTab = activeTab === 'advanced';
+	const isAdvancedConfirmed =
+		selectedSemesterModule !== null &&
+		confirmationCode.trim().toUpperCase() ===
+			selectedSemesterModule.code.trim().toUpperCase();
 
 	const handleMarksChange = useCallback(
 		(value: string) => {
@@ -126,6 +196,27 @@ export default function EditStudentModuleModal({
 
 	const executeSubmit = useCallback(
 		async (values: typeof form.values) => {
+			const isAdvancedUpdate = isAdvancedTab && selectedSemesterModule !== null;
+
+			if (isAdvancedTab && selectedSemesterModule === null) {
+				notifications.show({
+					title: 'Module required',
+					message: 'Select the semester module you want to replace this with',
+					color: 'red',
+				});
+				return;
+			}
+
+			if (isAdvancedUpdate && !isAdvancedConfirmed) {
+				notifications.show({
+					title: 'Confirmation required',
+					message:
+						'Type the selected module code exactly to confirm this change',
+					color: 'red',
+				});
+				return;
+			}
+
 			setIsSubmitting(true);
 			try {
 				const attachments: AuditAttachmentInfo[] = [];
@@ -137,11 +228,15 @@ export default function EditStudentModuleModal({
 
 				await updateStudentModule(
 					module.id,
-					{
-						status: values.status as StudentModuleStatus,
-						marks: values.marks,
-						grade: values.grade as Grade,
-					},
+					isAdvancedUpdate
+						? {
+								semesterModuleId: selectedSemesterModule.semesterModuleId,
+							}
+						: {
+								status: values.status as StudentModuleStatus,
+								marks: values.marks,
+								grade: values.grade as Grade,
+							},
 					stdNo,
 					values.reasons,
 					attachments.length > 0 ? attachments : undefined
@@ -149,7 +244,9 @@ export default function EditStudentModuleModal({
 
 				notifications.show({
 					title: 'Success',
-					message: 'Student module updated successfully',
+					message: isAdvancedUpdate
+						? 'Semester module link updated successfully'
+						: 'Student module updated successfully',
 					color: 'green',
 				});
 
@@ -173,7 +270,17 @@ export default function EditStudentModuleModal({
 				setPendingSubmit(false);
 			}
 		},
-		[module.id, form, close, queryClient, stdNo, pendingFiles]
+		[
+			close,
+			form,
+			isAdvancedConfirmed,
+			module.id,
+			pendingFiles,
+			queryClient,
+			selectedSemesterModule,
+			stdNo,
+			isAdvancedTab,
+		]
 	);
 
 	const handleSubmit = useCallback(
@@ -219,9 +326,10 @@ export default function EditStudentModuleModal({
 				size={550}
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Tabs defaultValue='details'>
+					<Tabs value={activeTab} onChange={setActiveTab}>
 						<Tabs.List>
 							<Tabs.Tab value='details'>Details</Tabs.Tab>
+							<Tabs.Tab value='advanced'>Advanced</Tabs.Tab>
 							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
 							<Tabs.Tab value='history'>History</Tabs.Tab>
 						</Tabs.List>
@@ -275,6 +383,112 @@ export default function EditStudentModuleModal({
 							</Group>
 						</Tabs.Panel>
 
+						<Tabs.Panel value='advanced' pt='md'>
+							<Stack gap='md'>
+								<Alert
+									icon={<IconAlertCircle size={16} />}
+									color='red'
+									variant='light'
+								>
+									This action only replaces the semester module link for this
+									record. Confirm the exact module code before continuing.
+								</Alert>
+
+								<TextInput
+									label='Search semester module'
+									placeholder='Search by module code or name'
+									value={search}
+									onChange={(event) => setSearch(event.currentTarget.value)}
+									leftSection={<IconSearch size={16} />}
+									rightSection={
+										isLoadingSemesterModules ? <Loader size='xs' /> : undefined
+									}
+								/>
+
+								{!hasSearchTerm ? (
+									<Text size='sm' c='dimmed'>
+										Type at least 2 characters to search for a semester module.
+									</Text>
+								) : semesterModuleOptions.length === 0 ? (
+									<Text size='sm' c='dimmed'>
+										No semester modules found for that search.
+									</Text>
+								) : (
+									<Stack gap='xs'>
+										{semesterModuleOptions.map((item) => {
+											const isSelected =
+												item.semesterModuleId === selectedSemesterModuleId;
+
+											return (
+												<UnstyledButton
+													key={item.semesterModuleId}
+													type='button'
+													onClick={() => {
+														setSelectedSemesterModuleId(item.semesterModuleId);
+														setConfirmationCode('');
+													}}
+												>
+													<Paper
+														withBorder
+														p='sm'
+														radius='md'
+														bg={isSelected ? 'blue.0' : undefined}
+													>
+														<Stack gap='xs'>
+															<Group justify='space-between' gap='sm'>
+																<Box>
+																	<Group gap='xs'>
+																		<Text fw={600} size='sm'>
+																			{item.code}
+																		</Text>
+																		<Text size='sm'>{item.name}</Text>
+																	</Group>
+																	<Text size='xs' c='dimmed'>
+																		{item.programName} •{' '}
+																		{formatSemester(item.semesterNumber)}
+																	</Text>
+																</Box>
+																<Badge
+																	variant={isSelected ? 'filled' : 'light'}
+																>
+																	{item.credits} credits
+																</Badge>
+															</Group>
+															<Text size='xs' c='dimmed'>
+																{item.semesterName}
+															</Text>
+														</Stack>
+													</Paper>
+												</UnstyledButton>
+											);
+										})}
+									</Stack>
+								)}
+
+								<TextInput
+									label='Confirm selected module code'
+									description={
+										selectedSemesterModule
+											? `Type ${selectedSemesterModule.code} to confirm this replacement`
+											: 'Select a semester module above first'
+									}
+									placeholder='Enter selected module code'
+									value={confirmationCode}
+									onChange={(event) =>
+										setConfirmationCode(event.currentTarget.value)
+									}
+									disabled={!selectedSemesterModule}
+									error={
+										confirmationCode.length > 0 &&
+										!isAdvancedConfirmed &&
+										selectedSemesterModule
+											? 'Confirmation code does not match the selected module'
+											: undefined
+									}
+								/>
+							</Stack>
+						</Tabs.Panel>
+
 						<Tabs.Panel value='reasons' pt='md'>
 							<ReasonsTab
 								reasons={form.values.reasons}
@@ -322,7 +536,11 @@ export default function EditStudentModuleModal({
 						<Button
 							type='submit'
 							loading={isSubmitting}
-							disabled={isLoadingPermissions}
+							disabled={
+								isLoadingPermissions ||
+								(isAdvancedTab &&
+									(selectedSemesterModule === null || !isAdvancedConfirmed))
+							}
 						>
 							Update
 						</Button>

@@ -158,6 +158,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																stdNo={student.stdNo}
 																modules={semester.studentModules.map((sm) => ({
 																	id: sm.id,
+																	semesterModuleId: sm.semesterModuleId,
 																	code:
 																		sm.semesterModule.module?.code ??
 																		`${sm.semesterModuleId}`,
@@ -337,6 +338,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																	modules={semester.studentModules.map(
 																		(sm) => ({
 																			id: sm.id,
+																			semesterModuleId: sm.semesterModuleId,
 																			code:
 																				sm.semesterModule.module?.code ??
 																				`${sm.semesterModuleId}`,
