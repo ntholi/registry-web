@@ -1,6 +1,7 @@
 'use server';
 
 import type { ProgramLevel } from '@academic/_database';
+import { triggerClearanceEmail } from '@mail/_server/trigger-service';
 import { auth } from '@/core/auth';
 import type { DashboardRole } from '@/core/auth/permissions';
 import type { clearance } from '@/core/database';
@@ -59,7 +60,30 @@ export async function clearanceByStatus(
 
 export const updateClearance = createAction(
 	async (id: number, clearanceData: Clearance, stdNo?: number) => {
-		return service.update(id, clearanceData, stdNo);
+		const result = await service.update(id, clearanceData, stdNo);
+
+		if (
+			stdNo &&
+			clearanceData.status &&
+			(clearanceData.status === 'approved' ||
+				clearanceData.status === 'rejected')
+		) {
+			const full = await service.get(id);
+			const studentName =
+				full?.registrationRequest?.student?.name ?? `Student ${stdNo}`;
+
+			void triggerClearanceEmail({
+				clearanceId: id,
+				stdNo,
+				studentName,
+				department: clearanceData.department ?? 'Unknown',
+				approved: clearanceData.status === 'approved',
+				clearanceType: 'registration',
+				reason: clearanceData.message ?? undefined,
+			}).catch(() => {});
+		}
+
+		return result;
 	}
 );
 

@@ -1,5 +1,6 @@
 'use server';
 
+import { triggerClearanceEmail } from '@mail/_server/trigger-service';
 import { auth } from '@/core/auth';
 import type { DashboardRole } from '@/core/auth/permissions';
 import type { clearance } from '@/core/database';
@@ -46,7 +47,30 @@ export async function graduationClearanceByStatus(
 
 export const updateGraduationClearance = createAction(
 	async (id: number, data: Clearance, stdNo?: number) => {
-		return service.update(id, data, stdNo);
+		const result = await service.update(id, data, stdNo);
+
+		if (
+			stdNo &&
+			data.status &&
+			(data.status === 'approved' || data.status === 'rejected')
+		) {
+			const full = await service.get(id);
+			const studentName =
+				full?.graduationRequest?.studentProgram?.student?.name ??
+				`Student ${stdNo}`;
+
+			void triggerClearanceEmail({
+				clearanceId: id,
+				stdNo,
+				studentName,
+				department: data.department ?? 'Unknown',
+				approved: data.status === 'approved',
+				clearanceType: 'graduation',
+				reason: data.message ?? undefined,
+			}).catch(() => {});
+		}
+
+		return result;
 	}
 );
 

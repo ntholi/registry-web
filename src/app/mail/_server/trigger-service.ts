@@ -1,5 +1,7 @@
 import type { MailTriggerType } from '../_lib/types';
 import {
+	renderApplicationEmail,
+	renderClearanceEmail,
 	renderGenericEmail,
 	renderNotificationEmail,
 	renderStudentStatusEmail,
@@ -196,5 +198,110 @@ export async function triggerReferralCreatedEmail(
 		ctaUrl: portalUrl,
 		triggerType: 'referral_created',
 		triggerEntityId: params.referralId,
+	});
+}
+
+type ApplicationTriggerParams = {
+	applicationId: string;
+	applicantName: string;
+	applicantUserId: string;
+	programName: string;
+	accepted: boolean;
+	rejectionReason?: string;
+};
+
+export async function triggerApplicationEmail(
+	params: ApplicationTriggerParams
+): Promise<void> {
+	const triggerType: MailTriggerType = params.accepted
+		? 'application_accepted'
+		: 'application_rejected';
+
+	if (!(await isTriggerEnabled(triggerType))) return;
+
+	const primary = await mailAccountRepo.findActivePrimary();
+	if (!primary) return;
+
+	if (await mailQueueRepo.isDuplicate(triggerType, params.applicationId))
+		return;
+
+	const emails = await resolveUserEmails([params.applicantUserId]);
+	if (emails.length === 0) return;
+
+	const portalUrl = `${BASE_URL}/apply`;
+	const rendered = await renderApplicationEmail({
+		applicantName: params.applicantName,
+		programName: params.programName,
+		accepted: params.accepted,
+		rejectionReason: params.rejectionReason,
+		portalUrl,
+	});
+
+	await sendEmail({
+		to: emails[0],
+		subject: rendered.subject,
+		htmlBody: rendered.html,
+		textBody: rendered.text,
+		triggerType,
+		triggerEntityId: params.applicationId,
+		mailAccountId: primary.id,
+	});
+}
+
+type ClearanceTriggerParams = {
+	clearanceId: number;
+	stdNo: number;
+	studentName: string;
+	department: string;
+	approved: boolean;
+	clearanceType: 'registration' | 'graduation';
+	reason?: string;
+};
+
+export async function triggerClearanceEmail(
+	params: ClearanceTriggerParams
+): Promise<void> {
+	const prefix =
+		params.clearanceType === 'graduation'
+			? 'graduation_clearance'
+			: 'clearance';
+	const triggerType: MailTriggerType = params.approved
+		? (`${prefix}_approved` as MailTriggerType)
+		: (`${prefix}_rejected` as MailTriggerType);
+
+	if (!(await isTriggerEnabled(triggerType))) return;
+
+	const primary = await mailAccountRepo.findActivePrimary();
+	if (!primary) return;
+
+	const entityId = `${params.clearanceType}_${params.clearanceId}`;
+	if (await mailQueueRepo.isDuplicate(triggerType, entityId)) return;
+
+	const email = await resolveStudentEmail(params.stdNo);
+	if (!email) return;
+
+	const portalUrl =
+		params.clearanceType === 'registration'
+			? `${BASE_URL}/student-portal`
+			: `${BASE_URL}/student-portal`;
+
+	const rendered = await renderClearanceEmail({
+		studentName: params.studentName,
+		stdNo: String(params.stdNo),
+		department: params.department,
+		approved: params.approved,
+		clearanceType: params.clearanceType,
+		reason: params.reason,
+		portalUrl,
+	});
+
+	await sendEmail({
+		to: email,
+		subject: rendered.subject,
+		htmlBody: rendered.html,
+		textBody: rendered.text,
+		triggerType,
+		triggerEntityId: entityId,
+		mailAccountId: primary.id,
 	});
 }
