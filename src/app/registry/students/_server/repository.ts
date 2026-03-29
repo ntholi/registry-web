@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm';
 import {
 	db,
+	modules,
 	nextOfKins,
 	programs,
 	semesterModules,
@@ -933,6 +934,38 @@ export default class StudentRepository extends BaseRepository<
 
 			return updated;
 		});
+	}
+
+	async searchSemesterModulesForReassign(search: string) {
+		const trimmed = search.trim();
+		if (!trimmed) return [];
+
+		return db
+			.select({
+				id: semesterModules.id,
+				code: modules.code,
+				name: modules.name,
+				credits: semesterModules.credits,
+				programName: programs.name,
+				semesterName: structureSemesters.name,
+				semesterNumber: structureSemesters.semesterNumber,
+			})
+			.from(semesterModules)
+			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+			.innerJoin(
+				structureSemesters,
+				eq(semesterModules.semesterId, structureSemesters.id)
+			)
+			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.where(
+				or(
+					ilike(modules.code, `%${trimmed}%`),
+					ilike(modules.name, `%${trimmed}%`)
+				)
+			)
+			.orderBy(modules.code)
+			.limit(20);
 	}
 }
 

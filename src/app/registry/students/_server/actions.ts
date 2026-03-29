@@ -251,6 +251,38 @@ export async function canEditMarksAndGrades() {
 	);
 }
 
+export async function canReassignStudentModule() {
+	const session = await auth();
+	return (
+		session?.user?.role === 'admin' ||
+		session?.user?.presetName === 'Registry Manager'
+	);
+}
+
+export async function searchSemesterModulesForReassign(search: string) {
+	return service.searchSemesterModulesForReassign(search);
+}
+
+export const reassignStudentModule = createAction(
+	async (
+		studentModuleId: number,
+		newSemesterModuleId: number,
+		stdNo: number,
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
+	) => {
+		const result = await service.reassignStudentModule(
+			studentModuleId,
+			newSemesterModuleId,
+			stdNo,
+			reasons,
+			attachments
+		);
+		revalidatePath('/registry/students');
+		return result;
+	}
+);
+
 export interface CreateFullStudentInput {
 	student: Omit<typeof students.$inferInsert, 'stdNo'>;
 	nextOfKins: Omit<typeof nextOfKins.$inferInsert, 'stdNo'>[];
