@@ -46,6 +46,10 @@ const REGISTRY_ACTIVITIES = {
 		module_dropped: { label: 'Module Dropped', department: 'registry' },
 		module_deleted: { label: 'Module Deleted', department: 'registry' },
 		module_repeated: { label: 'Module Repeated', department: 'registry' },
+		module_reassigned: {
+			label: 'Module Reassigned',
+			department: 'registry',
+		},
 		registration_submitted: {
 			label: 'Registration Submitted',
 			department: 'registry',

@@ -382,6 +382,41 @@ class StudentService {
 			{ students: ['update'] }
 		);
 	}
+
+	async searchSemesterModulesForReassign(search: string) {
+		return withPermission(
+			async () => this.repository.searchSemesterModulesForReassign(search),
+			async (session) =>
+				session?.user?.role === 'admin' ||
+				session?.user?.presetName === 'Registry Manager'
+		);
+	}
+
+	async reassignStudentModule(
+		studentModuleId: number,
+		newSemesterModuleId: number,
+		stdNo: number,
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
+	) {
+		return withPermission(
+			async (session) =>
+				this.repository.updateStudentModule(
+					studentModuleId,
+					{ semesterModuleId: newSemesterModuleId },
+					{
+						userId: requireSessionUserId(session),
+						role: session!.user!.role!,
+						activityType: 'module_reassigned',
+						stdNo,
+						metadata: buildAuditMetadata(reasons, attachments),
+					}
+				),
+			async (session) =>
+				session?.user?.role === 'admin' ||
+				session?.user?.presetName === 'Registry Manager'
+		);
+	}
 }
 
 function removeTermsFromPrograms(programs: Program[], termCodes: string[]) {

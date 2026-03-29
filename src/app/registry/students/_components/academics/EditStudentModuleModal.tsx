@@ -37,6 +37,7 @@ import {
 	uploadAuditAttachment,
 } from '../../_server/actions';
 import ReasonsTab from '../shared/ReasonsTab';
+import AdvancedTab from './AdvancedTab';
 
 interface StudentModule {
 	id: number;
@@ -224,6 +225,7 @@ export default function EditStudentModuleModal({
 							<Tabs.Tab value='details'>Details</Tabs.Tab>
 							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
 							<Tabs.Tab value='history'>History</Tabs.Tab>
+							<Tabs.Tab value='advanced'>Advanced</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='details' pt='md'>
@@ -295,6 +297,14 @@ export default function EditStudentModuleModal({
 								recordId={module.id}
 								fieldLabels={FIELD_LABELS}
 								excludeFields={['studentSemesterId', 'moduleId']}
+							/>
+						</Tabs.Panel>
+
+						<Tabs.Panel value='advanced' pt='md'>
+							<AdvancedTab
+								studentModuleId={module.id}
+								stdNo={stdNo}
+								onSuccess={close}
 							/>
 						</Tabs.Panel>
 					</Tabs>
