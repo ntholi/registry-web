@@ -224,8 +224,8 @@ export default function EditStudentModuleModal({
 						<Tabs.List>
 							<Tabs.Tab value='details'>Details</Tabs.Tab>
 							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
-							<Tabs.Tab value='history'>History</Tabs.Tab>
 							<Tabs.Tab value='advanced'>Advanced</Tabs.Tab>
+							<Tabs.Tab value='history'>History</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='details' pt='md'>
@@ -290,6 +290,13 @@ export default function EditStudentModuleModal({
 								}
 							/>
 						</Tabs.Panel>
+						<Tabs.Panel value='advanced' pt='md'>
+							<AdvancedTab
+								studentModuleId={module.id}
+								stdNo={stdNo}
+								onSuccess={close}
+							/>
+						</Tabs.Panel>
 
 						<Tabs.Panel value='history' pt='md'>
 							<RecordAuditHistory
@@ -297,14 +304,6 @@ export default function EditStudentModuleModal({
 								recordId={module.id}
 								fieldLabels={FIELD_LABELS}
 								excludeFields={['studentSemesterId', 'moduleId']}
-							/>
-						</Tabs.Panel>
-
-						<Tabs.Panel value='advanced' pt='md'>
-							<AdvancedTab
-								studentModuleId={module.id}
-								stdNo={stdNo}
-								onSuccess={close}
 							/>
 						</Tabs.Panel>
 					</Tabs>
