@@ -22,12 +22,14 @@ import type { NavItem } from '../types';
 export const financeNav: NavItem[] = [
 	{
 		label: 'Students',
+		group: 'Registry',
 		href: '/registry/students',
 		icon: IconUsers,
 		permissions: [{ resource: 'students', action: 'read' }],
 	},
 	{
 		label: 'Student Status',
+		group: 'Registry',
 		href: '/registry/student-statuses',
 		icon: IconUserExclamation,
 		permissions: [{ resource: 'student-statuses', action: 'read' }],
@@ -38,7 +40,23 @@ export const financeNav: NavItem[] = [
 		},
 	},
 	{
+		label: 'Blocked Students',
+		group: 'Registry',
+		href: '/registry/blocked-students',
+		icon: IconUserOff,
+		permissions: [{ resource: 'blocked-students', action: 'read' }],
+	},
+	{
+		label: 'Notes',
+		group: 'Registry',
+		description: 'Notes on Students',
+		href: '/registry/student-notes',
+		icon: IconNote,
+		permissions: [{ resource: 'student-notes', action: 'read' }],
+	},
+	{
 		label: 'Clearance',
+		group: 'Clearance',
 		icon: IconListCheck,
 		children: [
 			{
@@ -67,6 +85,7 @@ export const financeNav: NavItem[] = [
 	},
 	{
 		label: 'Auto-Approvals',
+		group: 'Clearance',
 		href: '/registry/clearance/auto-approve',
 		icon: IconRobot,
 		permissions: [{ resource: 'auto-approvals', action: 'read' }],
@@ -74,6 +93,7 @@ export const financeNav: NavItem[] = [
 
 	{
 		label: 'Admissions Payments',
+		group: 'Admissions',
 		href: '/admissions/payments',
 		icon: IconCreditCard,
 		permissions: [{ resource: 'admissions-payments', action: 'read' }],
@@ -84,26 +104,15 @@ export const financeNav: NavItem[] = [
 		},
 	},
 	{
-		label: 'Blocked Students',
-		href: '/registry/blocked-students',
-		icon: IconUserOff,
-		permissions: [{ resource: 'blocked-students', action: 'read' }],
-	},
-	{
 		label: 'Sponsors',
+		group: 'Finance',
 		href: '/finance/sponsors',
 		icon: IconBuildingBank,
 		permissions: [{ resource: 'sponsors', action: 'read' }],
 	},
 	{
-		label: 'Notes',
-		description: 'Notes on Students',
-		href: '/registry/student-notes',
-		icon: IconNote,
-		permissions: [{ resource: 'student-notes', action: 'read' }],
-	},
-	{
 		label: 'Reports',
+		group: 'Analytics',
 		icon: IconReportAnalytics,
 		collapsed: false,
 		children: [
@@ -131,12 +140,14 @@ export const financeNav: NavItem[] = [
 	},
 	{
 		label: 'Tasks',
+		group: 'Operations',
 		href: '/admin/tasks',
 		icon: IconChecklist,
 		permissions: [{ resource: 'tasks', action: 'read' }],
 	},
 	{
 		label: 'Activity Tracker',
+		group: 'Operations',
 		href: '/admin/activity-tracker',
 		icon: IconReportAnalytics,
 		permissions: [{ resource: 'activity-tracker', action: 'read' }],

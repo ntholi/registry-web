@@ -12,6 +12,7 @@ export type NotificationConfig = {
 
 export type NavItem = {
 	label: string | React.ReactNode;
+	group?: string;
 	href?: string;
 	icon?: Icon;
 	description?: string;

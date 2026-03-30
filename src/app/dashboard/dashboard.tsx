@@ -1,7 +1,7 @@
 'use client';
 
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
-import { Indicator, NavLink, Skeleton, Stack } from '@mantine/core';
+import { Indicator, NavLink, Skeleton, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -104,6 +104,31 @@ function getNavigation(role: DashboardRole): NavItem[] {
 	return roleNavMap[role] ?? [];
 }
 
+function cloneNavigationItems(items: NavItem[]): NavItem[] {
+	return items.map((item) => ({
+		...item,
+		children: item.children ? cloneNavigationItems(item.children) : undefined,
+	}));
+}
+
+function splitNavigationSections(items: NavItem[]) {
+	const sections: Array<{ label?: string; items: NavItem[] }> = [];
+
+	for (const item of items) {
+		const label = item.group?.trim() || undefined;
+		const section = sections.at(-1);
+
+		if (!section || section.label !== label) {
+			sections.push({ label, items: [item] });
+			continue;
+		}
+
+		section.items.push(item);
+	}
+
+	return sections;
+}
+
 function getLabelText(label: React.ReactNode): string {
 	if (typeof label === 'string') return label;
 	if (typeof label === 'number') return String(label);
@@ -142,7 +167,9 @@ export default function Dashboard({
 			: null
 		: session;
 
-	const navigation = getNavigation(effectiveRole as DashboardRole);
+	const navigation = cloneNavigationItems(
+		getNavigation(effectiveRole as DashboardRole)
+	);
 
 	const { data: assignedModules, isLoading: isModulesLoading } = useQuery({
 		queryKey: ['assigned-modules'],
@@ -236,28 +263,47 @@ export function Navigation({
 		viewingAs
 	);
 	const filteredItems = filterBySearch(visibleItems, search);
+	const sections = splitNavigationSections(filteredItems);
 
 	return (
 		<Stack gap='md'>
 			<SearchInput value={search} onChange={setSearch} />
-			<Stack gap={4}>
-				{filteredItems.map((item) => {
-					const key =
-						typeof item.href === 'string'
-							? item.href
-							: typeof item.label === 'string'
-								? item.label
-								: String(item.label);
-					return (
-						<DisplayWithNotification
-							key={key}
-							item={item}
-							userPermissions={userPermissions}
-							viewingAs={viewingAs}
-							session={session}
-						/>
-					);
-				})}
+			<Stack gap='sm'>
+				{sections.map((section, index) => (
+					<Stack key={`${section.label ?? 'default'}-${index}`} gap={4}>
+						{section.label ? (
+							<Text
+								c='dimmed'
+								fw={600}
+								fz='xs'
+								px='sm'
+								pt={index === 0 ? 0 : 'xs'}
+								tt='uppercase'
+							>
+								{section.label}
+							</Text>
+						) : null}
+						<Stack gap={4}>
+							{section.items.map((item) => {
+								const key =
+									typeof item.href === 'string'
+										? item.href
+										: typeof item.label === 'string'
+											? item.label
+											: String(item.label);
+								return (
+									<DisplayWithNotification
+										key={key}
+										item={item}
+										userPermissions={userPermissions}
+										viewingAs={viewingAs}
+										session={session}
+									/>
+								);
+							})}
+						</Stack>
+					</Stack>
+				))}
 			</Stack>
 		</Stack>
 	);

@@ -27,6 +27,7 @@ import {
 	IconDeviceDesktopAnalytics,
 	IconDoor,
 	IconEye,
+	IconFileAnalytics,
 	IconFileExport,
 	IconFileSearch,
 	IconFileText,
@@ -38,6 +39,7 @@ import {
 	IconListCheck,
 	IconMail,
 	IconMailSpark,
+	IconMapPin,
 	IconMessageQuestion,
 	IconMessageStar,
 	IconNote,
@@ -61,6 +63,7 @@ import {
 	IconUserPlus,
 	IconUserShield,
 	IconUsers,
+	IconUsersGroup,
 	IconWriting,
 } from '@tabler/icons-react';
 import { createElement } from 'react';
@@ -75,7 +78,120 @@ function isTimetableEditor(session: Session | null) {
 
 export const adminNav: NavItem[] = [
 	{
+		label: 'Students',
+		group: 'Registry',
+		href: '/registry/students',
+		icon: IconUsers,
+		permissions: [{ resource: 'students', action: 'read' }],
+	},
+	{
+		label: 'Registration',
+		group: 'Registry',
+		href: '/registry/registration/requests',
+		icon: IconUserPlus,
+		permissions: [{ resource: 'registration', action: 'read' }],
+	},
+	{
+		label: 'Auto-Approvals',
+		group: 'Registry',
+		href: '/registry/clearance/auto-approve',
+		icon: IconRobot,
+		permissions: [{ resource: 'auto-approvals', action: 'read' }],
+	},
+	{
+		label: 'Graduations',
+		group: 'Registry',
+		icon: IconSchool,
+		collapsed: false,
+		permissions: [{ resource: 'graduation', action: 'read' }],
+		children: [
+			{
+				label: 'Requests',
+				href: '/registry/graduation/requests',
+				icon: IconCertificate,
+			},
+			{
+				label: 'Dates',
+				href: '/registry/graduation/dates',
+				icon: IconCalendarEvent,
+			},
+			{
+				label: 'Certificate Reprints',
+				href: '/registry/certificate-reprints',
+				icon: IconPrinter,
+				permissions: [{ resource: 'certificate-reprints', action: 'read' }],
+			},
+		],
+	},
+	{
+		label: 'Graduation Clearance',
+		group: 'Registry',
+		href: '/registry/graduation/clearance',
+		icon: IconCertificate,
+		permissions: [{ resource: 'graduation-clearance', action: 'read' }],
+		notificationCount: {
+			queryKey: ['graduation-clearances', 'pending'],
+			queryFn: () => countPendingGraduationClearances(),
+			color: 'red',
+		},
+	},
+	{
+		label: 'Student Status',
+		group: 'Registry',
+		href: '/registry/student-statuses',
+		icon: IconUserExclamation,
+		permissions: [{ resource: 'student-statuses', action: 'read' }],
+		notificationCount: {
+			queryKey: ['student-statuses', 'pending'],
+			queryFn: () => countPendingStudentStatuses(),
+			color: 'red',
+		},
+	},
+	{
+		label: 'Notes',
+		group: 'Registry',
+		href: '/registry/student-notes',
+		description: 'Notes on Students',
+		icon: IconNote,
+		permissions: [{ resource: 'student-notes', action: 'read' }],
+	},
+	{
+		label: 'Letters',
+		group: 'Registry',
+		icon: IconMail,
+		collapsed: false,
+		children: [
+			{
+				label: 'Letters',
+				href: '/registry/letters/generate',
+				icon: IconMailSpark,
+				permissions: [{ resource: 'letters', action: 'read' }],
+			},
+			{
+				label: 'Templates',
+				href: '/registry/letters/templates',
+				icon: IconTemplate,
+				permissions: [{ resource: 'letter-templates', action: 'read' }],
+			},
+		],
+	},
+	{
+		label: 'Blocked Students',
+		group: 'Registry',
+		href: '/registry/blocked-students',
+		icon: IconUserOff,
+		permissions: [{ resource: 'blocked-students', action: 'read' }],
+	},
+	{
+		label: 'Terms',
+		group: 'Registry',
+		href: '/registry/terms',
+		icon: IconCalendarDue,
+		permissions: [{ resource: 'terms-settings', action: 'read' }],
+	},
+	{
 		label: 'Tasks',
+		group: 'Admin',
 		href: '/admin/tasks',
 		icon: IconChecklist,
 		permissions: [{ resource: 'tasks', action: 'read' }],
@@ -87,30 +203,35 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Users',
+		group: 'Admin',
 		href: '/admin/users',
 		icon: IconUserShield,
 		permissions: [{ resource: 'users', action: 'read' }],
 	},
 	{
 		label: 'Permission Presets',
+		group: 'Admin',
 		href: '/admin/permission-presets',
 		icon: IconShield,
 		permissions: [{ resource: 'permission-presets', action: 'read' }],
 	},
 	{
 		label: 'Notifications',
+		group: 'Admin',
 		href: '/admin/notifications',
 		icon: IconBell,
 		permissions: [{ resource: 'notifications', action: 'read' }],
 	},
 	{
 		label: 'Activity Tracker',
+		group: 'Admin',
 		href: '/admin/activity-tracker',
 		icon: IconActivity,
 		permissions: [{ resource: 'activity-tracker', action: 'read' }],
 	},
 	{
 		label: 'Tools',
+		group: 'Admin',
 		icon: IconSettings,
 		collapsed: false,
 		children: [
@@ -144,6 +265,7 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Bulk',
+		group: 'Admin',
 		icon: IconPackage,
 		children: [
 			{
@@ -154,109 +276,8 @@ export const adminNav: NavItem[] = [
 		] as NavItem[],
 	},
 	{
-		label: 'Students',
-		href: '/registry/students',
-		icon: IconUsers,
-		permissions: [{ resource: 'students', action: 'read' }],
-	},
-	{
-		label: 'Registration',
-		href: '/registry/registration/requests',
-		icon: IconUserPlus,
-		permissions: [{ resource: 'registration', action: 'read' }],
-	},
-	{
-		label: 'Auto-Approvals',
-		href: '/registry/clearance/auto-approve',
-		icon: IconRobot,
-		permissions: [{ resource: 'auto-approvals', action: 'read' }],
-	},
-	{
-		label: 'Graduations',
-		icon: IconSchool,
-		collapsed: false,
-		permissions: [{ resource: 'graduation', action: 'read' }],
-		children: [
-			{
-				label: 'Requests',
-				href: '/registry/graduation/requests',
-				icon: IconCertificate,
-			},
-			{
-				label: 'Dates',
-				href: '/registry/graduation/dates',
-				icon: IconCalendarEvent,
-			},
-			{
-				label: 'Certificate Reprints',
-				href: '/registry/certificate-reprints',
-				icon: IconPrinter,
-				permissions: [{ resource: 'certificate-reprints', action: 'read' }],
-			},
-		],
-	},
-	{
-		label: 'Graduation Clearance',
-		href: '/registry/graduation/clearance',
-		icon: IconCertificate,
-		permissions: [{ resource: 'graduation-clearance', action: 'read' }],
-		notificationCount: {
-			queryKey: ['graduation-clearances', 'pending'],
-			queryFn: () => countPendingGraduationClearances(),
-			color: 'red',
-		},
-	},
-	{
-		label: 'Student Status',
-		href: '/registry/student-statuses',
-		icon: IconUserExclamation,
-		permissions: [{ resource: 'student-statuses', action: 'read' }],
-		notificationCount: {
-			queryKey: ['student-statuses', 'pending'],
-			queryFn: () => countPendingStudentStatuses(),
-			color: 'red',
-		},
-	},
-	{
-		label: 'Notes',
-		href: '/registry/student-notes',
-		description: 'Notes on Students',
-		icon: IconNote,
-		permissions: [{ resource: 'student-notes', action: 'read' }],
-	},
-	{
-		label: 'Letters',
-		icon: IconMail,
-		collapsed: false,
-		children: [
-			{
-				label: 'Letters',
-				href: '/registry/letters/generate',
-				icon: IconMailSpark,
-				permissions: [{ resource: 'letters', action: 'read' }],
-			},
-			{
-				label: 'Templates',
-				href: '/registry/letters/templates',
-				icon: IconTemplate,
-				permissions: [{ resource: 'letter-templates', action: 'read' }],
-			},
-		],
-	},
-	{
-		label: 'Blocked Students',
-		href: '/registry/blocked-students',
-		icon: IconUserOff,
-		permissions: [{ resource: 'blocked-students', action: 'read' }],
-	},
-	{
-		label: 'Terms',
-		href: '/registry/terms',
-		icon: IconCalendarDue,
-		permissions: [{ resource: 'terms-settings', action: 'read' }],
-	},
-	{
 		label: 'Lecturers',
+		group: 'Academic',
 		description: 'Assigned Modules',
 		href: '/academic/lecturers',
 		icon: IconPresentation,
@@ -264,18 +285,21 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Assessments',
+		group: 'Academic',
 		href: '/academic/assessments',
 		icon: IconListCheck,
 		permissions: [{ resource: 'assessments', action: 'read' }],
 	},
 	{
 		label: 'Attendance',
+		group: 'Academic',
 		href: '/academic/attendance',
 		icon: IconCalendarEvent,
 		permissions: [{ resource: 'attendance', action: 'read' }],
 	},
 	{
 		label: 'Gradebook',
+		group: 'Academic',
 		icon: IconClipboardData,
 		collapsed: false,
 		children: [],
@@ -283,24 +307,28 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Modules',
+		group: 'Academic',
 		href: '/academic/modules',
 		icon: IconBook,
 		permissions: [{ resource: 'modules', action: 'read' }],
 	},
 	{
 		label: 'Semester Modules',
+		group: 'Academic',
 		href: '/academic/semester-modules',
 		icon: IconBooks,
 		permissions: [{ resource: 'semester-modules', action: 'read' }],
 	},
 	{
 		label: 'Schools',
+		group: 'Academic',
 		href: '/academic/schools',
 		icon: IconSchool,
 		permissions: [{ resource: 'school-structures', action: 'read' }],
 	},
 	{
 		label: createElement(FiveDaysLabel),
+		group: 'Academic',
 		description: 'Learning Management System',
 		icon: IconDeviceDesktopAnalytics,
 		href: '/lms/courses',
@@ -308,6 +336,7 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Timetable',
+		group: 'Academic',
 		icon: IconCalendar,
 		collapsed: false,
 		children: [
@@ -339,24 +368,28 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Sponsors',
+		group: 'Finance',
 		href: '/finance/sponsors',
 		icon: IconBuildingBank,
 		permissions: [{ resource: 'sponsors', action: 'read' }],
 	},
 	{
 		label: 'Applicants',
+		group: 'Admissions',
 		href: '/admissions/applicants',
 		icon: IconUsers,
 		permissions: [{ resource: 'applicants', action: 'read' }],
 	},
 	{
 		label: 'Applications',
+		group: 'Admissions',
 		href: '/admissions/applications',
 		icon: IconClipboardList,
 		permissions: [{ resource: 'applications', action: 'read' }],
 	},
 	{
 		label: 'Admissions Payments',
+		group: 'Admissions',
 		href: '/admissions/payments',
 		icon: IconCreditCard,
 		permissions: [{ resource: 'admissions-payments', action: 'read' }],
@@ -368,6 +401,7 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Document Review',
+		group: 'Admissions',
 		href: '/admissions/documents',
 		icon: IconFileSearch,
 		permissions: [{ resource: 'admissions-documents', action: 'read' }],
@@ -379,6 +413,7 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Admissions Settings',
+		group: 'Admissions',
 		icon: IconSettings,
 		collapsed: false,
 		children: [
@@ -415,13 +450,49 @@ export const adminNav: NavItem[] = [
 		] as NavItem[],
 	},
 	{
+		label: 'Reports',
+		icon: IconReportAnalytics,
+		group: 'Admissions',
+		collapsed: false,
+		permissions: [{ resource: 'applications', action: 'read' }],
+		children: [
+			{
+				label: 'Application Summary',
+				href: '/admissions/reports/application-summary',
+				icon: IconFileAnalytics,
+			},
+			{
+				label: 'Demographics',
+				href: '/admissions/reports/demographics',
+				icon: IconUsersGroup,
+			},
+			{
+				label: 'Geographic',
+				href: '/admissions/reports/geographic',
+				icon: IconMapPin,
+			},
+			{
+				label: 'Program Demand',
+				href: '/admissions/reports/program-demand',
+				icon: IconChartBar,
+			},
+			{
+				label: 'Academic Qualifications',
+				href: '/admissions/reports/academic-qualifications',
+				icon: IconSchool,
+			},
+		],
+	},
+	{
 		label: 'Employees',
+		group: 'Human Resource',
 		href: '/human-resource/employees',
 		icon: IconUsers,
 		permissions: [{ resource: 'employees', action: 'read' }],
 	},
 	{
 		label: 'Appraisals',
+		group: 'Human Resource',
 		icon: IconClipboardData,
 		collapsed: false,
 		children: [
@@ -482,6 +553,7 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Library',
+		group: 'Library',
 		icon: IconLibrary,
 		collapsed: false,
 		permissions: [{ resource: 'library', action: 'read' }],
@@ -542,6 +614,7 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Reports',
+		group: 'Analytics',
 		icon: IconReportAnalytics,
 		collapsed: false,
 		children: [
@@ -587,6 +660,7 @@ export const adminNav: NavItem[] = [
 	},
 	{
 		label: 'Mail',
+		group: 'Mail',
 		icon: IconMail,
 		collapsed: false,
 		children: [
